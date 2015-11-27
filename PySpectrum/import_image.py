@@ -1,9 +1,10 @@
 from ui_import_image import Ui_ImportImage
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QToolBar, QDialog, QGridLayout, QDoubleSpinBox, QLabel, QDialogButtonBox
+from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import matplotlib.pyplot as plt
 from qtcommons import QtCommons
 import scipy.ndimage.interpolation
+from ui_rotate_image_dialog import Ui_RotateImageDialog
 
 
 class ImportImage(QWidget):
@@ -30,19 +31,10 @@ class ImportImage(QWidget):
     def __init_rotate_dialog__(self):
         self.degrees = 0
         self.rotate_dialog = QDialog()
-        self.rotate_dialog.windowTitle = "Rotate Image"
-        rotate_layout = QGridLayout()
-        self.rotate_dialog.setLayout(rotate_layout)
-        rotate_spinbox = QDoubleSpinBox()
-        rotate_spinbox.setRange(0, 360)
-        rotate_spinbox.setSingleStep(0.1)
-        rotate_spinbox.setDecimals(2)
-        rotate_layout.addWidget(QLabel("Enter degrees for image rotation"))
-        rotate_layout.addWidget(rotate_spinbox)
-        bb = QDialogButtonBox(QDialogButtonBox.Apply | QDialogButtonBox.Close)
-        bb.button(QDialogButtonBox.Apply).clicked.connect(lambda: self.rotate(rotate_spinbox.value()))
-        bb.button(QDialogButtonBox.Close).clicked.connect(lambda: self.rotate_dialog.accept())
-        rotate_layout.addWidget(bb)
+        ui = Ui_RotateImageDialog()
+        ui.setupUi(self.rotate_dialog)
+        ui.bb.button(QDialogButtonBox.Apply).clicked.connect(lambda: self.rotate(ui.rotate_spinbox.value()))
+        ui.bb.button(QDialogButtonBox.Close).clicked.connect(lambda: self.rotate_dialog.accept())
         
     def rotate(self, degrees):
         self.degrees = degrees
