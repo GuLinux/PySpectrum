@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from import_image import ImportImage
 from PyQt5.QtCore import QSettings
 import os
+from astropy.io import fits
 
 class PySpectrumMainWindow(QMainWindow):
     def __init__(self):
@@ -13,8 +14,17 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui.actionOpen_Image.triggered.connect(self.open_image)
         
     def open_image(self):
-        file = QFileDialog.getOpenFileName(self, "Open FITS Image", self.settings.value("last_open_image_dir", type=str), "FITS Images (*.fit *.fits)")[0]
+        file = QFileDialog.getOpenFileName(self, "Open FITS Image", self.settings.value("open_image_last_dir", type=str), "FITS Images (*.fit *.fits)")[0]
         if not file:
             return
-        file = os.path.realpath(file)
-        self.settings.setValue("last_open_image_dir", os.path.dirname(file))
+        fits_file = self.open_fits(file, "open_image")
+        self.import_image = ImportImage(fits_file)
+        self.ui.stackedWidget.addWidget(self.import_image)
+        self.ui.stackedWidget.setCurrentWidget(self.import_image)
+
+
+    def open_fits(self, filename, type):
+        file = os.path.realpath(filename)
+        self.settings.setValue(type + "_last_dir", os.path.dirname(file))
+        self.settings.setValue(type + "_last_file", file)
+        return fits.open(file)
