@@ -45,20 +45,16 @@ class CalibrateSpectrum(QWidget):
         save_action.triggered.connect(self.save)
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_x_axis.setEnabled(not checked))
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
+        self.translate_y = lambda y: y
         self.translate_x = lambda x: x
         hdu_calibration_points = [h for h in self.fits_file if h.name == 'CALIBRATION_DATA']
         if len(hdu_calibration_points) > 0:
             for point in hdu_calibration_points[-1].data:
                 self.add_calibration_point_data(point[0], point[1])
-            
-        #TODO: load calibration points from HDU:
-        #[h for h in f if h.name == 'CALIBRATION_DATA'][-1]
         
     def picked_from_range(self, type, min, max):
-        print("selected: {}-{}".format(min,max))
-        min=(self.translate_x(min))
-        max=(self.translate_x(max))
-        print("translated: {}-{}".format(min,max))
+        min=(self.translate_y(min))
+        max=(self.translate_y(max))
         point = {
             'minimum': self.fits_spectrum.data()[min:max+1].argmin() + min,
             'maximum': self.fits_spectrum.data()[min:max+1].argmax() + min,
@@ -66,7 +62,8 @@ class CalibrateSpectrum(QWidget):
             }[type]
         self.ui.point_x_axis.setValue(point)
         self.pick_selector = None
-        self.spectrum_plot.add_line("x_axis_pick", point, color='r')
+        self.ui.point_wavelength.setValue(self.translate_x(point))
+        self.spectrum_plot.add_line("x_axis_pick", self.translate_x(point), color='r')
 
     def pick_from_range(self, type):
         self.pick_selector = SpanSelector(self.spectrum_plot.axes, lambda min,max: self.picked_from_range(type, min, max), button=[1,3], direction='horizontal')
@@ -75,7 +72,7 @@ class CalibrateSpectrum(QWidget):
         self.calibration_model.removeRow(self.ui.calibration_points.selectionModel().selectedIndexes()[0].row())
     
     def add_calibration_point_data(self, x_value, wavelength):
-        x_axis_item = QStandardItem("star" if x_value == 0 else "{}".format(self.ui.point_x_axis.value()))
+        x_axis_item = QStandardItem("star" if x_value == 0 else "{}".format(x_value))
         x_axis_item.setData(x_value)
         wavelength_item = QStandardItem("{:.2f}".format(wavelength))
         wavelength_item.setData(wavelength)
@@ -91,12 +88,16 @@ class CalibrateSpectrum(QWidget):
 
     def calculate_calibration(self):
         if self.calibration_model.rowCount() < 2:
+            self.translate_y = lambda y: y
+            self.translate_x = lambda x: x
+            self.fits_spectrum.calibrate(1, 0)
+            self.fits_spectrum.plot_to(self.spectrum_plot.axes)
             return
         points = sorted(self.calibration_points(), key=lambda point: point['x'])
         m, q = np.polyfit([i['x'] for i in points], [i['wavelength'] for i in points], 1)
-        f_x = lambda x: m*x+q
-        self.translate_x = lambda x: (x+q)/m # TODO: improve
-        for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-f_x(p['x']))) for p in points]:
+        self.translate_x = lambda x: m*x+q
+        self.translate_y = lambda x: (x-q)/m
+        for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-self.translate_x(p['x']))) for p in points]:
             self.calibration_model.item(row, 2).setText(value)
         self.fits_spectrum.calibrate(m, q)
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
@@ -113,6 +114,6 @@ class CalibrateSpectrum(QWidget):
         cols = fits.ColDefs([pixels, wavelengths])
         tbhdu = fits.BinTableHDU.from_columns(cols)
         tbhdu.name = 'CALIBRATION_DATA'
-        #self.fits_file.remove('calibration_data')
+        #self.fits_file.remove('calibration_data') #TODO: remove, or keep for history?
         self.fits_file.append(tbhdu)
         self.fits_file.writeto(filename, clobber=True)
