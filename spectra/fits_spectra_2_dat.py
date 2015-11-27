@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import scipy.ndimage.interpolation
+from matplotlib.widgets import Button
 
 
 
@@ -24,7 +25,12 @@ for hdu in image_hdu:
 img_data = image_hdu[0].data
 print("Type: {}, size: {}, ndim: {}, dtype: {}, shape: {}".format(type(img_data),img_data.size, img_data.ndim, img_data.dtype, img_data.shape) )
 
-rotated = scipy.ndimage.interpolation.rotate(img_data, 20)
+degrees = 0
+#rotated = scipy.ndimage.interpolation.rotate(img_data, 20)
+#toolbar = plt.NavigationToolbar()
 
-plt.imshow(rotated, cmap='gray')
+plot = plt.imshow(img_data, cmap='gray')
+brot_ax = plt.axes([0, 0.95, 0.1, 0.05])
+brotate = Button(brot_ax, "Rotate")
+brotate.on_clicked(lambda pos:print("foo %d" % pos.button))
 plt.show()
