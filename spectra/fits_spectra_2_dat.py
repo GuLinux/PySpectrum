@@ -6,6 +6,7 @@ import numpy as np
 
 import matplotlib.pyplot as plt
 import time
+import scipy.ndimage.interpolation
 
 
 
@@ -23,5 +24,7 @@ for hdu in image_hdu:
 img_data = image_hdu[0].data
 print("Type: {}, size: {}, ndim: {}, dtype: {}, shape: {}".format(type(img_data),img_data.size, img_data.ndim, img_data.dtype, img_data.shape) )
 
-plt.imshow(img_data, cmap='gray')
+rotated = scipy.ndimage.interpolation.rotate(img_data, 20)
+
+plt.imshow(rotated, cmap='gray')
 plt.show()
