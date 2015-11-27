@@ -74,6 +74,6 @@ class ImportImage(QWidget):
         data -= np.amin(data)
         data /= np.amax(data)
         hdu = fits.PrimaryHDU(data)
-        hdu['pyspec_rotated_by'] = self.degrees
+        hdu.header['pyspec_rotated_by'] = self.degrees
         hdu.writeto(save_file, clobber=True)
     
