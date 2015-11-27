@@ -43,6 +43,10 @@ class CalibrateSpectrum(QWidget):
         self.calibration_model.appendRow([x_axis_item, wavelength])
         
     def calculate_calibration(self):
+        if self.calibration_model.rowCount() < 2:
+            return
         points = [{'x': self.calibration_model.item(row, 0).data(), 'wavelength': self.calibration_model.item(row, 1).data()} for row in range(self.calibration_model.rowCount())]
         points = sorted(points, key=lambda point: point['x'])
+        m, q = np.polyfit([i['x'] for i in points], [i['wavelength'] for i in points], 1)
         print(points)
+        print("m: {}, q: {}".format(m, q))
