@@ -1,15 +1,19 @@
 from ui_import_image import Ui_ImportImage
-from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox
+from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog
+from PyQt5.QtGui import QIcon
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import matplotlib.pyplot as plt
 from qtcommons import QtCommons
 import scipy.ndimage.interpolation
 from ui_rotate_image_dialog import Ui_RotateImageDialog
-
+import os
+import numpy as np
+from astropy.io import fits
 
 class ImportImage(QWidget):
-    def __init__(self, fits_file):
+    def __init__(self, fits_file, config):
         super(ImportImage, self).__init__()
+        self.config = config
         self.fits_file = fits_file
         self.data=fits_file[0].data.astype(float)
         self.rotated = self.data
@@ -23,8 +27,10 @@ class ImportImage(QWidget):
         
         self.image_view = image_plot.axes_image
         
-        self.toolbar = QToolBar()
-        self.toolbar.addAction("Rotate", lambda: self.rotate_dialog.show())
+        self.toolbar = QToolBar('Image Toolbar')
+        self.toolbar.addAction(QIcon.fromTheme('transform-rotate'), "Rotate", lambda: self.rotate_dialog.show())
+        self.toolbar.addAction(QIcon.fromTheme('document-save'), "Save", lambda: self.save())
+        self.max_spatial_delta = self.max_spatial_delta_angle = 0
         self.rotate(0)
         self.__init_rotate_dialog__()
         
@@ -42,14 +48,8 @@ class ImportImage(QWidget):
         self.image_view.figure.canvas.draw()
         spatial = self.calc_data(1)
         delta = spatial.max() - spatial.min()
-        try:
-            self.max_spatial_delta = max(delta, self.max_spatial_delta)
-        except AttributeError:
-            self.max_spatial_delta = delta
-        try:
-            self.max_spatial_delta_angle = degrees if self.max_spatial_delta == delta else self.max_spatial_delta_angle
-        except AttributeError:
-            self.max_spatial_delta_angle = degrees
+        self.max_spatial_delta = max(delta, self.max_spatial_delta)
+        self.max_spatial_delta_angle = degrees if self.max_spatial_delta == delta else self.max_spatial_delta_angle
         
         self.ui.delta_label.setText("Delta: {:.2f}, max: {:.2f} at {:.2f} deg".format(delta, self.max_spatial_delta, self.max_spatial_delta_angle))
         self.draw_plot(self.spectrum_plot.axes, 0)
@@ -63,4 +63,17 @@ class ImportImage(QWidget):
         
     def calc_data(self, direction):
         return (self.rotated - 0).sum(direction)
+    
+    #TODO: Move?
+    def save(self):
+        save_file = QFileDialog.getSaveFileName(None, "Save plot...", self.config.value('last_plot_save_dir'), "FITS file (.fit)")[0]
+        if not save_file:
+            return
+        self.config.setValue('last_plot_save_dir', os.path.dirname(os.path.realpath(save_file)))
+        data = self.calc_data(0)
+        data -= np.amin(data)
+        data /= np.amax(data)
+        hdu = fits.PrimaryHDU(data)
+        hdu['pyspec_rotated_by'] = self.degrees
+        hdu.writeto(save_file, clobber=True)
     

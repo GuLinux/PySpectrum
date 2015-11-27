@@ -26,7 +26,7 @@ class PySpectrumMainWindow(QMainWindow):
         if not file:
             return
         fits_file = self.open_fits(file, "open_image")
-        self.import_image = ImportImage(fits_file)
+        self.import_image = ImportImage(fits_file, self.settings)
         self.ui.stackedWidget.addWidget(self.import_image)
         self.ui.stackedWidget.setCurrentWidget(self.import_image)
 
