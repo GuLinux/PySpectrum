@@ -13,33 +13,34 @@ from PyQt5.QtWidgets import *
 
 class DisplayImage:
   def __init__(self, image):
-    self.original = image
-    self.rotated = image
-    self.plot = plt.imshow(self.original, cmap='gray')
-    plt.figure()
-    self.subplot = plt.axes()
-    plt.figure(self.plot.figure.number)
-    self.brot_ax = plt.axes([0, 0.95, 0.1, 0.05])
-    self.brotate = Button(self.brot_ax, "Rotate")
+    self.original = image.astype(float)
+    self.rotated = self.original
+    self.image_view = plt.imshow(self.original, cmap='gray')
+    brot_ax = self.image_view.figure.add_axes([0, 0.95, 0.1, 0.05])
+    self.brotate = Button(brot_ax, "Rotate")
     self.brotate.on_clicked(self.rotate)
+    
+    plt.figure()
+    self.image_plot = plt.axes()
     self.degrees = (0, True)
     self.draw_plot()
     plt.show()
     
   def draw_plot(self):
     sums = self.rotated.sum(0)
-    self.subplot.clear()
-    self.subplot.plot(sums)
-    self.subplot.figure.canvas.draw()
+    self.image_plot.clear()
+    self.image_plot.plot(sums)
+    self.image_plot.figure.canvas.draw()
     
   def rotate(self, evt):
-    self.degrees = QInputDialog.getDouble(None, "Rotate", "Enter degrees for image rotation", self.degrees[0])
+    self.degrees = QInputDialog.getDouble(None, "Rotate", "Enter degrees for image rotation", self.degrees[0], 0, 360, 2)
     if not self.degrees[1]:
       return
     self.rotated = scipy.ndimage.interpolation.rotate(self.original, self.degrees[0])
-    self.plot.set_data(self.rotated)
-    self.plot.figure.canvas.draw()
+    self.image_view.set_data(self.rotated)
+    self.image_view.figure.canvas.draw()
     self.draw_plot()
+    
     
 if len(sys.argv) < 2:
   print >> sys.stderr, "Usage: " + sys.argv[0] + " image.fit"
