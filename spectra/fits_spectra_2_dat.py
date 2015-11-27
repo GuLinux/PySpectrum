@@ -101,6 +101,8 @@ class DisplayImage:
     hdu = fits.PrimaryHDU(fits_data)
     hdu.writeto(filename, clobber=True)
     
+    
+# Main
 if len(sys.argv) < 2:
   print("Usage: {} image.fit".format(sys.argv[0]), file=sys.stderr)
   sys.exit(1)
