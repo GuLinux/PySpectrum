@@ -12,6 +12,7 @@ class ImportImage(QWidget):
         super(ImportImage, self).__init__()
         self.fits_file = fits_file
         self.data=fits_file[0].data.astype(float)
+        self.rotated = self.data
         
         self.ui = Ui_ImportImage()
         self.ui.setupUi(self)
@@ -20,16 +21,14 @@ class ImportImage(QWidget):
         self.spatial_plot = QtCommons.nestWidget(self.ui.spatial_plot_widget, QMathPlotWidget())
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
         
-        self.image_view = image_plot.axes_image # .axes.imshow(self.data, cmap='gray')
-        self.spatial_plot.axes.plot(self.data.sum(1))
-        self.spectrum_plot.axes.plot(self.data.sum(0))
+        self.image_view = image_plot.axes_image
         
         self.toolbar = QToolBar()
         self.toolbar.addAction("Rotate", lambda: self.rotate_dialog.show())
+        self.rotate(0)
         self.__init_rotate_dialog__()
         
     def __init_rotate_dialog__(self):
-        self.degrees = 0
         self.rotate_dialog = QDialog()
         ui = Ui_RotateImageDialog()
         ui.setupUi(self.rotate_dialog)
@@ -41,6 +40,9 @@ class ImportImage(QWidget):
         self.rotated = scipy.ndimage.interpolation.rotate(self.data, self.degrees)
         self.image_view.set_data(self.rotated)
         self.image_view.figure.canvas.draw()
+        spatial = self.calc_data(1)
+        delta = spatial.max() - spatial.min()
+        self.ui.spatial_delta.setText("{}".format(delta))
         self.draw_plot(self.spectrum_plot.axes, 0)
         self.draw_plot(self.spatial_plot.axes, 1)
         
