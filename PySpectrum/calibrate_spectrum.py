@@ -39,7 +39,9 @@ class CalibrateSpectrum(QWidget):
         self.calibration_model.rowsInserted.connect(self.calculate_calibration)
         self.calibration_model.rowsRemoved.connect(self.calculate_calibration)
         self.ui.calibration_points.setModel(self.calibration_model)
+        self.ui.calibration_points.selectionModel().selectionChanged.connect(lambda selected, deselected: remove_action.setEnabled(len(selected.indexes()) > 0)  )
         add_action.triggered.connect(self.add_calibration_point)
+        remove_action.triggered.connect(self.remove_calibration_point)
         save_action.triggered.connect(self.save)
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_x_axis.setEnabled(not checked))
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
@@ -57,6 +59,9 @@ class CalibrateSpectrum(QWidget):
     def pick_from_range(self, type):
         self.pick_selector = SpanSelector(self.spectrum_plot.axes, lambda min,max: self.picked_from_range(type, min, max), button=[1,3], direction='horizontal')
 
+    def remove_calibration_point(self):
+        self.calibration_model.removeRow(self.ui.calibration_points.selectionModel().selectedIndexes()[0].row())
+    
     def add_calibration_point(self):
         x_axis_item = QStandardItem("star" if self.ui.point_is_star.isChecked() else "{}".format(self.ui.point_x_axis.value()))
         x_axis_item.setData(0 if self.ui.point_is_star.isChecked() else self.ui.point_x_axis.value())
