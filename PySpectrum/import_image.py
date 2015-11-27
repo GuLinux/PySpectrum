@@ -42,7 +42,16 @@ class ImportImage(QWidget):
         self.image_view.figure.canvas.draw()
         spatial = self.calc_data(1)
         delta = spatial.max() - spatial.min()
-        self.ui.spatial_delta.setText("{}".format(delta))
+        try:
+            self.max_spatial_delta = max(delta, self.max_spatial_delta)
+        except AttributeError:
+            self.max_spatial_delta = delta
+        try:
+            self.max_spatial_delta_angle = degrees if self.max_spatial_delta == delta else self.max_spatial_delta_angle
+        except AttributeError:
+            self.max_spatial_delta_angle = degrees
+        
+        self.ui.delta_label.setText("Delta: {:.2f}, max: {:.2f} at {:.2f} deg".format(delta, self.max_spatial_delta, self.max_spatial_delta_angle))
         self.draw_plot(self.spectrum_plot.axes, 0)
         self.draw_plot(self.spatial_plot.axes, 1)
         

@@ -27,13 +27,6 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>Delta</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="2" rowspan="3">
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
@@ -84,13 +77,6 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="1">
-    <widget class="QLabel" name="spatial_delta">
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0" colspan="2">
     <widget class="QWidget" name="spatial_plot_widget" native="true">
      <property name="sizePolicy">
@@ -101,6 +87,13 @@
      </property>
      <property name="toolTip">
       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rotate the image until you see a single thin vertical spike&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QLabel" name="delta_label">
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>
