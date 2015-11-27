@@ -1,6 +1,6 @@
 from ui_import_image import Ui_ImportImage
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QToolBar
-from qmathplotwidget import QMathPlotWidget
+from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import matplotlib.pyplot as plt
 from qtcommons import QtCommons
 
@@ -13,12 +13,13 @@ class ImportImage(QWidget):
         self.ui = Ui_ImportImage()
         self.ui.setupUi(self)
         
-        image_plot = QtCommons.nestWidget(self.ui.image_widget, QMathPlotWidget())
+        image_plot = QtCommons.nestWidget(self.ui.image_widget, QImPlotWidget(self.data, cmap='gray'))
         spatial_plot = QtCommons.nestWidget(self.ui.spatial_plot_widget, QMathPlotWidget())
         spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
         
-        self.image_view = image_plot.axes.imshow(self.data , cmap='gray')
+        self.image_view = image_plot.axes_image # .axes.imshow(self.data, cmap='gray')
         spatial_plot.axes.plot(self.data.sum(1))
+        spectrum_plot.axes.plot(self.data.sum(0))
         
         self.toolbar = QToolBar()
         

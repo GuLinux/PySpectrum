@@ -19,3 +19,11 @@ class QMathPlotWidget(FigureCanvas):
                                    QtWidgets.QSizePolicy.Expanding,
                                    QtWidgets.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
+
+
+class QImPlotWidget(QMathPlotWidget):
+    def __init__(self, imdata, parent=None, **kwargs):
+        QMathPlotWidget.__init__(self, parent)
+        self.axes_image = self.axes.imshow(imdata, **kwargs)
+        self.axes.get_xaxis().set_visible(False)
+        self.axes.get_yaxis().set_visible(False)
