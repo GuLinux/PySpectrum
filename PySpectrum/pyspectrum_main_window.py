@@ -1,6 +1,7 @@
 from ui_pyspectrum_main_window import Ui_PySpectrumMainWindow
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from import_image import ImportImage
+from calibrate_spectrum import CalibrateSpectrum
 from PyQt5.QtCore import QSettings
 import os
 from astropy.io import fits
@@ -12,6 +13,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.settings = QSettings("GuLinux", "PySpectrum")
         self.ui.actionOpen_Image.triggered.connect(self.open_image)
+        self.ui.actionCalibrate_FITS.triggered.connect(self.calibrate)
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
         
@@ -29,6 +31,20 @@ class PySpectrumMainWindow(QMainWindow):
         self.import_image = ImportImage(fits_file, self.settings)
         self.ui.stackedWidget.addWidget(self.import_image)
         self.ui.stackedWidget.setCurrentWidget(self.import_image)
+    
+    def calibrate(self):
+        self.calibrate_widget = self.open_dialog("Open raw FITS spectrum", "open_spectrum", lambda fits_file: CalibrateSpectrum(fits_file, self.settings))
+        
+    def open_dialog(self, title, settings_prefix, create_widget):
+        file = QFileDialog.getOpenFileName(self, title, self.settings.value("{}_last_dir".format(settings_prefix), type=str), "FITS Images (*.fit *.fits)")[0]
+        if not file:
+            return
+        fits_file = self.open_fits(file, settings_prefix)
+        widget = create_widget(fits_file)
+        self.ui.stackedWidget.addWidget(widget)
+        self.ui.stackedWidget.setCurrentWidget(widget)
+        return widget
+        
 
 
     def open_fits(self, filename, type):
