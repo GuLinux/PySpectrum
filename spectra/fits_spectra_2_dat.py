@@ -88,11 +88,11 @@ class DisplayImage:
     self.draw_plot()
     
   def save(self, ev):
-    save_file = QFileDialog.getSaveFileName(None, "Save plot...", self.config.value('last_save_dir'), "FITS file (.fit)")
+    save_file = QFileDialog.getSaveFileName(None, "Save plot...", self.config.value('last_plot_save_dir'), "FITS file (.fit)")
     if not save_file[0]:
       return
     filename = save_file[0]
-    self.config.setValue('last_save_dir', os.path.dirname(os.path.realpath(filename)))
+    self.config.setValue('last_plot_save_dir', os.path.dirname(os.path.realpath(filename)))
     data = self.calc_data()
     data -= np.amin(data)
     data /= np.amax(data)
