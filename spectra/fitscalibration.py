@@ -28,8 +28,8 @@ class Calibrate:
 
         self.calibrate_dialog_ui.first_point_lambda.setRange(0, 50000)
         self.calibrate_dialog_ui.second_point_lambda.setRange(0, 50000)
-        self.calibrate_dialog_ui.first_point_pixel.setRange(0, self.data()[0].size)
-        self.calibrate_dialog_ui.second_point_pixel.setRange(0, self.data()[0].size)
+        self.calibrate_dialog_ui.first_point_pixel.setRange(0, self.data().size)
+        self.calibrate_dialog_ui.second_point_pixel.setRange(0, self.data().size)
 
         self.calibrate_dialog.accepted.connect(self.calibrated)
         plt.show()
@@ -59,7 +59,7 @@ class Calibrate:
 
     def draw_plot(self):
         self.image_plot.clear()
-        self.image_plot.plot(self.data()[0])
+        self.image_plot.plot(self.data())
         self.image_plot.figure.canvas.draw()
 
     def save(self):

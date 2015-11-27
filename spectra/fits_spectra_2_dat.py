@@ -96,9 +96,7 @@ class DisplayImage:
     data = self.calc_data()
     data -= np.amin(data)
     data /= np.amax(data)
-    fits_data = np.ndarray((1, data.size))
-    fits_data[0] = data
-    hdu = fits.PrimaryHDU(fits_data)
+    hdu = fits.PrimaryHDU(data)
     hdu.writeto(filename, clobber=True)
     
     
