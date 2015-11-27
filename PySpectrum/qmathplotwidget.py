@@ -2,6 +2,7 @@ from matplotlib.backends import qt_compat
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
+from matplotlib.widgets import SpanSelector
 
 from PyQt5 import QtWidgets, QtCore
 class QMathPlotWidgetBase(FigureCanvas):
@@ -15,6 +16,33 @@ class QMathPlotWidgetBase(FigureCanvas):
 
         FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
+        self.elements = {}
+        
+    def rm_element(self, name, redraw = True):
+        element = self.elements.pop(name, None)
+        if element != None:
+            try:
+                element.remove()
+                del element
+            except ValueError: #TODO: bug in matplotlib maybe?
+                pass
+            except AttributeError:
+                pass
+        if redraw:
+            self.figure.canvas.draw()
+
+    def add_line(self, name, point, type='v', **kwargs):
+        self.rm_element(name, redraw=False)
+        self.elements[name] = self.axes.axvline(point, **kwargs) if type == 'v' else self.axes.axhline(point, **kwargs)
+        self.figure.canvas.draw()
+
+    def add_span(self, name, min, max, type='v', **kwargs):
+        self.rm_element(name, redraw=False)
+        self.elements[name] = self.axes.axvspan(min,max, **kwargs) if type == 'v' else self.axes.axhspan(min, max, **kwargs)
+        self.figure.canvas.draw()
+
+    def add_span_selector(self, name, callback, **kwargs):
+        self.elements[name] = SpanSelector(self.axes, callback, **kwargs)
 
 class QMathPlotWidget(QMathPlotWidgetBase):
     def __init__(self, **kwargs):

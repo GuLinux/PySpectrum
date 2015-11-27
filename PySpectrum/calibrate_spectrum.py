@@ -52,12 +52,7 @@ class CalibrateSpectrum(QWidget):
             }[type]
         self.ui.point_x_axis.setValue(point)
         self.pick_selector = None
-        try:
-            self.pick_point_line.remove()
-        except AttributeError:
-            pass
-        self.pick_point_line = self.spectrum_plot.axes.axvline(point, color='r')
-        self.spectrum_plot.figure.canvas.draw()
+        self.spectrum_plot.add_line("x_axis_pick", point, color='r')
 
     def pick_from_range(self, type):
         self.pick_selector = SpanSelector(self.spectrum_plot.axes, lambda min,max: self.picked_from_range(type, min, max), button=[1,3], direction='horizontal')
@@ -68,6 +63,7 @@ class CalibrateSpectrum(QWidget):
         wavelength = QStandardItem("{:.2f}".format(self.ui.point_wavelength.value()))
         wavelength.setData(self.ui.point_wavelength.value())
         self.calibration_model.appendRow([x_axis_item, wavelength, QStandardItem("n/a")])
+        self.spectrum_plot.rm_element('x_axis_pick')
         
     def calculate_calibration(self):
         if self.calibration_model.rowCount() < 2:

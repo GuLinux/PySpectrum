@@ -22,34 +22,26 @@ class ImportImage(QWidget):
         self.ui = Ui_ImportImage()
         self.ui.setupUi(self)
         
-        image_plot = QtCommons.nestWidget(self.ui.image_widget, QImPlotWidget(self.data, cmap='gray'))
+        self.image_plot = QtCommons.nestWidget(self.ui.image_widget, QImPlotWidget(self.data, cmap='gray'))
         self.spatial_plot = QtCommons.nestWidget(self.ui.spatial_plot_widget, QMathPlotWidget())
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
         
-        self.image_view = image_plot.axes_image
+        self.image_view = self.image_plot.axes_image
         
         self.toolbar = QToolBar('Image Toolbar')
         self.toolbar.addAction(QIcon.fromTheme('transform-rotate'), "Rotate", lambda: self.rotate_dialog.show())
         self.toolbar.addAction(QIcon.fromTheme('document-save'), "Save", lambda: self.save())
-        self.toolbar.addAction(QIcon.fromTheme('edit-select'), "Select spectrum data", self.spectrum_span_select)
+        self.toolbar.addAction(QIcon.fromTheme('edit-select'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal', button=[1,3]))
         self.max_spatial_delta = self.max_spatial_delta_angle = 0
         self.rotate(0)
         self.__init_rotate_dialog__()
         
-    def spectrum_span_select(self):
-        self.select_spectrum_span = SpanSelector(self.spatial_plot.axes, self.spectrum_span_selected, button=[1,3], direction='horizontal')
         
     def spectrum_span_selected(self, min, max):
-        print("min={}, max={}".format(min,max))
-        try:
-            self.spectrum_span_selection[2].remove()
-            self.spectrum_span_selection[3].remove()
-        except AttributeError:
-            pass
-        self.spectrum_span_selection = (min, max, self.spatial_plot.axes.axvspan(min, max, facecolor='g', alpha=0.5), self.image_view.axes.axhspan(self.rotated.shape[0]-min, self.rotated.shape[0]-max, facecolor='y', alpha=0.5, clip_on=True))
-        self.spatial_plot.figure.canvas.draw()
-        self.image_view.figure.canvas.draw()
-        self.select_spectrum_span = None
+        self.spectrum_span_selection = (min, max)
+        self.spatial_plot.add_span('spectrum_window', min, max, 'v', facecolor='g', alpha=0.5)
+        self.image_plot.add_span('spectrum_window', min, max, 'h', facecolor='y', alpha=0.5, clip_on=True)
+        self.spatial_plot.rm_element('select_spectrum')
         self.draw_plot(self.spectrum_plot.axes, self.spectrum_profile())
         
     def __init_rotate_dialog__(self):
