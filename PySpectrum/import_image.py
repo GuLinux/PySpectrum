@@ -32,9 +32,17 @@ class ImportImage(QWidget):
         self.toolbar.addAction(QIcon.fromTheme('transform-rotate'), "Rotate", lambda: self.rotate_dialog.show())
         self.toolbar.addAction(QIcon.fromTheme('document-save'), "Save", lambda: self.save())
         self.toolbar.addAction(QIcon.fromTheme('edit-select'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal', button=[1,3]))
+        self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', button=[1,3], rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
         self.max_spatial_delta = self.max_spatial_delta_angle = 0
         self.rotate(0)
         self.__init_rotate_dialog__()
+        
+    def background_span_selected(self, min, max):
+        self.background_span_selection = (min, max)
+        self.spatial_plot.add_span('background_window', min, max, 'v', facecolor='gray', alpha=0.5)
+        self.image_plot.add_span('background_window', min, max, 'h', facecolor='red', alpha=0.5, clip_on=True)
+        self.spatial_plot.rm_element('select_background')
+        self.draw_plot(self.spectrum_plot.axes, self.spectrum_profile())
         
         
     def spectrum_span_selected(self, min, max):
