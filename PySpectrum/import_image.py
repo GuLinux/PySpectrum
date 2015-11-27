@@ -46,7 +46,7 @@ class ImportImage(QWidget):
             self.spectrum_span_selection[3].remove()
         except AttributeError:
             pass
-        self.spectrum_span_selection = (min, max, self.spatial_plot.axes.axvspan(min, max, facecolor='g', alpha=0.5), self.image_view.axes.axhspan(self.rotated.shape[0]-min, self.rotated.shape[0]-max, facecolor='y', alpha=0.5))
+        self.spectrum_span_selection = (min, max, self.spatial_plot.axes.axvspan(min, max, facecolor='g', alpha=0.5), self.image_view.axes.axhspan(self.rotated.shape[0]-min, self.rotated.shape[0]-max, facecolor='y', alpha=0.5, clip_on=True))
         self.spatial_plot.figure.canvas.draw()
         self.image_view.figure.canvas.draw()
         self.select_spectrum_span = None

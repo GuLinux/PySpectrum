@@ -19,6 +19,15 @@ class QMathPlotWidget(FigureCanvas):
 
 class QImPlotWidget(QMathPlotWidget):
     def __init__(self, imdata, parent=None, **kwargs):
-        QMathPlotWidget.__init__(self, parent)
+        fig = Figure()
+        fig.frameon = False
+        self.axes = fig.add_axes((0,0, 1,1))
+        self.axes.hold(False)
+
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+
+        FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
         self.axes_image = self.axes.imshow(imdata, **kwargs)
         self.axes.set_axis_off()
