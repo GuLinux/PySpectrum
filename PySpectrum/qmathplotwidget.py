@@ -4,10 +4,10 @@ from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
 from PyQt5 import QtWidgets, QtCore
-class QMathPlotWidget(FigureCanvas):
+class QMathPlotWidgetBase(FigureCanvas):
     def __init__(self, parent=None):
         fig = Figure()
-        self.axes = fig.add_subplot(111)
+        self.axes = self.__init_axes__(fig)
         self.axes.hold(False)
 
         FigureCanvas.__init__(self, fig)
@@ -16,18 +16,19 @@ class QMathPlotWidget(FigureCanvas):
         FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
+class QMathPlotWidget(QMathPlotWidgetBase):
+    def __init__(self, **kwargs):
+        QMathPlotWidgetBase.__init__(self, **kwargs)
 
-class QImPlotWidget(QMathPlotWidget):
+    def __init_axes__(self, figure):
+        return figure.add_subplot(111)
+
+class QImPlotWidget(QMathPlotWidgetBase):
     def __init__(self, imdata, parent=None, **kwargs):
-        fig = Figure()
-        fig.frameon = False
-        self.axes = fig.add_axes((0,0, 1,1))
-        self.axes.hold(False)
-
-        FigureCanvas.__init__(self, fig)
-        self.setParent(parent)
-
-        FigureCanvas.setSizePolicy(self, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        FigureCanvas.updateGeometry(self)
+        QMathPlotWidgetBase.__init__(self, parent)
         self.axes_image = self.axes.imshow(imdata, **kwargs)
         self.axes.set_axis_off()
+        self.figure.frameon = False
+
+    def __init_axes__(self, figure):
+        return figure.add_axes((0,0, 1,1))

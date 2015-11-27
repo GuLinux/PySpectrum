@@ -27,7 +27,7 @@ class CalibrateSpectrum(QWidget):
         self.ui.x_axis_pick.menu().addAction("Maximum from range").triggered.connect(lambda: self.pick_from_range('maximum'))
         self.ui.x_axis_pick.menu().addAction("Minimum from range").triggered.connect(lambda: self.pick_from_range('minimum'))
         self.ui.x_axis_pick.menu().addAction("Central value from range").triggered.connect(lambda: self.pick_from_range('central'))
-        self.ui.x_axis_pick.menu().addAction("Point")
+        #self.ui.x_axis_pick.menu().addAction("Point")
         add_action = self.toolbar.addAction(QIcon.fromTheme('list-add'), 'Add calibration point')
         remove_action = self.toolbar.addAction(QIcon.fromTheme('list-remove'), 'Remove calibration point')
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save')
