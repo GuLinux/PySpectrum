@@ -20,8 +20,8 @@ class DisplayImage:
     self.bselect_background = Button(self.image_view.figure.add_axes([0.1, 0.95, 0.25, 0.05]), "Select Background")
     self.brotate.on_clicked(self.rotate)
     self.bselect_background.on_clicked(self.select_bg)
-    
-    self.RS = RectangleSelector(self.image_view, self.,
+    print(dir(self.image_view))
+    self.RS = RectangleSelector(self.image_view.figure.subplot(), self.bg_selected,
                                        drawtype='box', useblit=True,
                                        button=[1, 3],  # don't use middle button
                                        minspanx=5, minspany=5,
