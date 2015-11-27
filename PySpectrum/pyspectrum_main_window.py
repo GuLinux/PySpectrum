@@ -12,6 +12,14 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.settings = QSettings("GuLinux", "PySpectrum")
         self.ui.actionOpen_Image.triggered.connect(self.open_image)
+        self.ui.stackedWidget.currentChanged.connect(self.current_changed)
+        self.current_widget_toolbar = None
+        
+    def current_changed(self, index):
+        if self.current_widget_toolbar:
+            self.removeToolBar(self.current_widget_toolbar)
+        self.current_widget_toolbar = self.ui.stackedWidget.currentWidget().toolbar
+        self.addToolBar(self.current_widget_toolbar)
         
     def open_image(self):
         file = QFileDialog.getOpenFileName(self, "Open FITS Image", self.settings.value("open_image_last_dir", type=str), "FITS Images (*.fit *.fits)")[0]

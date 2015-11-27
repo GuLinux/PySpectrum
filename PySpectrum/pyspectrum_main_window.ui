@@ -45,7 +45,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOpen_Image">
    <property name="text">
-    <string>Open Image</string>
+    <string>&amp;Open Image</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
@@ -53,7 +53,7 @@
   </action>
   <action name="actionCalibrate_FITS">
    <property name="text">
-    <string>Calibrate FITS</string>
+    <string>&amp;Calibrate FITS</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -64,7 +64,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Save...</string>
+    <string>&amp;Save...</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>

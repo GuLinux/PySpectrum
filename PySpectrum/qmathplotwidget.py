@@ -27,5 +27,3 @@ class QImPlotWidget(QMathPlotWidget):
         QMathPlotWidget.__init__(self, parent)
         self.axes_image = self.axes.imshow(imdata, **kwargs)
         self.axes.set_axis_off()
-        #self.axes.get_xaxis().set_visible(False)
-        #self.axes.get_yaxis().set_visible(False)

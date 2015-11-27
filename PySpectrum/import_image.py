@@ -22,6 +22,4 @@ class ImportImage(QWidget):
         spectrum_plot.axes.plot(self.data.sum(0))
         
         self.toolbar = QToolBar()
-        
-        self.ui.toolbar_container.setLayout(QVBoxLayout())
-        self.ui.toolbar_container.layout().addWidget(self.toolbar)
+        self.toolbar.addAction("Rotate")
