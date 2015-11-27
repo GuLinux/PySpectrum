@@ -43,11 +43,14 @@ class ImportImage(QWidget):
         print("min={}, max={}".format(min,max))
         try:
             self.spectrum_span_selection[2].remove()
+            self.spectrum_span_selection[3].remove()
         except AttributeError:
             pass
-        self.spectrum_span_selection = (min, max, self.spatial_plot.axes.axvspan(min, max, facecolor='0.5', alpha=0.5))
+        self.spectrum_span_selection = (min, max, self.spatial_plot.axes.axvspan(min, max, facecolor='g', alpha=0.5), self.image_view.axes.axhspan(self.rotated.shape[0]-min, self.rotated.shape[0]-max, facecolor='y', alpha=0.5))
         self.spatial_plot.figure.canvas.draw()
+        self.image_view.figure.canvas.draw()
         self.select_spectrum_span = None
+        self.draw_plot(self.spectrum_plot.axes, self.spectrum_profile())
         
     def __init_rotate_dialog__(self):
         self.rotate_dialog = QDialog()
@@ -61,31 +64,34 @@ class ImportImage(QWidget):
         self.rotated = scipy.ndimage.interpolation.rotate(self.data, self.degrees, mode='nearest')
         self.image_view.set_data(self.rotated)
         self.image_view.figure.canvas.draw()
-        spatial = self.calc_data(1)
+        spatial = self.spatial_profile()
         delta = spatial.max() - spatial.min()
         self.max_spatial_delta = max(delta, self.max_spatial_delta)
         self.max_spatial_delta_angle = degrees if self.max_spatial_delta == delta else self.max_spatial_delta_angle
         
         self.ui.delta_label.setText("Delta: {:.2f}, max: {:.2f} at {:.2f} deg".format(delta, self.max_spatial_delta, self.max_spatial_delta_angle))
-        self.draw_plot(self.spectrum_plot.axes, 0)
-        self.draw_plot(self.spatial_plot.axes, 1)
+        self.draw_plot(self.spectrum_plot.axes, self.spectrum_profile())
+        self.draw_plot(self.spatial_plot.axes, self.spatial_profile())
         
         
-    def draw_plot(self, axes, direction):
+    def draw_plot(self, axes, data):
         axes.clear()
-        axes.plot(self.calc_data(direction))
+        axes.plot(data)
         axes.figure.canvas.draw()
         
-    def calc_data(self, direction):
-        return (self.rotated - 0).sum(direction)
+    def spatial_profile(self):
+        return self.rotated.sum(1)
     
+    def spectrum_profile(self):
+        return self.rotated[self.spectrum_span_selection[0]:self.spectrum_span_selection[1]+1,:].sum(0) if hasattr(self, 'spectrum_span_selection') else self.rotated.sum(0)
+        
     #TODO: Move?
     def save(self):
         save_file = QFileDialog.getSaveFileName(None, "Save plot...", self.config.value('last_plot_save_dir'), "FITS file (.fit)")[0]
         if not save_file:
             return
         self.config.setValue('last_plot_save_dir', os.path.dirname(os.path.realpath(save_file)))
-        data = self.calc_data(0)
+        data = self.spectrum_profile()
         data -= np.amin(data)
         data /= np.amax(data)
         hdu = fits.PrimaryHDU(data)
