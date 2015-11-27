@@ -38,7 +38,7 @@ class DisplayImage:
       return
     self.rotated = scipy.ndimage.interpolation.rotate(self.original, self.degrees[0])
     self.plot.set_data(self.rotated)
-    plt.draw()
+    self.plot.figure.canvas.draw()
     self.draw_plot()
     
 if len(sys.argv) < 2:
