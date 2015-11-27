@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import scipy.ndimage.interpolation
-from matplotlib.widgets import Button
+from matplotlib.widgets import *
 
 from PyQt5.QtWidgets import *
 
@@ -16,9 +16,10 @@ class DisplayImage:
     self.original = image.astype(float)
     self.rotated = self.original
     self.image_view = plt.imshow(self.original, cmap='gray')
-    brot_ax = self.image_view.figure.add_axes([0, 0.95, 0.1, 0.05])
-    self.brotate = Button(brot_ax, "Rotate")
+    self.brotate = Button(self.image_view.figure.add_axes([0, 0.95, 0.1, 0.05]), "Rotate")
+    self.bselect_background = Button(self.image_view.figure.add_axes([0.1, 0.95, 0.25, 0.05]), "Select Background")
     self.brotate.on_clicked(self.rotate)
+    self.bselect_background.on_clicked(self.rotate)
     
     plt.figure()
     self.image_plot = plt.axes()
