@@ -1,5 +1,5 @@
 from ui_calibrate_spectrum import Ui_CalibrateSpectrum
-from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog
+from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtCore import Qt
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
@@ -10,16 +10,24 @@ from ui_rotate_image_dialog import Ui_RotateImageDialog
 import os
 import numpy as np
 from astropy.io import fits
+from fits_spectrum import FitsSpectrum
+from matplotlib.widgets import SpanSelector
 
 class CalibrateSpectrum(QWidget):
     def __init__(self, fits_file, config):
         super(CalibrateSpectrum, self).__init__()
         self.config = config
+        self.fits_spectrum = FitsSpectrum(fits_file)
         self.fits_file = fits_file
         self.ui = Ui_CalibrateSpectrum()
         self.ui.setupUi(self)
         self.toolbar = QToolBar('Calibration Toolbar')
         self.toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.ui.x_axis_pick.setMenu(QMenu())
+        self.ui.x_axis_pick.menu().addAction("Maximum from range").triggered.connect(lambda: self.pick_from_range('maximum'))
+        self.ui.x_axis_pick.menu().addAction("Minimum from range").triggered.connect(lambda: self.pick_from_range('minimum'))
+        self.ui.x_axis_pick.menu().addAction("Central value from range").triggered.connect(lambda: self.pick_from_range('central'))
+        self.ui.x_axis_pick.menu().addAction("Point")
         add_action = self.toolbar.addAction(QIcon.fromTheme('list-add'), 'Add calibration point')
         remove_action = self.toolbar.addAction(QIcon.fromTheme('list-remove'), 'Remove calibration point')
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save')
@@ -34,12 +42,26 @@ class CalibrateSpectrum(QWidget):
         add_action.triggered.connect(self.add_calibration_point)
         save_action.triggered.connect(self.save)
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_x_axis.setEnabled(not checked))
+        self.fits_spectrum.plot_to(self.spectrum_plot.axes)
         
-        self.spectrum_plot.axes.plot(self.data())
-    
-    def data(self):
-        return self.fits_file[0].data
-        
+    def picked_from_range(self, type, min, max):
+        point = {
+            'minimum': self.fits_spectrum.data()[min:max+1].argmin() + min,
+            'maximum': self.fits_spectrum.data()[min:max+1].argmax() + min,
+            'central': min+(max-min)/2
+            }[type]
+        self.ui.point_x_axis.setValue(point)
+        self.pick_selector = None
+        try:
+            self.pick_point_line.remove()
+        except AttributeError:
+            pass
+        self.pick_point_line = self.spectrum_plot.axes.axvline(point, color='r')
+        self.spectrum_plot.figure.canvas.draw()
+
+    def pick_from_range(self, type):
+        self.pick_selector = SpanSelector(self.spectrum_plot.axes, lambda min,max: self.picked_from_range(type, min, max), button=[1,3], direction='horizontal')
+
     def add_calibration_point(self):
         x_axis_item = QStandardItem("star" if self.ui.point_is_star.isChecked() else "{}".format(self.ui.point_x_axis.value()))
         x_axis_item.setData(0 if self.ui.point_is_star.isChecked() else self.ui.point_x_axis.value())
@@ -56,13 +78,9 @@ class CalibrateSpectrum(QWidget):
         f_x = lambda x: m*x+q
         for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-f_x(p['x']))) for p in points]:
             self.calibration_model.item(row, 2).setText(value)
-        header = self.fits_file[0].header
-        header['CRPIX1'] = 1
-        header['CRVAL1'] = q
-        header['CDELT1'] = m
-        x_axis = np.arange(0, self.data().size) * m + q
-        self.spectrum_plot.axes.plot(x_axis, self.data())
-        self.spectrum_plot.axes.figure.canvas.draw()
+        self.fits_spectrum.calibrate(m, q)
+        self.fits_spectrum.plot_to(self.spectrum_plot.axes)
+        
         
     def save(self):
         save_file = QFileDialog.getSaveFileName(None, "Save plot...", self.config.value('last_save_plot_dir'), "FITS file (.fit)")[0]

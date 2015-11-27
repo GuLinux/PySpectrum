@@ -66,6 +66,12 @@
           </item>
           <item row="1" column="0">
            <widget class="QSpinBox" name="point_x_axis">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="maximum">
              <number>99999999</number>
             </property>
@@ -78,8 +84,24 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="1" column="1">
+           <widget class="QPushButton" name="x_axis_pick">
+            <property name="text">
+             <string>Pick</string>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
            <widget class="QDoubleSpinBox" name="point_wavelength">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="minimum">
              <double>0.000000000000000</double>
             </property>
@@ -88,7 +110,7 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="4" column="0" colspan="2">
            <widget class="QCheckBox" name="point_is_star">
             <property name="text">
              <string>Zero (star)</string>
