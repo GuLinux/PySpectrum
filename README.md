@@ -21,4 +21,9 @@ On ubuntu you might install all required dependencies with the following command
     cd PySpectrum
     ./PySpectrum
     
+### Author ###
     
+[Marco Gulino](http://gulinux.net) <marco@gulinux.net> 
+
+Licensed under GPLv3 (see COPYING file)
+
