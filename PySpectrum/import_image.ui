@@ -6,38 +6,73 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>326</width>
-    <height>277</height>
+    <width>589</width>
+    <height>462</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Import Image</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3">
-   <item row="0" column="1">
-    <widget class="QDockWidget" name="dockWidget">
-     <widget class="QWidget" name="dockWidgetContents">
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="0" column="0">
-        <widget class="QWidget" name="spatial_plot_widget" native="true"/>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
+  <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="1">
-    <widget class="QDockWidget" name="dockWidget_2">
-     <widget class="QWidget" name="dockWidgetContents_2">
-      <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QWidget" name="spectrum_plot_widget" native="true"/>
-       </item>
-      </layout>
-     </widget>
+    <widget class="QWidget" name="spectrum_plot_widget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
     </widget>
    </item>
-   <item row="0" column="0" rowspan="2">
-    <widget class="QWidget" name="image_widget" native="true"/>
+   <item row="3" column="1">
+    <widget class="QWidget" name="image_widget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Spatial Plot</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="label_2">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Spectrum</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" rowspan="3">
+    <widget class="QWidget" name="spatial_plot_widget" native="true">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rotate the image until you see a single thin vertical spike&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="label_3">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Image</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
