@@ -18,9 +18,8 @@ print(image_hdu.info())
 for hdu in image_hdu:
   print(repr(hdu.header))
 
-print type(image_hdu[0].data)
+img_data = image_hdu[0].data
+print type(img_data)
 
-img = cv.CreateMat(image_hdu[0].header['NAXIS2'], image_hdu[0].header['NAXIS1'], cv2.CV_8UC1)
-print img.size()
-cv2.imshow('image', np.asarray(img))
+cv2.imshow('image', img_data)
 cv2.waitKey(0)
