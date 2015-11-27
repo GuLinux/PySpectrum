@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileD
 from PyQt5.QtGui import QIcon
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import matplotlib.pyplot as plt
+from matplotlib.widgets import SpanSelector
 from qtcommons import QtCommons
 import scipy.ndimage.interpolation
 from ui_rotate_image_dialog import Ui_RotateImageDialog
@@ -30,9 +31,23 @@ class ImportImage(QWidget):
         self.toolbar = QToolBar('Image Toolbar')
         self.toolbar.addAction(QIcon.fromTheme('transform-rotate'), "Rotate", lambda: self.rotate_dialog.show())
         self.toolbar.addAction(QIcon.fromTheme('document-save'), "Save", lambda: self.save())
+        self.toolbar.addAction(QIcon.fromTheme('edit-select'), "Select spectrum data", self.spectrum_span_select)
         self.max_spatial_delta = self.max_spatial_delta_angle = 0
         self.rotate(0)
         self.__init_rotate_dialog__()
+        
+    def spectrum_span_select(self):
+        self.select_spectrum_span = SpanSelector(self.spatial_plot.axes, self.spectrum_span_selected, button=[1,3], direction='horizontal')
+        
+    def spectrum_span_selected(self, min, max):
+        print("min={}, max={}".format(min,max))
+        try:
+            self.spectrum_span_selection[2].remove()
+        except AttributeError:
+            pass
+        self.spectrum_span_selection = (min, max, self.spatial_plot.axes.axvspan(min, max, facecolor='0.5', alpha=0.5))
+        self.spatial_plot.figure.canvas.draw()
+        self.select_spectrum_span = None
         
     def __init_rotate_dialog__(self):
         self.rotate_dialog = QDialog()
