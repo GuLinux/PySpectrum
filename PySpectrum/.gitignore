@@ -1,3 +1,4 @@
 *.fit
 __pycache__/
+ui_*.py
 
