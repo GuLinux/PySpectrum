@@ -42,7 +42,7 @@ class DisplayImage:
     self.draw_plot()
     
 if len(sys.argv) < 2:
-  print >> sys.stderr, "Usage: " + sys.argv[0] + " image.fit"
+  print("Usage: {} image.fit".format(sys.argv[0]), file=sys.stderr)
   sys.exit(1)
 
 image_file = sys.argv[1]
