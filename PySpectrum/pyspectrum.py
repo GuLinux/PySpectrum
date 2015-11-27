@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 import sys
 from PyQt5.QtWidgets import *
 from pyspectrum_main_window import PySpectrumMainWindow
