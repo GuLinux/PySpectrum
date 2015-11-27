@@ -33,7 +33,10 @@ class CalibrateSpectrum(QWidget):
         add_action.triggered.connect(self.add_calibration_point)
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_x_axis.setEnabled(not checked))
         
-        self.spectrum_plot.axes.plot(fits_file[0].data)
+        self.spectrum_plot.axes.plot(self.data())
+    
+    def data(self):
+        return self.fits_file[0].data
         
     def add_calibration_point(self):
         x_axis_item = QStandardItem("star" if self.ui.point_is_star.isChecked() else "{}".format(self.ui.point_x_axis.value()))
@@ -48,5 +51,7 @@ class CalibrateSpectrum(QWidget):
         points = [{'x': self.calibration_model.item(row, 0).data(), 'wavelength': self.calibration_model.item(row, 1).data()} for row in range(self.calibration_model.rowCount())]
         points = sorted(points, key=lambda point: point['x'])
         m, q = np.polyfit([i['x'] for i in points], [i['wavelength'] for i in points], 1)
-        print(points)
-        print("m: {}, q: {}".format(m, q))
+        #f_x = lambda x: m*x+q
+        x_axis = np.arange(0, self.data().size) * m + q
+        self.spectrum_plot.axes.plot(x_axis, self.data())
+        self.spectrum_plot.axes.figure.canvas.draw()
