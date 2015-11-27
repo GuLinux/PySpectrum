@@ -15,6 +15,8 @@ from calibrate_dialog import *
 
 class Calibrate:
     def __init__(self, fits_file):
+        self.starting_wavelength = fits_file[0].header['CRVAL1'] if 'CRVAL1' in fits_file[0].header else 0
+        self.dispersion = fits_file[0].header['CDELT1'] if 'CDELT1' in fits_file[0].header else 1
         self.config = QSettings('GuLinux', 'PySpectra')
         self.fits_file = fits_file
         self.__init_plot__()
@@ -25,6 +27,7 @@ class Calibrate:
         self.calibrate_dialog = QDialog()
         self.calibrate_dialog_ui = Ui_Calibrate()
         self.calibrate_dialog_ui.setupUi(self.calibrate_dialog)
+        
 
         self.calibrate_dialog_ui.first_point_lambda.setRange(0, 50000)
         self.calibrate_dialog_ui.second_point_lambda.setRange(0, 50000)
@@ -40,13 +43,14 @@ class Calibrate:
 
     def calibrated(self):
         self.calibrating = False
-        dispersion = (self.calibrate_dialog_ui.second_point_lambda.value() - self.calibrate_dialog_ui.first_point_lambda.value()) / (self.calibrate_dialog_ui.second_point_pixel.value() - self.calibrate_dialog_ui.first_point_pixel.value())
-        starting_wavelength = self.calibrate_dialog_ui.first_point_lambda.value() - (self.calibrate_dialog_ui.first_point_pixel.value() * dispersion)
+        self.dispersion = (self.calibrate_dialog_ui.second_point_lambda.value() - self.calibrate_dialog_ui.first_point_lambda.value()) / (self.calibrate_dialog_ui.second_point_pixel.value() - self.calibrate_dialog_ui.first_point_pixel.value())
+        self.starting_wavelength = self.calibrate_dialog_ui.first_point_lambda.value() - (self.calibrate_dialog_ui.first_point_pixel.value() * self.dispersion)
         header = self.fits_file[0].header
         header['CRPIX1'] = 1
-        header['CRVAL1'] = starting_wavelength
-        header['CDELT1'] = dispersion
-        print("calibrate: starting_wavelength={}, dispersion={}".format(starting_wavelength, dispersion))
+        header['CRVAL1'] = self.starting_wavelength
+        header['CDELT1'] = self.dispersion
+        self.draw_plot()
+        print("calibrate: starting_wavelength={}, dispersion={}".format(self.starting_wavelength, self.dispersion))
 
     def data(self):
         return self.fits_file[0].data
@@ -59,7 +63,8 @@ class Calibrate:
 
     def draw_plot(self):
         self.image_plot.clear()
-        self.image_plot.plot(self.data())
+        x_axis = np.arange(0, self.data().size) * self.dispersion + self.starting_wavelength
+        self.image_plot.plot(x_axis, self.data())
         self.image_plot.figure.canvas.draw()
 
     def save(self):
