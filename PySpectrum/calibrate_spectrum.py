@@ -27,7 +27,7 @@ class CalibrateSpectrum(QWidget):
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
         
         self.calibration_model = QStandardItemModel()
-        self.calibration_model.setHorizontalHeaderLabels(["x-axis", "wavelength"])
+        self.calibration_model.setHorizontalHeaderLabels(["x-axis", "wavelength", "error"])
         self.calibration_model.rowsInserted.connect(self.calculate_calibration)
         self.calibration_model.rowsRemoved.connect(self.calculate_calibration)
         self.ui.calibration_points.setModel(self.calibration_model)
@@ -45,15 +45,17 @@ class CalibrateSpectrum(QWidget):
         x_axis_item.setData(0 if self.ui.point_is_star.isChecked() else self.ui.point_x_axis.value())
         wavelength = QStandardItem("{:.2f}".format(self.ui.point_wavelength.value()))
         wavelength.setData(self.ui.point_wavelength.value())
-        self.calibration_model.appendRow([x_axis_item, wavelength])
+        self.calibration_model.appendRow([x_axis_item, wavelength, QStandardItem("n/a")])
         
     def calculate_calibration(self):
         if self.calibration_model.rowCount() < 2:
             return
-        points = [{'x': self.calibration_model.item(row, 0).data(), 'wavelength': self.calibration_model.item(row, 1).data()} for row in range(self.calibration_model.rowCount())]
+        points = [{'row': row, 'x': self.calibration_model.item(row, 0).data(), 'wavelength': self.calibration_model.item(row, 1).data()} for row in range(self.calibration_model.rowCount())]
         points = sorted(points, key=lambda point: point['x'])
         m, q = np.polyfit([i['x'] for i in points], [i['wavelength'] for i in points], 1)
-        #f_x = lambda x: m*x+q
+        f_x = lambda x: m*x+q
+        for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-f_x(p['x']))) for p in points]:
+            self.calibration_model.item(row, 2).setText(value)
         header = self.fits_file[0].header
         header['CRPIX1'] = 1
         header['CRVAL1'] = q
