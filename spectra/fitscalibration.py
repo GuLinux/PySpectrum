@@ -69,6 +69,8 @@ class Calibrate:
         filename = save_file[0]
         self.fits_file.writeto(filename, clobber=True)
 
+# TODO: plotting calibrated spectrum; colormap as following:
+#       plt.cm.nipy_spectral(1.0)
 
 # Main
 if len(sys.argv) < 2:
