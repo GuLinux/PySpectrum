@@ -147,13 +147,4 @@ class CalibrateSpectrum(QWidget):
         save_file = QFileDialog.getSaveFileName(None, "Save plot...", self.config.value('last_save_plot_dir'), "FITS file (.fit)")[0]
         if not save_file:
             return
-        filename = save_file
-        points = self.calibration_points()
-        pixels = fits.Column(name='x_axis', format='K', array=[point['x'] for point in points])
-        wavelengths = fits.Column(name='wavelength', format='D', array=[point['wavelength'] for point in points])
-        cols = fits.ColDefs([pixels, wavelengths])
-        tbhdu = fits.BinTableHDU.from_columns(cols)
-        tbhdu.name = 'CALIBRATION_DATA'
-        #self.fits_file.remove('calibration_data') #TODO: remove, or keep for history?
-        self.fits_file.append(tbhdu)
-        self.fits_file.writeto(filename, clobber=True)
+        self.fits_spectrum.save(save_file, self.calibration_points())

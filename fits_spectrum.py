@@ -39,10 +39,17 @@ class FitsSpectrum:
         axes.plot(self.x_axis(), self.data())
         axes.figure.canvas.draw()
             
-    def save(self, filename):
+    def save(self, filename, calibration_points = []):
         header = self.fits_file[0].header
         header['CRPIX1'] = 1
         header['CRVAL1'] = self.x_start
         header['CDELT1'] = self.dispersion
-        
-        
+        if len(calibration_points) > 0:
+            pixels = fits.Column(name='x_axis', format='K', array=[point['x'] for point in calibration_points])
+            wavelengths = fits.Column(name='wavelength', format='D', array=[point['wavelength'] for point in calibration_points])
+            cols = fits.ColDefs([pixels, wavelengths])
+            tbhdu = fits.BinTableHDU.from_columns(cols)
+            tbhdu.name = 'CALIBRATION_DATA'
+            #self.fits_file.remove('calibration_data') #TODO: remove, or keep for history?
+            self.fits_file.append(tbhdu)
+        self.fits_file.writeto(filename, clobber=True)
