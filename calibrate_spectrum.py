@@ -1,5 +1,5 @@
 from ui_calibrate_spectrum import Ui_CalibrateSpectrum
-from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction
+from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction, QInputDialog
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtCore import Qt
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
@@ -30,6 +30,7 @@ class CalibrateSpectrum(QWidget):
         self.ui.x_axis_pick.menu().addAction("Maximum from range").triggered.connect(lambda: self.pick_from_range('maximum'))
         self.ui.x_axis_pick.menu().addAction("Minimum from range").triggered.connect(lambda: self.pick_from_range('minimum'))
         self.ui.x_axis_pick.menu().addAction("Central value from range").triggered.connect(lambda: self.pick_from_range('central'))
+        self.ui.wavelength_pick.clicked.connect(self.pick_wavelength)
         #self.ui.x_axis_pick.menu().addAction("Point")
         self.miles_dialog = MilesDialog()
         self.miles_dialog.fits_picked.connect(self.open_reference)
@@ -55,8 +56,7 @@ class CalibrateSpectrum(QWidget):
         save_action.triggered.connect(self.save)
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_wavelength.setEnabled(not checked))
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
-        self.translate_y = lambda y: y
-        self.translate_x = lambda x: x
+
         hdu_calibration_points = [h for h in self.fits_file if h.name == 'CALIBRATION_DATA']
         if len(hdu_calibration_points) > 0:
             for point in hdu_calibration_points[-1].data:
@@ -72,8 +72,8 @@ class CalibrateSpectrum(QWidget):
         self.spectrum_plot.figure.canvas.draw()
         
     def picked_from_range(self, type, min, max):
-        min=(self.translate_y(min))
-        max=(self.translate_y(max))
+        min=(self.fits_spectrum.x_uncalibrated(min))
+        max=(self.fits_spectrum.x_uncalibrated(max))
         point = {
             'minimum': self.fits_spectrum.data()[min:max+1].argmin() + min,
             'maximum': self.fits_spectrum.data()[min:max+1].argmax() + min,
@@ -81,8 +81,8 @@ class CalibrateSpectrum(QWidget):
             }[type]
         self.ui.point_x_axis.setValue(point)
         self.spectrum_plot.rm_element('pick_x_axis')
-        self.ui.point_wavelength.setValue(self.translate_x(point))
-        self.spectrum_plot.add_line("x_axis_pick", self.translate_x(point), color='r')
+        self.ui.point_wavelength.setValue(self.fits_spectrum.x_calibrated(point))
+        self.spectrum_plot.add_line("x_axis_pick", self.fits_spectrum.x_calibrated(point), color='r')
 
     def pick_from_range(self, type):
         self.spectrum_plot.add_span_selector('pick_x_axis', lambda min,max: self.picked_from_range(type, min, max),direction='horizontal')
@@ -98,6 +98,22 @@ class CalibrateSpectrum(QWidget):
         self.calibration_model.appendRow([x_axis_item, wavelength_item, QStandardItem("n/a")])
         self.spectrum_plot.rm_element('x_axis_pick')
         
+    def pick_wavelength(self):
+        # TODO: add a full database of spectral lines
+        wavelengths = [
+            ('Balmer H-α', 6563),
+            ('Balmer H-β', 4861),
+            ('Balmer H-γ', 4341),
+            ('Balmer H-δ', 4102),
+            ('Balmer H-ε', 3970),
+            ('Balmer H-ζ', 3889),
+            ('Balmer H-η', 3835),
+            ]
+        wavelength_choice = QInputDialog.getItem(None, 'Choose wavelength', 'Pick a wavelength from the list below: ', [wavelength[0] for wavelength in wavelengths], 0, False)
+        if not wavelength_choice[1]:
+            return
+        wavelength = [wavelength[1] for wavelength in wavelengths if wavelength[0] == wavelength_choice[0]][0]
+        self.ui.point_wavelength.setValue(wavelength)
     
     def add_calibration_point(self):
         self.add_calibration_point_data(self.ui.point_x_axis.value(), 0 if self.ui.point_is_star.isChecked() else self.ui.point_wavelength.value())
@@ -106,20 +122,17 @@ class CalibrateSpectrum(QWidget):
         return [{'row': row, 'x': self.calibration_model.item(row, 0).data(), 'wavelength': self.calibration_model.item(row, 1).data()} for row in range(self.calibration_model.rowCount())]
 
     def calculate_calibration(self):
-        if self.calibration_model.rowCount() < 2:
-            self.translate_y = lambda y: y
-            self.translate_x = lambda x: x
-            self.fits_spectrum.calibrate(1, 0)
+        if self.calibration_model.rowCount() == 0:
+            self.fits_spectrum.reset()
             self.fits_spectrum.plot_to(self.spectrum_plot.axes)
+            self.ui.dispersion.setValue(self.fits_spectrum.dispersion)
             return
         points = sorted(self.calibration_points(), key=lambda point: point['x'])
-        m, q = np.polyfit([i['x'] for i in points], [i['wavelength'] for i in points], 1)
-        self.translate_x = lambda x: m*x+q
-        self.translate_y = lambda x: (x-q)/m
-        self.ui.dispersion.setValue(m)
-        for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-self.translate_x(p['x']))) for p in points]:
+        self.fits_spectrum.calibrate(points)
+        self.ui.dispersion.setValue(self.fits_spectrum.dispersion)
+        for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-self.fits_spectrum.x_calibrated(p['x']))) for p in points]:
             self.calibration_model.item(row, 2).setText(value)
-        self.fits_spectrum.calibrate(m, q)
+            
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
         
         
