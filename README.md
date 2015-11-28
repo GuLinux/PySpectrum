@@ -34,6 +34,5 @@ Licensed under GPLv3 (see COPYING file)
 
 
 ### Acknowledgments ###
-
-Sample spectra:
-* [The MILES Library](http://miles.iac.es/pages/stellar-libraries/the-catalogue.php)
+* Sample spectra:
+  * [The MILES Library](http://miles.iac.es/pages/stellar-libraries/the-catalogue.php)
