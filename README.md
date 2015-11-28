@@ -15,9 +15,21 @@ On ubuntu you might install all required dependencies with the following command
 
     sudo apt-get install -y python3-pyqt5 python3-astropy python3-matplotlib python3-scipy
     
+### Download ###
+
+You can get PySpectrum by simply cloning its main git repository:
+
+    git clone https://gulinux@bitbucket.org/gulinux/pyspectrum.git
+    
+Alternatively, you can download a snapshot of the repository:
+
+    wget https://bitbucket.org/gulinux/pyspectrum/get/master.tar.gz
+    tar xzf master.tar.gz
+
     
 ### Launching ###
-Just launch the pyspectrum.py script in a shell:
+
+Just launch the pyspectrum.py script in a shell from the main sources directory:
 
     ./pyspectrum.py
 
@@ -34,5 +46,6 @@ Licensed under GPLv3 (see COPYING file)
 
 
 ### Acknowledgments ###
+
 * Sample spectra:
     + [The MILES Library](http://miles.iac.es/pages/stellar-libraries/the-catalogue.php)
