@@ -62,6 +62,9 @@ class ImportImage(QWidget):
         self.degrees = degrees
         self.rotated = scipy.ndimage.interpolation.rotate(self.data, self.degrees, mode='nearest')
         self.image_view.set_data(self.rotated)
+        self.image_view.axes.relim() 
+        self.image_view.axes.autoscale_view() 
+        self.image_view.set_extent([self.rotated.shape[1],0, self.rotated.shape[0],0])
         self.image_view.figure.canvas.draw()
         spatial = self.spatial_profile()
         delta = spatial.max() - spatial.min()
