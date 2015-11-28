@@ -60,7 +60,7 @@ class ImportImage(QWidget):
         
     def rotate(self, degrees):
         self.degrees = degrees
-        self.rotated = scipy.ndimage.interpolation.rotate(self.data, self.degrees, mode='nearest')
+        self.rotated = scipy.ndimage.interpolation.rotate(self.data, self.degrees)
         self.image_view.set_data(self.rotated)
         self.image_view.axes.relim() 
         self.image_view.axes.autoscale_view() 

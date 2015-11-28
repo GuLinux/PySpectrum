@@ -128,8 +128,8 @@ class CalibrateSpectrum(QWidget):
 
     def calculate_calibration(self):
         points_number = self.calibration_model.rowCount()
-        self.ui.set_dispersion.setEnabled(points_number > 1)
-        self.ui.dispersion.setEnabled(points_number > 1)
+        self.ui.set_dispersion.setEnabled(points_number <= 1)
+        self.ui.dispersion.setEnabled(points_number <= 1)
         
         if points_number == 0:
             self.fits_spectrum.reset()

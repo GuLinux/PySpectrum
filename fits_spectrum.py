@@ -7,7 +7,15 @@ class FitsSpectrum:
         self.fits_file = fits_file
         self.reset()
 
-    def calibrate(self, points, dispersion = -1):
+    def calibrate(self, points):
+        if len(points) == 0:
+            self.reset()
+            return
+        
+        if len(points) == 1:
+            self.x_start = points[0]['wavelength'] -(self.dispersion*points[0]['x'])
+            return
+            
         self.dispersion, self.x_start = np.polyfit([i['x'] for i in points], [i['wavelength'] for i in points], 1)
         
     def reset(self):
