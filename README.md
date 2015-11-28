@@ -21,7 +21,7 @@ You can get PySpectrum by simply cloning its main git repository:
 
     git clone https://gulinux@bitbucket.org/gulinux/pyspectrum.git
     
-Alternatively, you can download a snapshot of the repository:
+Alternatively, you can download a [snapshot of the repository](https://bitbucket.org/gulinux/pyspectrum/get/master.tar.gz):
 
     wget https://bitbucket.org/gulinux/pyspectrum/get/master.tar.gz
     tar xzf master.tar.gz
