@@ -53,15 +53,16 @@ class CalibrateSpectrum(QWidget):
         self.ui.add_calibration_point.clicked.connect(self.add_calibration_point)
         self.ui.remove_calibration_point.setEnabled(False)
         self.ui.remove_calibration_point.clicked.connect(self.remove_calibration_point)
+        self.ui.set_dispersion.clicked.connect(self.calibrate_with_dispersion)
         save_action.triggered.connect(self.save)
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_wavelength.setEnabled(not checked))
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
 
         hdu_calibration_points = [h for h in self.fits_file if h.name == 'CALIBRATION_DATA']
-        if len(hdu_calibration_points) > 0:
+        if len(hdu_calibration_points) > 0:                
             for point in hdu_calibration_points[-1].data:
                 self.add_calibration_point_data(point[0], point[1])
-                
+        self.calculate_calibration()
     
     def open_reference(self, file):
         fits_spectrum = FitsSpectrum(fits.open(file))
@@ -120,19 +121,25 @@ class CalibrateSpectrum(QWidget):
 
     def calibration_points(self):
         return [{'row': row, 'x': self.calibration_model.item(row, 0).data(), 'wavelength': self.calibration_model.item(row, 1).data()} for row in range(self.calibration_model.rowCount())]
+    
+    def calibrate_with_dispersion(self):
+        self.fits_spectrum.dispersion = self.ui.dispersion.value()
+        self.calculate_calibration()
 
     def calculate_calibration(self):
-        if self.calibration_model.rowCount() == 0:
+        points_number = self.calibration_model.rowCount()
+        self.ui.set_dispersion.setEnabled(points_number > 1)
+        self.ui.dispersion.setEnabled(points_number > 1)
+        
+        if points_number == 0:
             self.fits_spectrum.reset()
-            self.fits_spectrum.plot_to(self.spectrum_plot.axes)
-            self.ui.dispersion.setValue(self.fits_spectrum.dispersion)
-            return
-        points = sorted(self.calibration_points(), key=lambda point: point['x'])
-        self.fits_spectrum.calibrate(points)
-        self.ui.dispersion.setValue(self.fits_spectrum.dispersion)
-        for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-self.fits_spectrum.x_calibrated(p['x']))) for p in points]:
-            self.calibration_model.item(row, 2).setText(value)
+        else:
+            points = sorted(self.calibration_points(), key=lambda point: point['x'])
+            self.fits_spectrum.calibrate(points)
+            for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-self.fits_spectrum.x_calibrated(p['x']))) for p in points]:
+                self.calibration_model.item(row, 2).setText(value)
             
+        self.ui.dispersion.setValue(self.fits_spectrum.dispersion)
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
         
         
