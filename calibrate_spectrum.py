@@ -12,6 +12,7 @@ import numpy as np
 from astropy.io import fits
 from fits_spectrum import FitsSpectrum
 from matplotlib.widgets import SpanSelector
+from matplotlib.lines import Line2D
 
 class CalibrateSpectrum(QWidget):
     def __init__(self, fits_file, config):
@@ -31,6 +32,8 @@ class CalibrateSpectrum(QWidget):
         add_action = self.toolbar.addAction(QIcon.fromTheme('list-add'), 'Add calibration point')
         remove_action = self.toolbar.addAction(QIcon.fromTheme('list-remove'), 'Remove calibration point')
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save')
+        reference_action = self.toolbar.addAction('Reference')
+        reference_action.setEnabled(false)
         remove_action.setEnabled(False)
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
         
@@ -43,6 +46,7 @@ class CalibrateSpectrum(QWidget):
         add_action.triggered.connect(self.add_calibration_point)
         remove_action.triggered.connect(self.remove_calibration_point)
         save_action.triggered.connect(self.save)
+        reference_action.triggered.connect(lambda: QtCommons.open_file('Open Reference Profile', "FITS Images (*.fit *.fits)", self.open_reference))
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_x_axis.setEnabled(not checked))
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
         self.translate_y = lambda y: y
@@ -51,6 +55,13 @@ class CalibrateSpectrum(QWidget):
         if len(hdu_calibration_points) > 0:
             for point in hdu_calibration_points[-1].data:
                 self.add_calibration_point_data(point[0], point[1])
+                
+    
+    def open_reference(self, file):
+        fits_spectrum = FitsSpectrum(fits.open(file[0]))
+        line = Line2D(fits_spectrum.x_axis(), fits_spectrum.data())
+        self.spectrum_plot.axes.add_line(line)
+        self.spectrum_plot.figure.canvas.draw()
         
     def picked_from_range(self, type, min, max):
         min=(self.translate_y(min))

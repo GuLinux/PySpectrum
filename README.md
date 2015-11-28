@@ -17,9 +17,14 @@ On ubuntu you might install all required dependencies with the following command
     
     
 ### Launching ###
+Just launch the pyspectrum.py script in a shell:
 
-    cd PySpectrum
-    ./PySpectrum
+    ./pyspectrum.py
+
+Or use your python3 binary:
+
+   /usr/bin/python3.5 pyspectrum.py
+
     
 ### Author ###
     
