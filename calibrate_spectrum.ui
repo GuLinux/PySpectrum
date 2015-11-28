@@ -47,7 +47,7 @@
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
          <attribute name="horizontalHeaderStretchLastSection">
-          <bool>false</bool>
+          <bool>true</bool>
          </attribute>
         </widget>
        </item>
@@ -63,6 +63,16 @@
           <string>New Calibration Point</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="3">
+           <widget class="QPushButton" name="x_axis_pick">
+            <property name="text">
+             <string>Pick</string>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
@@ -70,7 +80,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="0" column="1" colspan="2">
            <widget class="QSpinBox" name="point_x_axis">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -83,24 +93,41 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="2" column="2">
+           <widget class="QPushButton" name="add_calibration_point">
+            <property name="text">
+             <string>Add calibration point</string>
+            </property>
+            <property name="icon">
+             <iconset theme="list-add"/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
              <string>Wavelength (Å)</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QPushButton" name="x_axis_pick">
+          <item row="2" column="3">
+           <widget class="QPushButton" name="remove_calibration_point">
             <property name="text">
-             <string>Pick</string>
+             <string>Remove selected point</string>
             </property>
-            <property name="flat">
-             <bool>false</bool>
+            <property name="icon">
+             <iconset theme="list-remove"/>
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item row="1" column="3">
+           <widget class="QCheckBox" name="point_is_star">
+            <property name="text">
+             <string>Zero (star)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
            <widget class="QDoubleSpinBox" name="point_wavelength">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -116,12 +143,22 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QCheckBox" name="point_is_star">
+          <item row="3" column="3">
+           <widget class="QPushButton" name="set_dispersion">
             <property name="text">
-             <string>Zero (star)</string>
+             <string>Set dispersion</string>
             </property>
            </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Dispersion (Å/pix)</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2">
+           <widget class="QDoubleSpinBox" name="dispersion"/>
           </item>
          </layout>
         </widget>

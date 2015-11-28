@@ -19,7 +19,6 @@ class FitsSpectrum:
         return np.arange(0, self.data().size) * m + q
     
     def data(self):
-        print(self.fits_file[0].data.shape)
         return self.fits_file[0].data[0] if self.fits_file[0].header.get('NAXIS2', 0) == 1 else self.fits_file[0].data
     
     def plot_to(self, axes):

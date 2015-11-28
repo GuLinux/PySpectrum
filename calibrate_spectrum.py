@@ -13,6 +13,8 @@ from astropy.io import fits
 from fits_spectrum import FitsSpectrum
 from matplotlib.widgets import SpanSelector
 from matplotlib.lines import Line2D
+from miles import Miles
+from miles_dialog import MilesDialog
 
 class CalibrateSpectrum(QWidget):
     def __init__(self, fits_file, config):
@@ -29,12 +31,16 @@ class CalibrateSpectrum(QWidget):
         self.ui.x_axis_pick.menu().addAction("Minimum from range").triggered.connect(lambda: self.pick_from_range('minimum'))
         self.ui.x_axis_pick.menu().addAction("Central value from range").triggered.connect(lambda: self.pick_from_range('central'))
         #self.ui.x_axis_pick.menu().addAction("Point")
-        add_action = self.toolbar.addAction(QIcon.fromTheme('list-add'), 'Add calibration point')
-        remove_action = self.toolbar.addAction(QIcon.fromTheme('list-remove'), 'Remove calibration point')
+        self.miles_dialog = MilesDialog()
+        self.miles_dialog.fits_picked.connect(self.open_reference)
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save')
         reference_action = self.toolbar.addAction('Reference')
-        reference_action.setEnabled(false)
-        remove_action.setEnabled(False)
+        reference_action.setMenu(QMenu())
+        reference_from_file = reference_action.menu().addAction("Load from FITS file")
+        reference_miles = reference_action.menu().addAction("MILES library")
+        reference_miles.triggered.connect(lambda: self.miles_dialog.show())
+        reference_from_file.triggered.connect(lambda: QtCommons.open_file('Open Reference Profile', "FITS Images (*.fit *.fits)", lambda f: self.open_reference(f[0])))
+        #reference_action.setEnabled(false)
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
         
         self.calibration_model = QStandardItemModel()
@@ -42,12 +48,12 @@ class CalibrateSpectrum(QWidget):
         self.calibration_model.rowsInserted.connect(self.calculate_calibration)
         self.calibration_model.rowsRemoved.connect(self.calculate_calibration)
         self.ui.calibration_points.setModel(self.calibration_model)
-        self.ui.calibration_points.selectionModel().selectionChanged.connect(lambda selected, deselected: remove_action.setEnabled(len(selected.indexes()) > 0)  )
-        add_action.triggered.connect(self.add_calibration_point)
-        remove_action.triggered.connect(self.remove_calibration_point)
+        self.ui.calibration_points.selectionModel().selectionChanged.connect(lambda selected, deselected: self.ui.remove_calibration_point.setEnabled(len(selected.indexes()) > 0)  )
+        self.ui.add_calibration_point.clicked.connect(self.add_calibration_point)
+        self.ui.remove_calibration_point.setEnabled(False)
+        self.ui.remove_calibration_point.clicked.connect(self.remove_calibration_point)
         save_action.triggered.connect(self.save)
-        reference_action.triggered.connect(lambda: QtCommons.open_file('Open Reference Profile', "FITS Images (*.fit *.fits)", self.open_reference))
-        self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_x_axis.setEnabled(not checked))
+        self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_wavelength.setEnabled(not checked))
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
         self.translate_y = lambda y: y
         self.translate_x = lambda x: x
@@ -58,8 +64,10 @@ class CalibrateSpectrum(QWidget):
                 
     
     def open_reference(self, file):
-        fits_spectrum = FitsSpectrum(fits.open(file[0]))
-        line = Line2D(fits_spectrum.x_axis(), fits_spectrum.data())
+        fits_spectrum = FitsSpectrum(fits.open(file))
+        data = fits_spectrum.data()
+        data /= data.max()
+        line = Line2D(fits_spectrum.x_axis(), data, color='gray')
         self.spectrum_plot.axes.add_line(line)
         self.spectrum_plot.figure.canvas.draw()
         
@@ -92,7 +100,7 @@ class CalibrateSpectrum(QWidget):
         
     
     def add_calibration_point(self):
-        self.add_calibration_point_data(0 if self.ui.point_is_star.isChecked() else self.ui.point_x_axis.value(), self.ui.point_wavelength.value())
+        self.add_calibration_point_data(self.ui.point_x_axis.value(), 0 if self.ui.point_is_star.isChecked() else self.ui.point_wavelength.value())
 
     def calibration_points(self):
         return [{'row': row, 'x': self.calibration_model.item(row, 0).data(), 'wavelength': self.calibration_model.item(row, 1).data()} for row in range(self.calibration_model.rowCount())]
@@ -108,6 +116,7 @@ class CalibrateSpectrum(QWidget):
         m, q = np.polyfit([i['x'] for i in points], [i['wavelength'] for i in points], 1)
         self.translate_x = lambda x: m*x+q
         self.translate_y = lambda x: (x-q)/m
+        self.ui.dispersion.setValue(m)
         for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-self.translate_x(p['x']))) for p in points]:
             self.calibration_model.item(row, 2).setText(value)
         self.fits_spectrum.calibrate(m, q)
