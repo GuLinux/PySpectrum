@@ -1,5 +1,5 @@
 from ui_import_image import Ui_ImportImage
-from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog
+from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox
 from PyQt5.QtGui import QIcon
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import matplotlib.pyplot as plt
@@ -29,7 +29,7 @@ class ImportImage(QWidget):
         
         self.toolbar = QToolBar('Image Toolbar')
         self.toolbar.addAction(QIcon.fromTheme('transform-rotate'), "Rotate", lambda: self.rotate_dialog.show())
-        self.toolbar.addAction(QIcon.fromTheme('document-save'), "Save", lambda: self.save())
+        self.toolbar.addAction(QIcon.fromTheme('document-save'), "Save", lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.config.value('last_plot_save_dir')))
         self.toolbar.addAction(QIcon.fromTheme('edit-select'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
         self.max_spatial_delta = self.max_spatial_delta_angle = 0
@@ -84,16 +84,12 @@ class ImportImage(QWidget):
     def spectrum_profile(self):
         return self.rotated[self.spectrum_span_selection[0]:self.spectrum_span_selection[1]+1,:].sum(0) if hasattr(self, 'spectrum_span_selection') else self.rotated.sum(0)
         
-    #TODO: Move?
-    def save(self):
-        save_file = QFileDialog.getSaveFileName(None, "Save plot...", self.config.value('last_plot_save_dir'), "FITS file (.fit)")[0]
-        if not save_file:
-            return
-        self.config.setValue('last_plot_save_dir', os.path.dirname(os.path.realpath(save_file)))
+    def save(self, save_file):
+        self.config.setValue('last_plot_save_dir', os.path.dirname(os.path.realpath(save_file[0])))
         data = self.spectrum_profile()
         data -= np.amin(data)
         data /= np.amax(data)
         hdu = fits.PrimaryHDU(data)
         hdu.header['pyspec_rotated_by'] = self.degrees
-        hdu.writeto(save_file, clobber=True)
+        hdu.writeto(save_file[0], clobber=True)
     
