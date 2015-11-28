@@ -35,7 +35,7 @@ Just launch the pyspectrum.py script in a shell from the main sources directory:
 
 Or use your python3 binary:
 
-   /usr/bin/python3.5 pyspectrum.py
+    /usr/bin/python3.5 pyspectrum.py
 
     
 ### Author ###
