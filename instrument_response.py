@@ -25,6 +25,7 @@ class InstrumentResponse(QWidget):
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.draw())
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.ui.spline_factor.setEnabled(not v))
         self.ui.remove_points.clicked.connect(self.pick_rm_points)
+        self.f_x = lambda x: self.fits_spectrum.data()[x]
         self.draw()
         
     @pyqtSlot(float)
@@ -44,6 +45,7 @@ class InstrumentResponse(QWidget):
         self.ui.spline_degrees_value.setText("{}".format(self.ui.spline_degrees.value()))
         spline_factor = self.ui.spline_factor.value() if not self.ui.spline_factor_auto.isChecked() else None
         spline = UnivariateSpline(self.x_axis, self.data, k=self.ui.spline_degrees.value(), s=spline_factor)
+        self.f_x = lambda x: spline[x]
         self.plot.axes.plot(self.x_axis, self.data, '--', self.x_axis, spline(self.x_axis), '-')
         self.plot.figure.canvas.draw()
         
@@ -63,4 +65,7 @@ class InstrumentResponse(QWidget):
     def reset_zoom(self):
         self.plot.axes.axis([self.fits_spectrum.x_axis()[0], self.fits_spectrum.x_axis()[-1], self.fits_spectrum.data()[0], self.fits_spectrum.data()[-1]])
         self.draw()
+        
+    def save(self):
+        pass
         
