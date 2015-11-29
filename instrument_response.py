@@ -18,18 +18,27 @@ class InstrumentResponse(QWidget):
         self.settings = settings
         self.plot = QtCommons.nestWidget(self.ui.plot, QMathPlotWidget())
         self.toolbar = QToolBar('Instrument Response Toolbar')
-        self.toolbar.addAction('Zoom', lambda: self.plot.add_rectangle_selector('zoom', self.zoom))
+        self.toolbar.addAction('Zoom', self.start_zoom)
         self.toolbar.addAction('Reset Zoom', self.reset_zoom)
         self.ui.spline_factor.valueChanged.connect(self.factor_valueChanged)
         self.ui.spline_degrees.valueChanged.connect(lambda v: self.draw())
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.draw())
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.ui.spline_factor.setEnabled(not v))
-        self.ui.remove_points.clicked.connect(lambda: self.plot.add_span_selector('pick_rm_points', lambda min,max: self.rm_points(min,max+1),direction='horizontal'))
+        self.ui.remove_points.clicked.connect(self.pick_rm_points)
         self.draw()
         
     @pyqtSlot(float)
     def factor_valueChanged(self, f):
         self.draw()
+        
+    def pick_rm_points(self):
+        self.plot.rm_element('zoom')
+        self.plot.add_span_selector('pick_rm_points', lambda min,max: self.rm_points(min,max+1),direction='horizontal')
+        
+        
+    def start_zoom(self):
+        self.plot.rm_element('pick_rm_points')
+        self.plot.add_rectangle_selector('zoom', self.zoom)
         
     def draw(self):
         self.ui.spline_degrees_value.setText("{}".format(self.ui.spline_degrees.value()))
@@ -47,7 +56,6 @@ class InstrumentResponse(QWidget):
         self.plot.rm_element('pick_rm_points')
         
     def zoom(self, a, b):
-        print("{}, {}".format(a, b))
         self.plot.axes.axis([a.xdata, b.xdata, a.ydata, b.ydata])
         self.plot.rm_element('zoom')
         self.plot.figure.canvas.draw()
