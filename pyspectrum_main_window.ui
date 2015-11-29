@@ -39,6 +39,7 @@
    </attribute>
    <addaction name="actionOpen_Image"/>
    <addaction name="actionCalibrate_FITS"/>
+   <addaction name="actionInstrument_Response"/>
   </widget>
   <action name="actionOpen_Image">
    <property name="icon">
@@ -64,15 +65,9 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionSave">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
+  <action name="actionInstrument_Response">
    <property name="text">
-    <string>&amp;Save...</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
+    <string>Instrument Response</string>
    </property>
   </action>
  </widget>

@@ -41,11 +41,11 @@ class Ui_PySpectrumMainWindow(object):
         icon = QtGui.QIcon.fromTheme("document-open")
         self.actionCalibrate_FITS.setIcon(icon)
         self.actionCalibrate_FITS.setObjectName("actionCalibrate_FITS")
-        self.actionSave = QtWidgets.QAction(PySpectrumMainWindow)
-        self.actionSave.setEnabled(False)
-        self.actionSave.setObjectName("actionSave")
+        self.actionInstrument_Response = QtWidgets.QAction(PySpectrumMainWindow)
+        self.actionInstrument_Response.setObjectName("actionInstrument_Response")
         self.toolBar.addAction(self.actionOpen_Image)
         self.toolBar.addAction(self.actionCalibrate_FITS)
+        self.toolBar.addAction(self.actionInstrument_Response)
 
         self.retranslateUi(PySpectrumMainWindow)
         QtCore.QMetaObject.connectSlotsByName(PySpectrumMainWindow)
@@ -58,6 +58,5 @@ class Ui_PySpectrumMainWindow(object):
         self.actionOpen_Image.setShortcut(_translate("PySpectrumMainWindow", "Ctrl+I"))
         self.actionCalibrate_FITS.setText(_translate("PySpectrumMainWindow", "&Calibrate FITS"))
         self.actionCalibrate_FITS.setShortcut(_translate("PySpectrumMainWindow", "Ctrl+S"))
-        self.actionSave.setText(_translate("PySpectrumMainWindow", "&Save..."))
-        self.actionSave.setShortcut(_translate("PySpectrumMainWindow", "Ctrl+S"))
+        self.actionInstrument_Response.setText(_translate("PySpectrumMainWindow", "Instrument Response"))
 

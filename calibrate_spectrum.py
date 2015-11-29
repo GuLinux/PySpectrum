@@ -2,10 +2,9 @@ from ui_calibrate_spectrum import Ui_CalibrateSpectrum
 from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction, QInputDialog
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QByteArray, QTimer
-from qmathplotwidget import QMathPlotWidget, QImPlotWidget
+from qmathplotwidget import QMathPlotWidget
 import matplotlib.pyplot as plt
 from qtcommons import QtCommons
-import scipy.ndimage.interpolation
 from ui_rotate_image_dialog import Ui_RotateImageDialog
 import os
 import numpy as np
@@ -23,11 +22,11 @@ class SelectPlottedPoints(QDialog):
 
     def __init__(self, data, min, max, settings):
         super(SelectPlottedPoints, self).__init__()
+        self.ui = Ui_SelectPlottedPoints()
+        self.ui.setupUi(self)
         self.min = min
         self.y_axis = data[min:max]
         self.x_axis = np.arange(min, min+len(self.y_axis))
-        self.ui = Ui_SelectPlottedPoints()
-        self.ui.setupUi(self)
         self.ui.x_coordinate.setRange(self.x_axis[0], self.x_axis[-1])
         self.plot = QtCommons.nestWidget(self.ui.plot_widget, QMathPlotWidget())
         self.finished.connect(lambda: self.deleteLater())
