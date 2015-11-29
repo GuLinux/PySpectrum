@@ -4,7 +4,7 @@ matplotlib.use("Qt5Agg")
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-from matplotlib.widgets import SpanSelector
+from matplotlib.widgets import SpanSelector, RectangleSelector
 
 from PyQt5 import QtWidgets, QtCore
 class QMathPlotWidgetBase(FigureCanvas):
@@ -32,6 +32,7 @@ class QMathPlotWidgetBase(FigureCanvas):
                 pass
         if redraw:
             self.figure.canvas.draw()
+    
 
     def add_line(self, name, point, type='v', **kwargs):
         self.rm_element(name, redraw=False)
@@ -45,6 +46,9 @@ class QMathPlotWidgetBase(FigureCanvas):
 
     def add_span_selector(self, name, callback, **kwargs):
         self.elements[name] = SpanSelector(self.axes, callback, **kwargs)
+        
+    def add_rectangle_selector(self, name, callback, **kwargs):
+        self.elements[name] = RectangleSelector(self.axes, callback, **kwargs)
 
 class QMathPlotWidget(QMathPlotWidgetBase):
     def __init__(self, **kwargs):
