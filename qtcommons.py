@@ -7,9 +7,15 @@ class QtCommons:
         return child
     
     def open_file(title, file_types, on_ok, dir=''):
-        open_file = QFileDialog.getOpenFileName(None, title, dir, file_types)
-        if open_file[0]:
-            on_ok(open_file)
+        dialog = QFileDialog()
+        dialog.setNameFilter(file_types)
+        dialog.setFileMode(QFileDialog.ExistingFiles)
+        dialog.setAcceptMode(QFileDialog.AcceptOpen)
+        dialog.setDirectory(dir)
+        dialog.setWindowTitle(title)
+        dialog.fileSelected.connect(lambda file:on_ok((file,dialog.selectedNameFilter)))
+        dialog.finished.connect(lambda: dialog.deleteLater())
+        dialog.show()
         
     def save_file(title, file_types, on_ok, dir=''):
         save_file = QFileDialog.getSaveFileName(None, title, dir, file_types)
