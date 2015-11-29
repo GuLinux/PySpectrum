@@ -1,7 +1,7 @@
 from ui_calibrate_spectrum import Ui_CalibrateSpectrum
 from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction, QInputDialog
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QByteArray, QTimer
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import matplotlib.pyplot as plt
 from qtcommons import QtCommons
@@ -21,21 +21,25 @@ from ui_select_plotted_point import Ui_SelectPlottedPoints
 class SelectPlottedPoints(QDialog):
     point = pyqtSignal(int)
 
-    def __init__(self, data, min, max):
+    def __init__(self, data, min, max, settings):
         super(SelectPlottedPoints, self).__init__()
         self.min = min
         self.y_axis = data[min:max]
         self.x_axis = np.arange(min, min+len(self.y_axis))
         self.ui = Ui_SelectPlottedPoints()
         self.ui.setupUi(self)
+        self.ui.x_coordinate.setRange(self.x_axis[0], self.x_axis[-1])
         self.plot = QtCommons.nestWidget(self.ui.plot_widget, QMathPlotWidget())
         self.finished.connect(lambda: self.deleteLater())
         self.ui.smoothing_factor.valueChanged.connect(self.factor_valueChanged)
         self.ui.smoothing_degree.valueChanged.connect(lambda v: self.draw())
         self.ui.smoothing_factor_auto.toggled.connect(lambda v: self.draw())
         self.ui.smoothing_factor_auto.toggled.connect(lambda v: self.ui.smoothing_factor.setEnabled(not v))
-        self.draw()
-        
+        self.restoreGeometry(settings.value('select_plotted_points_geometry', QByteArray()))
+        self.finished.connect(lambda: settings.setValue('select_plotted_points_geometry', self.saveGeometry()))
+        self.ui.x_coordinate.valueChanged.connect(self.set_point)
+        QTimer.singleShot(100, self.draw)
+
     @pyqtSlot(float)
     def factor_valueChanged(self, f):
         self.draw()
@@ -43,19 +47,23 @@ class SelectPlottedPoints(QDialog):
     def draw(self):
         self.ui.smoothing_degree_value.setText("{}".format(self.ui.smoothing_degree.value()))
         smoothing_factor = self.ui.smoothing_factor.value() if not self.ui.smoothing_factor_auto.isChecked() else None
-        print(smoothing_factor)
         spline = UnivariateSpline(self.x_axis, self.y_axis, k=self.ui.smoothing_degree.value(), s=smoothing_factor)
         self.plot.axes.plot(self.x_axis, self.y_axis, 'o', self.x_axis, spline(self.x_axis), '-')
         min_value = spline(self.x_axis).argmin() + self.min
-        self.point.emit(min_value)
-        self.plot.add_line("x_axis_pick", min_value, color='r')
-        self.plot.figure.canvas.draw()
+        self.ui.x_coordinate.setValue(min_value)
+        self.set_point(min_value)
         
+    @pyqtSlot(int)
+    def set_point(self, point):
+        self.x_point = point
+        self.point.emit(point)
+        self.plot.add_line("x_axis_pick", point, color='r')
+        self.plot.figure.canvas.draw()
 
 class CalibrateSpectrum(QWidget):
-    def __init__(self, fits_file, config):
+    def __init__(self, fits_file, settings):
         super(CalibrateSpectrum, self).__init__()
-        self.config = config
+        self.settings = settings
         self.fits_spectrum = FitsSpectrum(fits_file)
         self.fits_file = fits_file
         self.ui = Ui_CalibrateSpectrum()
@@ -119,16 +127,16 @@ class CalibrateSpectrum(QWidget):
             'maximum': self.fits_spectrum.data()[min:max+1].argmax() + min,
             'central': min+(max-min)/2
             }[type]
-        if type != 'central':
-            subplot = SelectPlottedPoints(self.fits_spectrum.data(), min, max+1)
-            subplot.point.connect(add_line)
-            subplot.point.connect(set_x_value)
-            subplot.show()
             
         self.ui.point_x_axis.setValue(point)
         self.spectrum_plot.rm_element('pick_x_axis')
         set_x_value(point)
         add_line(point)
+        if type != 'central':
+            subplot = SelectPlottedPoints(self.fits_spectrum.data(), min, max+1, self.settings)
+            subplot.point.connect(add_line)
+            subplot.point.connect(set_x_value)
+            subplot.show()
 
     def pick_from_range(self, type):
         self.spectrum_plot.add_span_selector('pick_x_axis', lambda min,max: self.picked_from_range(type, min, max),direction='horizontal')
@@ -189,7 +197,7 @@ class CalibrateSpectrum(QWidget):
         
         
     def save(self):
-        save_file = QFileDialog.getSaveFileName(None, "Save plot...", self.config.value('last_save_plot_dir'), "FITS file (.fit)")[0]
+        save_file = QFileDialog.getSaveFileName(None, "Save plot...", self.settings.value('last_save_plot_dir'), "FITS file (.fit)")[0]
         if not save_file:
             return
         self.fits_spectrum.save(save_file, self.calibration_points())
