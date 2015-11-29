@@ -15,6 +15,7 @@ from matplotlib.widgets import SpanSelector
 from matplotlib.lines import Line2D
 from miles import Miles
 from miles_dialog import MilesDialog
+from scipy.interpolate import *
 
 class CalibrateSpectrum(QWidget):
     def __init__(self, fits_file, config):
@@ -81,6 +82,15 @@ class CalibrateSpectrum(QWidget):
             'maximum': self.fits_spectrum.data()[min:max+1].argmax() + min,
             'central': min+(max-min)/2
             }[type]
+        if type != 'central':
+            subplot = QMathPlotWidget()
+            y_axis = self.fits_spectrum.data()[min:max+1]
+            x_axis = np.arange(min, min+len(y_axis))
+            spline = UnivariateSpline(x_axis, y_axis, k=2)
+            interp = interp1d(x_axis, y_axis, kind='cubic')
+            subplot.axes.plot(x_axis, y_axis, 'o', x_axis, spline(x_axis), '-', x_axis, interp(x_axis), '--')
+            subplot.show()
+            
         self.ui.point_x_axis.setValue(point)
         self.spectrum_plot.rm_element('pick_x_axis')
         self.ui.point_wavelength.setValue(self.fits_spectrum.x_calibrated(point))
