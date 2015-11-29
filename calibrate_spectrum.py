@@ -1,7 +1,7 @@
 from ui_calibrate_spectrum import Ui_CalibrateSpectrum
 from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction, QInputDialog
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import matplotlib.pyplot as plt
 from qtcommons import QtCommons
@@ -16,6 +16,41 @@ from matplotlib.lines import Line2D
 from miles import Miles
 from miles_dialog import MilesDialog
 from scipy.interpolate import *
+from ui_select_plotted_point import Ui_SelectPlottedPoints
+
+class SelectPlottedPoints(QDialog):
+    point = pyqtSignal(int)
+
+    def __init__(self, data, min, max):
+        super(SelectPlottedPoints, self).__init__()
+        self.min = min
+        self.y_axis = data[min:max]
+        self.x_axis = np.arange(min, min+len(self.y_axis))
+        self.ui = Ui_SelectPlottedPoints()
+        self.ui.setupUi(self)
+        self.plot = QtCommons.nestWidget(self.ui.plot_widget, QMathPlotWidget())
+        self.finished.connect(lambda: self.deleteLater())
+        self.ui.smoothing_factor.valueChanged.connect(self.factor_valueChanged)
+        self.ui.smoothing_degree.valueChanged.connect(lambda v: self.draw())
+        self.ui.smoothing_factor_auto.toggled.connect(lambda v: self.draw())
+        self.ui.smoothing_factor_auto.toggled.connect(lambda v: self.ui.smoothing_factor.setEnabled(not v))
+        self.draw()
+        
+    @pyqtSlot(float)
+    def factor_valueChanged(self, f):
+        self.draw()
+        
+    def draw(self):
+        self.ui.smoothing_degree_value.setText("{}".format(self.ui.smoothing_degree.value()))
+        smoothing_factor = self.ui.smoothing_factor.value() if not self.ui.smoothing_factor_auto.isChecked() else None
+        print(smoothing_factor)
+        spline = UnivariateSpline(self.x_axis, self.y_axis, k=self.ui.smoothing_degree.value(), s=smoothing_factor)
+        self.plot.axes.plot(self.x_axis, self.y_axis, 'o', self.x_axis, spline(self.x_axis), '-')
+        min_value = spline(self.x_axis).argmin() + self.min
+        self.point.emit(min_value)
+        self.plot.add_line("x_axis_pick", min_value, color='r')
+        self.plot.figure.canvas.draw()
+        
 
 class CalibrateSpectrum(QWidget):
     def __init__(self, fits_file, config):
@@ -77,24 +112,23 @@ class CalibrateSpectrum(QWidget):
     def picked_from_range(self, type, min, max):
         min=(self.fits_spectrum.x_uncalibrated(min))
         max=(self.fits_spectrum.x_uncalibrated(max))
+        add_line = lambda x: self.spectrum_plot.add_line("x_axis_pick", self.fits_spectrum.x_calibrated(x), color='r')
+        set_x_value = lambda x: self.ui.point_x_axis.setValue(x)
         point = {
             'minimum': self.fits_spectrum.data()[min:max+1].argmin() + min,
             'maximum': self.fits_spectrum.data()[min:max+1].argmax() + min,
             'central': min+(max-min)/2
             }[type]
         if type != 'central':
-            subplot = QMathPlotWidget()
-            y_axis = self.fits_spectrum.data()[min:max+1]
-            x_axis = np.arange(min, min+len(y_axis))
-            spline = UnivariateSpline(x_axis, y_axis, k=2)
-            interp = interp1d(x_axis, y_axis, kind='cubic')
-            subplot.axes.plot(x_axis, y_axis, 'o', x_axis, spline(x_axis), '-', x_axis, interp(x_axis), '--')
+            subplot = SelectPlottedPoints(self.fits_spectrum.data(), min, max+1)
+            subplot.point.connect(add_line)
+            subplot.point.connect(set_x_value)
             subplot.show()
             
         self.ui.point_x_axis.setValue(point)
         self.spectrum_plot.rm_element('pick_x_axis')
-        self.ui.point_wavelength.setValue(self.fits_spectrum.x_calibrated(point))
-        self.spectrum_plot.add_line("x_axis_pick", self.fits_spectrum.x_calibrated(point), color='r')
+        set_x_value(point)
+        add_line(point)
 
     def pick_from_range(self, type):
         self.spectrum_plot.add_span_selector('pick_x_axis', lambda min,max: self.picked_from_range(type, min, max),direction='horizontal')
