@@ -2,7 +2,7 @@ from ui_pyspectrum_main_window import Ui_PySpectrumMainWindow
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from import_image import ImportImage
 from calibrate_spectrum import CalibrateSpectrum
-from PyQt5.QtCore import QSettings
+from PyQt5.QtCore import QSettings, QByteArray
 import os
 from astropy.io import fits
 from qtcommons import QtCommons
@@ -17,6 +17,11 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui.actionCalibrate_FITS.triggered.connect(lambda: QtCommons.open_file('Open raw FITS Spectrum',"FITS Images (*.fit *.fits)", self.calibrate, self.settings.value("open_spectrum_last_dir", type=str) ))
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
+        self.restoreGeometry(self.settings.value('window_geometry', QByteArray()))
+        
+    def closeEvent(self, ev):
+        self.settings.setValue('window_geometry', self.saveGeometry())
+        QMainWindow.closeEvent(self, ev)
         
     def current_changed(self, index):
         if self.current_widget_toolbar:
