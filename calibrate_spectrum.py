@@ -55,6 +55,7 @@ class CalibrateSpectrum(QWidget):
         self.ui.remove_calibration_point.clicked.connect(self.remove_calibration_point)
         self.ui.set_dispersion.clicked.connect(self.calibrate_with_dispersion)
         save_action.triggered.connect(self.save)
+        self.ui.point_is_star.toggled.connect(lambda checked: self.ui.wavelength_pick.setEnabled(not checked))
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_wavelength.setEnabled(not checked))
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
 
