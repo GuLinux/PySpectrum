@@ -122,21 +122,18 @@ class CalibrateSpectrum(QWidget):
         max=(self.fits_spectrum.x_uncalibrated(max))
         add_line = lambda x: self.spectrum_plot.add_line("x_axis_pick", self.fits_spectrum.x_calibrated(x), color='r')
         set_x_value = lambda x: self.ui.point_x_axis.setValue(x)
-        point = {
-            'minimum': self.fits_spectrum.data()[min:max+1].argmin() + min,
-            'maximum': self.fits_spectrum.data()[min:max+1].argmax() + min,
-            'central': min+(max-min)/2
-            }[type]
-            
-        self.ui.point_x_axis.setValue(point)
-        self.spectrum_plot.rm_element('pick_x_axis')
-        set_x_value(point)
-        add_line(point)
+
         if type != 'central':
             subplot = SelectPlottedPoints(self.fits_spectrum.data(), min, max+1, self.settings)
             subplot.point.connect(add_line)
             subplot.point.connect(set_x_value)
             subplot.show()
+            return
+        point = min+(max-min)/2
+        self.ui.point_x_axis.setValue(point)
+        self.spectrum_plot.rm_element('pick_x_axis')
+        set_x_value(point)
+        add_line(point)
 
     def pick_from_range(self, type):
         self.spectrum_plot.add_span_selector('pick_x_axis', lambda min,max: self.picked_from_range(type, min, max),direction='horizontal')
