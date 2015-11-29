@@ -7,18 +7,25 @@ class QtCommons:
         return child
     
     def open_file(title, file_types, on_ok, dir=''):
+        def setup_dialog(dialog):
+            dialog.setFileMode(QFileDialog.ExistingFiles)
+            dialog.setAcceptMode(QFileDialog.AcceptOpen)
+            dialog.fileSelected.connect(lambda file:on_ok((file,dialog.selectedNameFilter)))
+        QtCommons.__open_dialog__(title, file_types, dir, setup_dialog)
+
+    def save_file(title, file_types, on_ok, dir=''):
+        def setup_dialog(dialog):
+            dialog.setFileMode(QFileDialog.AnyFile)
+            dialog.setDefaultSuffix('fit')
+            dialog.setAcceptMode(QFileDialog.AcceptSave)
+            dialog.fileSelected.connect(lambda file:on_ok((file,dialog.selectedNameFilter)))
+        QtCommons.__open_dialog__(title, file_types, dir, setup_dialog)
+
+    def __open_dialog__(title, file_types, dir, setup_dialog):
         dialog = QFileDialog()
         dialog.setNameFilter(file_types)
-        dialog.setFileMode(QFileDialog.ExistingFiles)
-        dialog.setAcceptMode(QFileDialog.AcceptOpen)
         dialog.setDirectory(dir)
         dialog.setWindowTitle(title)
-        dialog.fileSelected.connect(lambda file:on_ok((file,dialog.selectedNameFilter)))
+        setup_dialog(dialog)
         dialog.finished.connect(lambda: dialog.deleteLater())
         dialog.show()
-        
-    def save_file(title, file_types, on_ok, dir=''):
-        save_file = QFileDialog.getSaveFileName(None, title, dir, file_types)
-        if save_file[0]:
-            on_ok(save_file)
-        
