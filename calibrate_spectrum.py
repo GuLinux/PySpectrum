@@ -64,7 +64,7 @@ class CalibrateSpectrum(QWidget):
         super(CalibrateSpectrum, self).__init__()
         self.settings = settings
         self.fits_spectrum = FitsSpectrum(fits_file)
-        self.fits_spectrum.normalize_to_max()
+        self.fits_spectrum.spectrum.normalize_to_max()
         self.fits_file = fits_file
         self.ui = Ui_CalibrateSpectrum()
         self.ui.setupUi(self)
@@ -116,7 +116,7 @@ class CalibrateSpectrum(QWidget):
     
     def open_reference(self, file):
         fits_spectrum = FitsSpectrum(fits.open(file))
-        fits_spectrum.normalize_to_max()
+        fits_spectrum.spectrum.normalize_to_max()
         line = Line2D(fits_spectrum.x_axis(), fits_spectrum.data(), color='gray')
         self.spectrum_plot.axes.add_line(line)
         self.spectrum_plot.figure.canvas.draw()
@@ -189,11 +189,11 @@ class CalibrateSpectrum(QWidget):
             self.fits_spectrum.reset()
         else:
             points = sorted(self.calibration_points(), key=lambda point: point['x'])
-            self.fits_spectrum.calibrate(points)
+            self.fits_spectrum.calibrate(points, self.ui.dispersion.value() )
             for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-self.fits_spectrum.x_calibrated(p['x']))) for p in points]:
                 self.calibration_model.item(row, 2).setText(value)
             
-        self.ui.dispersion.setValue(self.fits_spectrum.dispersion)
+        self.ui.dispersion.setValue(self.fits_spectrum.spectrum.dispersion())
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
         
     def instrument_response(self, filename):

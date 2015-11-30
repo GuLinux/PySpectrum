@@ -15,6 +15,9 @@ class TestSpectrum(unittest.TestCase):
     def test_empty_wavelengths(self):
         spectrum = Spectrum(np.array([0.2, 0.3, 0.5]))
         assert_array_equal(spectrum.wavelengths, [0, 1, 2])
+        
+        spectrum = Spectrum(np.array([0.2, 0.3, 0.5]), first_wavelength=5, dispersion=2)
+        assert_array_equal(spectrum.wavelengths, [5, 7,9])
       
     def test_calibrate(self):
         spectrum = Spectrum(np.array([0.2, 0.3, 0.5]), np.array([3, 4, 5]))
