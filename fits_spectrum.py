@@ -35,6 +35,8 @@ class Spectrum:
         self.fluxes /= self.fluxes.max()
 
 class FitsSpectrum:
+    CALIBRATION_DATA = 'CALIBRATION_DATA'
+    
     def __init__(self, fits_file):
         self.fits_file = fits_file
         self.reset()
@@ -53,6 +55,12 @@ class FitsSpectrum:
         
 
     def reset(self):
+        if len(self.fits_file) > 1 and self.fits_file[1].name != FitsSpectrum.CALIBRATION_DATA:
+            hdu = self.fits_file[1]
+            columns = dict([('WAVELENGTH' if 'WAVE' in c.name.upper() else c.name.upper(), index) for index, c in enumerate(hdu.columns)])
+            self.spectrum = Spectrum(fluxes=hdu.data.field('FLUX'), wavelengths=hdu.data.field('WAVELENGTH'))
+            return
+        
         header = self.fits_file[0].header
         dispersion = self.fits_file[0].header.get('CDELT1', 1)
         x_start = self.fits_file[0].header.get('CRVAL1', 0)
@@ -95,7 +103,7 @@ class FitsSpectrum:
             wavelengths = fits.Column(name='wavelength', format='D', array=[point['wavelength'] for point in calibration_points])
             cols = fits.ColDefs([pixels, wavelengths])
             tbhdu = fits.BinTableHDU.from_columns(cols)
-            tbhdu.name = 'CALIBRATION_DATA'
+            tbhdu.name = FitsSpectrum.CALIBRATION_DATA
             #self.fits_file.remove('calibration_data') #TODO: remove, or keep for history?
             self.fits_file.append(tbhdu)
         print(filename)
