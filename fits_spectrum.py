@@ -55,3 +55,6 @@ class FitsSpectrum:
             self.fits_file.append(tbhdu)
         print(filename)
         self.fits_file.writeto(filename, clobber=True)
+        
+    def name(self):
+        return self.fits_file.filename()

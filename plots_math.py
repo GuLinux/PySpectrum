@@ -2,15 +2,20 @@ from ui_plots_math import Ui_PlotsMath
 from scipy.interpolate import *
 from qmathplotwidget import QMathPlotWidget
 from PyQt5.QtWidgets import QWidget, QToolBar
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QByteArray, QTimer
+from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from fits_spectrum import FitsSpectrum
 from qtcommons import QtCommons
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QByteArray, QTimer
 import numpy as np
 from astropy.io import fits
 from miles import Miles
 from miles_dialog import MilesDialog
 
 class PlotsMath(QWidget):
+    
+    F_X = Qt.UserRole + 1
+    FITS_SPECTRUM = Qt.UserRole + 2
+    
     def __init__(self, settings):
         super(PlotsMath, self).__init__()
         self.ui = Ui_PlotsMath()
@@ -22,6 +27,7 @@ class PlotsMath(QWidget):
         self.toolbar = QToolBar('Instrument Response Toolbar')
         self.toolbar.addAction('Open', lambda: QtCommons.open_file('Open FITS Spectrum',"FITS Images (*.fit *.fits)", lambda f: self.open_fits(f[0]), self.settings.value("open_spectrum_last_dir", type=str) ))
         self.toolbar.addAction('MILES', self.miles_dialog.show)
+        self.toolbar.addAction('Set operand', self.set_operand)
         self.toolbar.addSeparator()
         self.toolbar.addAction('Zoom', self.start_zoom)
         self.toolbar.addAction('Reset Zoom', self.reset_zoom)
@@ -29,7 +35,10 @@ class PlotsMath(QWidget):
         self.ui.spline_degrees.valueChanged.connect(lambda v: self.draw())
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.draw())
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.ui.spline_factor.setEnabled(not v))
+        self.ui.execute.clicked.connect(self.execute_operation)
         self.ui.remove_points.clicked.connect(self.pick_rm_points)
+        self.operands_model = QStandardItemModel()
+        self.ui.operands_listview.setModel(self.operands_model)
         
     def open_fits(self, filename):
         fits_file = fits.open(filename)
@@ -55,7 +64,7 @@ class PlotsMath(QWidget):
         self.ui.spline_degrees_value.setText("{}".format(self.ui.spline_degrees.value()))
         spline_factor = self.ui.spline_factor.value() if not self.ui.spline_factor_auto.isChecked() else None
         spline = UnivariateSpline(self.x_axis, self.data, k=self.ui.spline_degrees.value(), s=spline_factor)
-        self.f_x = lambda x: spline[x]
+        self.f_x = lambda x: spline(x)
         self.plot.axes.plot(self.x_axis, self.data, '--', self.x_axis, spline(self.x_axis), '-')
         self.plot.figure.canvas.draw()
         
@@ -75,6 +84,21 @@ class PlotsMath(QWidget):
     def reset_zoom(self):
         self.plot.axes.axis([self.fits_spectrum.x_axis()[0], self.fits_spectrum.x_axis()[-1], self.fits_spectrum.data()[0], self.fits_spectrum.data()[-1]])
         self.draw()
+        
+    def set_operand(self):
+        item = QStandardItem(self.fits_spectrum.name())
+        item.setData(self.f_x, PlotsMath.F_X)
+        item.setData(self.fits_spectrum, PlotsMath.FITS_SPECTRUM)
+        self.operands_model.appendRow(item)
+        
+    def execute_operation(self):
+        f_x_a = self.operands_model.item(0).data(PlotsMath.F_X)
+        f_x_b = self.operands_model.item(1).data(PlotsMath.F_X)
+        f_x = lambda x: f_x_a(x)/f_x_b(x)
+        self.data =  np.fromfunction(f_x, self.data.shape)
+        widget = QMathPlotWidget()
+        widget.axes.plot(self.x_axis, self.data)
+        widget.show()
         
     def save(self):
         pass
