@@ -98,9 +98,12 @@ class PlotsMath(QWidget):
         self.x_axis=np.arange(max(a.x_axis()[0], b.x_axis()[0]), min(a.x_axis()[-1],b.x_axis()[-1],))
         f_x_a = self.operands_model.item(0).data(PlotsMath.F_X)
         f_x_b = self.operands_model.item(1).data(PlotsMath.F_X)
-        f_x = lambda x: f_x_a(x+self.x_axis[0])/f_x_b(x+self.x_axis[0])
-        self.data =  np.fromfunction(f_x, self.x_axis.shape)
-        self.plot.axes.plot(self.x_axis, self.data)
+        data_f1 =  np.fromfunction(lambda x: f_x_a(x+self.x_axis[0]), self.x_axis.shape)
+        data_f2 =  np.fromfunction(lambda x: f_x_b(x+self.x_axis[0]), self.x_axis.shape)
+        self.data = data_f1/data_f2
+        self.plot.axes.plot(self.x_axis, data_f1, '-', self.x_axis, data_f2, "-", self.x_axis, self.data)
+
+        self.plot.figure.canvas.draw()
         
     def save(self):
         pass
