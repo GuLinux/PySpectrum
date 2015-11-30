@@ -72,7 +72,7 @@ class PlotsMath(QWidget):
         if self.spectrum.dispersion() < 1:
             print("dispersion too high ({}), reducing spectrum resolution".format(self.spectrum.dispersion()))
             spline = InterpolatedUnivariateSpline(self.spectrum.wavelengths, self.spectrum.fluxes)
-            self.spectrum.wavelengths = np.arange(self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1]+1)
+            self.spectrum.wavelengths = np.arange(self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1])
             self.spectrum.fluxes = np.fromfunction(lambda x: spline(x+self.spectrum.wavelengths[0]), self.spectrum.wavelengths.shape)
         self.draw()
 
@@ -128,20 +128,32 @@ class PlotsMath(QWidget):
         self.operands_model.appendRow(item)
         
     def execute_operation(self):
-        a = self.operands_model.item(0).data(PlotsMath.FITS_SPECTRUM)
-        b = self.operands_model.item(1).data(PlotsMath.FITS_SPECTRUM)
-        wavelengths = np.arange(max(a.wavelengths[0], b.wavelengths[0]), min(a.wavelengths[-1],b.wavelengths[-1],))
+        max_wavelengths = lambda operands: np.arange(max([o[0].wavelengths[0] for o in operands]), min([o[0].wavelengths[-1] for o in operands]))
+        datasets = lambda operands, wavelengths: [np.fromfunction(lambda x: o[1](x+wavelengths[0]), wavelengths.shape) for o in operands]
+        operands = [(self.operands_model.item(a).data(PlotsMath.FITS_SPECTRUM), self.operands_model.item(a).data(PlotsMath.F_X)) for a in np.arange(self.operands_model.rowCount())]
         
-        f_x_a = self.operands_model.item(0).data(PlotsMath.F_X)
-        f_x_b = self.operands_model.item(1).data(PlotsMath.F_X)
         
-        data_f1 =  np.fromfunction(lambda x: f_x_a(x+wavelengths[0]), wavelengths.shape)
-        data_f2 =  np.fromfunction(lambda x: f_x_b(x+wavelengths[0]), wavelengths.shape)
+        def divide(operands):
+            if len(operands) > 2:
+                print("Division supports only 2 operands, truncating")
+            wavelengths = max_wavelengths(operands[0:2])
+            datas = datasets(operands[0:2], wavelengths)
+            return (wavelengths, datas[0]/datas[1])
         
-        data = data_f1/data_f2
+        def mean(operands):
+            wavelengths = max_wavelengths(operands)
+            mean_data = np.zeros(wavelengths.shape)
+            for data in datasets(operands, wavelengths):
+                mean_data += data
+            return (wavelengths, mean_data/len(wavelengths))
+        
+        operations = { 0: divide, 1: mean }
+        
+        wavelengths, data = operations[self.ui.operation_type.currentIndex()](operands)
         self.spectrum = Spectrum(data, wavelengths)
-        self.plot.plot(wavelengths, data_f1, '-', wavelengths, data_f2, "-", wavelengths, data)
-        self.plot.figure.canvas.draw()
+            
+        self.spectrum.normalize_to_max()
+        self.draw()
 
     def save(self, filename):
         hdu = fits.PrimaryHDU(self.spectrum.fluxes)
