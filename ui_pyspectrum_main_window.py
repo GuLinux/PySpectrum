@@ -45,10 +45,6 @@ class Ui_PySpectrumMainWindow(object):
         self.actionPlots_Math.setObjectName("actionPlots_Math")
         self.actionFinish_Spectrum = QtWidgets.QAction(PySpectrumMainWindow)
         self.actionFinish_Spectrum.setObjectName("actionFinish_Spectrum")
-        self.toolBar.addAction(self.actionOpen_Image)
-        self.toolBar.addAction(self.actionCalibrate_FITS)
-        self.toolBar.addAction(self.actionPlots_Math)
-        self.toolBar.addAction(self.actionFinish_Spectrum)
 
         self.retranslateUi(PySpectrumMainWindow)
         QtCore.QMetaObject.connectSlotsByName(PySpectrumMainWindow)

@@ -15,6 +15,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui = Ui_PySpectrumMainWindow()
         self.ui.setupUi(self)
         self.settings = QSettings("GuLinux", "PySpectrum")
+        QtCommons.addToolbarPopup(self.ui.toolBar, 'Load...', actions=[self.ui.actionOpen_Image,self.ui.actionCalibrate_FITS,self.ui.actionPlots_Math,self.ui.actionFinish_Spectrum])
         self.ui.actionOpen_Image.triggered.connect(lambda: QtCommons.open_file('Open FITS Image',"FITS Images (*.fit *.fits)", self.open_image, self.settings.value("open_image_last_dir", type=str) ))
         self.ui.actionCalibrate_FITS.triggered.connect(lambda: QtCommons.open_file('Open raw FITS Spectrum',"FITS Images (*.fit *.fits)", self.calibrate, self.settings.value("open_spectrum_last_dir", type=str) ))
         self.ui.actionPlots_Math.triggered.connect(self.plots_math)

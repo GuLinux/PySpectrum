@@ -37,10 +37,6 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="actionOpen_Image"/>
-   <addaction name="actionCalibrate_FITS"/>
-   <addaction name="actionPlots_Math"/>
-   <addaction name="actionFinish_Spectrum"/>
   </widget>
   <action name="actionOpen_Image">
    <property name="icon">
