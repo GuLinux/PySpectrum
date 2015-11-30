@@ -1,4 +1,4 @@
-from ui_instrument_response import Ui_InstrumentResponse
+from ui_plots_math import Ui_PlotsMath
 from scipy.interpolate import *
 from qmathplotwidget import QMathPlotWidget
 from PyQt5.QtWidgets import QWidget, QToolBar
@@ -6,18 +6,23 @@ from fits_spectrum import FitsSpectrum
 from qtcommons import QtCommons
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QByteArray, QTimer
 import numpy as np
+from astropy.io import fits
+from miles import Miles
+from miles_dialog import MilesDialog
 
-class InstrumentResponse(QWidget):
-    def __init__(self, fits_file, settings):
-        super(InstrumentResponse, self).__init__()
-        self.ui = Ui_InstrumentResponse()
+class PlotsMath(QWidget):
+    def __init__(self, settings):
+        super(PlotsMath, self).__init__()
+        self.ui = Ui_PlotsMath()
         self.ui.setupUi(self)
-        self.fits_spectrum = FitsSpectrum(fits_file)
-        self.x_axis = self.fits_spectrum.x_axis()
-        self.data = self.fits_spectrum.data()
         self.settings = settings
         self.plot = QtCommons.nestWidget(self.ui.plot, QMathPlotWidget())
+        self.miles_dialog = MilesDialog()
+        self.miles_dialog.fits_picked.connect(self.open_fits)
         self.toolbar = QToolBar('Instrument Response Toolbar')
+        self.toolbar.addAction('Open', lambda: QtCommons.open_file('Open FITS Spectrum',"FITS Images (*.fit *.fits)", lambda f: self.open_fits(f[0]), self.settings.value("open_spectrum_last_dir", type=str) ))
+        self.toolbar.addAction('MILES', self.miles_dialog.show)
+        self.toolbar.addSeparator()
         self.toolbar.addAction('Zoom', self.start_zoom)
         self.toolbar.addAction('Reset Zoom', self.reset_zoom)
         self.ui.spline_factor.valueChanged.connect(self.factor_valueChanged)
@@ -25,9 +30,14 @@ class InstrumentResponse(QWidget):
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.draw())
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.ui.spline_factor.setEnabled(not v))
         self.ui.remove_points.clicked.connect(self.pick_rm_points)
-        self.f_x = lambda x: self.fits_spectrum.data()[x]
-        self.draw()
         
+    def open_fits(self, filename):
+        fits_file = fits.open(filename)
+        self.fits_spectrum = FitsSpectrum(fits_file)
+        self.x_axis = self.fits_spectrum.x_axis()
+        self.data = self.fits_spectrum.data()
+        self.draw()
+
     @pyqtSlot(float)
     def factor_valueChanged(self, f):
         self.draw()

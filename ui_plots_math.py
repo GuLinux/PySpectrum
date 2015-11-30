@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'instrument_response.ui'
+# Form implementation generated from reading ui file 'plots_math.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #
@@ -8,16 +8,16 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-class Ui_InstrumentResponse(object):
-    def setupUi(self, InstrumentResponse):
-        InstrumentResponse.setObjectName("InstrumentResponse")
-        InstrumentResponse.resize(437, 449)
-        self.gridLayout = QtWidgets.QGridLayout(InstrumentResponse)
+class Ui_PlotsMath(object):
+    def setupUi(self, PlotsMath):
+        PlotsMath.setObjectName("PlotsMath")
+        PlotsMath.resize(437, 449)
+        self.gridLayout = QtWidgets.QGridLayout(PlotsMath)
         self.gridLayout.setObjectName("gridLayout")
-        self.plot = QtWidgets.QWidget(InstrumentResponse)
+        self.plot = QtWidgets.QWidget(PlotsMath)
         self.plot.setObjectName("plot")
         self.gridLayout.addWidget(self.plot, 0, 0, 1, 1)
-        self.groupBox = QtWidgets.QGroupBox(InstrumentResponse)
+        self.groupBox = QtWidgets.QGroupBox(PlotsMath)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -35,7 +35,7 @@ class Ui_InstrumentResponse(object):
         self.spline_degrees.setMinimumSize(QtCore.QSize(140, 0))
         self.spline_degrees.setMinimum(2)
         self.spline_degrees.setMaximum(5)
-        self.spline_degrees.setProperty("value", 3)
+        self.spline_degrees.setProperty("value", 4)
         self.spline_degrees.setOrientation(QtCore.Qt.Horizontal)
         self.spline_degrees.setObjectName("spline_degrees")
         self.gridLayout_2.addWidget(self.spline_degrees, 0, 1, 1, 1)
@@ -48,11 +48,11 @@ class Ui_InstrumentResponse(object):
         self.label.setObjectName("label")
         self.gridLayout_2.addWidget(self.label, 0, 0, 1, 1)
         self.spline_factor = QtWidgets.QDoubleSpinBox(self.groupBox)
-        self.spline_factor.setEnabled(False)
+        self.spline_factor.setEnabled(True)
         self.spline_factor.setDecimals(3)
         self.spline_factor.setMaximum(1.0)
         self.spline_factor.setSingleStep(0.001)
-        self.spline_factor.setProperty("value", 0.1)
+        self.spline_factor.setProperty("value", 0.0)
         self.spline_factor.setObjectName("spline_factor")
         self.gridLayout_2.addWidget(self.spline_factor, 1, 1, 1, 1)
         self.spline_degrees_value = QtWidgets.QLabel(self.groupBox)
@@ -60,7 +60,7 @@ class Ui_InstrumentResponse(object):
         self.spline_degrees_value.setObjectName("spline_degrees_value")
         self.gridLayout_2.addWidget(self.spline_degrees_value, 0, 2, 1, 1)
         self.spline_factor_auto = QtWidgets.QCheckBox(self.groupBox)
-        self.spline_factor_auto.setChecked(True)
+        self.spline_factor_auto.setChecked(False)
         self.spline_factor_auto.setObjectName("spline_factor_auto")
         self.gridLayout_2.addWidget(self.spline_factor_auto, 1, 2, 1, 1)
         self.remove_points = QtWidgets.QPushButton(self.groupBox)
@@ -68,15 +68,15 @@ class Ui_InstrumentResponse(object):
         self.gridLayout_2.addWidget(self.remove_points, 2, 0, 1, 1)
         self.gridLayout.addWidget(self.groupBox, 0, 1, 1, 1)
 
-        self.retranslateUi(InstrumentResponse)
-        QtCore.QMetaObject.connectSlotsByName(InstrumentResponse)
+        self.retranslateUi(PlotsMath)
+        QtCore.QMetaObject.connectSlotsByName(PlotsMath)
 
-    def retranslateUi(self, InstrumentResponse):
+    def retranslateUi(self, PlotsMath):
         _translate = QtCore.QCoreApplication.translate
-        InstrumentResponse.setWindowTitle(_translate("InstrumentResponse", "Form"))
-        self.groupBox.setTitle(_translate("InstrumentResponse", "GroupBox"))
-        self.label_2.setText(_translate("InstrumentResponse", "Spline factor"))
-        self.label.setText(_translate("InstrumentResponse", "Spline degrees"))
-        self.spline_factor_auto.setText(_translate("InstrumentResponse", "Auto"))
-        self.remove_points.setText(_translate("InstrumentResponse", "Remove Points"))
+        PlotsMath.setWindowTitle(_translate("PlotsMath", "Form"))
+        self.groupBox.setTitle(_translate("PlotsMath", "GroupBox"))
+        self.label_2.setText(_translate("PlotsMath", "Spline factor"))
+        self.label.setText(_translate("PlotsMath", "Spline degrees"))
+        self.spline_factor_auto.setText(_translate("PlotsMath", "Auto"))
+        self.remove_points.setText(_translate("PlotsMath", "Remove Points"))
 

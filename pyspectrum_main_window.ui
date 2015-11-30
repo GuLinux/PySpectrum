@@ -39,7 +39,7 @@
    </attribute>
    <addaction name="actionOpen_Image"/>
    <addaction name="actionCalibrate_FITS"/>
-   <addaction name="actionInstrument_Response"/>
+   <addaction name="actionPlots_Math"/>
   </widget>
   <action name="actionOpen_Image">
    <property name="icon">
@@ -65,9 +65,9 @@
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionInstrument_Response">
+  <action name="actionPlots_Math">
    <property name="text">
-    <string>Instrument Response</string>
+    <string>Plots Math</string>
    </property>
   </action>
  </widget>
