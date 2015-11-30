@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFileDialog
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFileDialog, QToolBar, QToolButton, QMenu
 
 class QtCommons:
     def nestWidget(parent, child):
@@ -29,3 +29,13 @@ class QtCommons:
         setup_dialog(dialog)
         dialog.finished.connect(lambda: dialog.deleteLater())
         dialog.show()
+        
+    def addToolbarPopup(toolbar, text, actions = [], popup_mode = QToolButton.InstantPopup):
+        button = QToolButton()
+        button.setText(text)
+        button.setPopupMode(popup_mode)
+        button.setMenu(QMenu())
+        for action in actions:
+            button.menu().addAction(action)
+        toolbar.addWidget(button)
+        return button

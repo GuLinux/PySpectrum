@@ -1,7 +1,7 @@
 from ui_plots_math import Ui_PlotsMath
 from scipy.interpolate import *
 from qmathplotwidget import QMathPlotWidget
-from PyQt5.QtWidgets import QWidget, QToolBar
+from PyQt5.QtWidgets import QWidget, QToolBar, QToolButton, QMenu, QAction
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QByteArray, QTimer
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from fits_spectrum import FitsSpectrum
@@ -25,6 +25,8 @@ class PlotsMath(QWidget):
         self.miles_dialog = MilesDialog()
         self.miles_dialog.fits_picked.connect(self.open_fits)
         self.toolbar = QToolBar('Instrument Response Toolbar')
+        #open_menu = QtCommons.addToolbarPopup(self.toolbar, "hello")
+
         self.toolbar.addAction('Open', lambda: QtCommons.open_file('Open FITS Spectrum',"FITS Images (*.fit *.fits)", lambda f: self.open_fits(f[0]), self.settings.value("open_spectrum_last_dir", type=str) ))
         self.toolbar.addAction('MILES', self.miles_dialog.show)
         self.toolbar.addAction('Set operand', self.set_operand)
