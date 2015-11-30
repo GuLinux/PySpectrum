@@ -45,6 +45,7 @@ class PlotsMath(QWidget):
         self.fits_spectrum = FitsSpectrum(fits_file)
         self.x_axis = self.fits_spectrum.x_axis()
         self.data = self.fits_spectrum.data()
+        self.data /= self.data.max()
         self.draw()
 
     @pyqtSlot(float)
@@ -92,13 +93,14 @@ class PlotsMath(QWidget):
         self.operands_model.appendRow(item)
         
     def execute_operation(self):
+        a = self.operands_model.item(0).data(PlotsMath.FITS_SPECTRUM)
+        b = self.operands_model.item(1).data(PlotsMath.FITS_SPECTRUM)
+        self.x_axis=np.arange(max(a.x_axis()[0], b.x_axis()[0]), min(a.x_axis()[-1],b.x_axis()[-1],))
         f_x_a = self.operands_model.item(0).data(PlotsMath.F_X)
         f_x_b = self.operands_model.item(1).data(PlotsMath.F_X)
-        f_x = lambda x: f_x_a(x)/f_x_b(x)
-        self.data =  np.fromfunction(f_x, self.data.shape)
-        widget = QMathPlotWidget()
-        widget.axes.plot(self.x_axis, self.data)
-        widget.show()
+        f_x = lambda x: f_x_a(x+self.x_axis[0])/f_x_b(x+self.x_axis[0])
+        self.data =  np.fromfunction(f_x, self.x_axis.shape)
+        self.plot.axes.plot(self.x_axis, self.data)
         
     def save(self):
         pass
