@@ -2,6 +2,31 @@ from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
 
+class Spectrum:
+    def __init__(self, fluxes, wavelengths = []):
+        self.fluxes = fluxes
+        self.wavelengths = wavelengths if len(wavelengths) > 0 else np.arange(0, len(fluxes))
+
+    def dispersion(self):
+        return (self.wavelengths[-1]-self.wavelengths[0])/(len(self.wavelengths)-1)
+    
+    def __populate_wavelengths(self, m, q):
+        self.wavelengths = np.fromfunction(lambda x: m*x+q, self.fluxes.shape)
+        
+    def calibrate(self, points=[], dispersion=None):
+        if len(points) == 1 and dispersion:
+            q = points[0]['wavelength'] - dispersion*points[0]['x']
+            self.__populate_wavelengths(dispersion, q)
+            
+        if len(points) > 1 and dispersion == None:
+            m, q = np.polyfit([i['x'] for i in points], [i['wavelength'] for i in points], 1)
+            self.__populate_wavelengths(m, q)
+    
+    def cut(self, start = 0, end = -1):
+        end = len(self.wavelengths) if end == -1 else end+1
+        self.wavelengths = self.wavelengths[start:end]
+        self.fluxes = self.fluxes[start:end]
+
 class FitsSpectrum:
     def __init__(self, fits_file):
         self.fits_file = fits_file
