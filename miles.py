@@ -6,7 +6,7 @@ import urllib
 
 class Miles:
     def __init__(self):
-        json_file = open('miles.json', 'r')
+        json_file = open('data/miles.json', 'r')
         self.catalog = json.load(json_file)
         json_file.close()
         
@@ -19,6 +19,6 @@ class Miles:
             pass
         if not os.path.exists(file_path):
             
-            remote_file = urllib.request.URLopener()
+            remote_file = urllib.request.FancyURLopener()
             remote_file.retrieve("http://www.iac.es/proyecto/miles/media/stellar_libraries/MILES/s{}.fits".format(miles_number), file_path)
         return file_path
