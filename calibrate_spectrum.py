@@ -102,6 +102,10 @@ class CalibrateSpectrum(QWidget):
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.wavelength_pick.setEnabled(not checked))
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_wavelength.setEnabled(not checked))
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
+        
+        self.toolbar.addSeparator()
+        self.toolbar.addAction("Zoom", self.spectrum_plot.select_zoom)
+        self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.fits_spectrum.x_axis(), self.fits_spectrum.data().min(), self.fits_spectrum.data().max()))
 
         hdu_calibration_points = [h for h in self.fits_file if h.name == 'CALIBRATION_DATA']
         if len(hdu_calibration_points) > 0:                
@@ -111,9 +115,8 @@ class CalibrateSpectrum(QWidget):
     
     def open_reference(self, file):
         fits_spectrum = FitsSpectrum(fits.open(file))
-        data = fits_spectrum.data()
-        data /= data.max()
-        line = Line2D(fits_spectrum.x_axis(), data, color='gray')
+        fits_spectrum.normalize_to_max()
+        line = Line2D(fits_spectrum.x_axis(), fits_spectrum.data(), color='gray')
         self.spectrum_plot.axes.add_line(line)
         self.spectrum_plot.figure.canvas.draw()
         
