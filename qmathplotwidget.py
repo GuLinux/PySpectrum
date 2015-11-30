@@ -20,6 +20,29 @@ class QMathPlotWidgetBase(FigureCanvas):
         FigureCanvas.updateGeometry(self)
         self.elements = {}
         
+    def plot(self, *args, **kwargs):
+        self.axes.plot(*args, **kwargs)
+        try:
+            self.apply_zoom()
+        except AttributeError:
+            pass
+        
+    def apply_zoom(self):
+        self.axes.axis(self.zoom_rect)
+        self.figure.canvas.draw()
+        
+    def select_zoom(self):
+        def on_rect_selected(self,a,b):
+            self.zoom_rect = [a.xdata, b.xdata, a.ydata, b.ydata]
+            self.rm_element('zoom')
+            self.apply_zoom()
+        
+        self.add_rectangle_selector('zoom', lambda a,b: on_rect_selected(self, a, b))
+        
+    def reset_zoom(self, x_range, ymin, ymax):
+        self.zoom_rect = [x_range[0], x_range[-1], ymin, ymax]
+        self.apply_zoom()
+        
     def rm_element(self, name, redraw = True):
         element = self.elements.pop(name, None)
         if element != None:

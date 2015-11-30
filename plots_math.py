@@ -30,7 +30,7 @@ class PlotsMath(QWidget):
         self.toolbar.addAction('Set operand', self.set_operand)
         self.toolbar.addSeparator()
         self.toolbar.addAction('Zoom', self.start_zoom)
-        self.toolbar.addAction('Reset Zoom', self.reset_zoom)
+        self.toolbar.addAction('Reset Zoom', lambda: self.plot.reset_zoom(self.x_axis, self.data.min(), self.data.max()) )
         self.ui.spline_factor.valueChanged.connect(self.factor_valueChanged)
         self.ui.spline_degrees.valueChanged.connect(lambda v: self.draw())
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.draw())
@@ -60,14 +60,14 @@ class PlotsMath(QWidget):
         
     def start_zoom(self):
         self.plot.rm_element('pick_rm_points')
-        self.plot.add_rectangle_selector('zoom', self.zoom)
+        self.plot.select_zoom()
         
     def draw(self):
         self.ui.spline_degrees_value.setText("{}".format(self.ui.spline_degrees.value()))
         spline_factor = self.ui.spline_factor.value() if not self.ui.spline_factor_auto.isChecked() else None
         spline = UnivariateSpline(self.x_axis, self.data, k=self.ui.spline_degrees.value(), s=spline_factor)
         self.f_x = lambda x: spline(x)
-        self.plot.axes.plot(self.x_axis, self.data, '--', self.x_axis, spline(self.x_axis), '-')
+        self.plot.plot(self.x_axis, self.data, '--', self.x_axis, spline(self.x_axis), '-')
         self.plot.axes.axis(self.rect)
         self.plot.figure.canvas.draw()
         
@@ -78,16 +78,6 @@ class PlotsMath(QWidget):
         self.data[min:max] = np.fromfunction(rect, self.data[min:max].shape)
         self.draw()
         self.plot.rm_element('pick_rm_points')
-        
-    def zoom(self, a, b):
-        self.rect = [a.xdata, b.xdata, a.ydata, b.ydata]
-        self.plot.axes.axis(self.rect)
-        self.plot.rm_element('zoom')
-        self.plot.figure.canvas.draw()
-        
-    def reset_zoom(self):
-        self.rect = [self.x_axis[0], self.x_axis[-1], 0, 1]
-        self.draw()
         
     def set_operand(self):
         item = QStandardItem(self.fits_spectrum.name())
@@ -104,7 +94,7 @@ class PlotsMath(QWidget):
         data_f1 =  np.fromfunction(lambda x: f_x_a(x+self.x_axis[0]), self.x_axis.shape)
         data_f2 =  np.fromfunction(lambda x: f_x_b(x+self.x_axis[0]), self.x_axis.shape)
         self.data = data_f1/data_f2
-        self.plot.axes.plot(self.x_axis, data_f1, '-', self.x_axis, data_f2, "-", self.x_axis, self.data)
+        self.plot.plot(self.x_axis, data_f1, '-', self.x_axis, data_f2, "-", self.x_axis, self.data)
 
         self.plot.figure.canvas.draw()
         
