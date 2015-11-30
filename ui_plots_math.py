@@ -94,6 +94,8 @@ class Ui_PlotsMath(object):
         self.plot = QtWidgets.QWidget(PlotsMath)
         self.plot.setObjectName("plot")
         self.gridLayout.addWidget(self.plot, 0, 0, 4, 1)
+        self.actionSelectPointsToRemove = QtWidgets.QAction(PlotsMath)
+        self.actionSelectPointsToRemove.setObjectName("actionSelectPointsToRemove")
 
         self.retranslateUi(PlotsMath)
         QtCore.QMetaObject.connectSlotsByName(PlotsMath)
@@ -108,4 +110,6 @@ class Ui_PlotsMath(object):
         self.spline_factor_auto.setText(_translate("PlotsMath", "Auto"))
         self.groupBox_3.setTitle(_translate("PlotsMath", "Operations"))
         self.execute.setText(_translate("PlotsMath", "Execute"))
+        self.actionSelectPointsToRemove.setText(_translate("PlotsMath", "Select points to remove"))
+        self.actionSelectPointsToRemove.setShortcut(_translate("PlotsMath", "Ctrl+R"))
 

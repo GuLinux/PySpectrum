@@ -172,6 +172,14 @@
     <widget class="QWidget" name="plot" native="true"/>
    </item>
   </layout>
+  <action name="actionSelectPointsToRemove">
+   <property name="text">
+    <string>Select points to remove</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

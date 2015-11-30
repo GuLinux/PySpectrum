@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFileDialog, QToolBar, QToolButton, QMenu
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFileDialog, QToolBar, QToolButton, QMenu, QAction
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
 
 class QtCommons:
     def nestWidget(parent, child):
@@ -30,12 +32,17 @@ class QtCommons:
         dialog.finished.connect(lambda: dialog.deleteLater())
         dialog.show()
         
-    def addToolbarPopup(toolbar, text, actions = [], popup_mode = QToolButton.InstantPopup):
+    def addToolbarPopup(toolbar, text = None, icon_name = None, popup_mode = QToolButton.InstantPopup, toolbutton_style=Qt.ToolButtonTextBesideIcon):
         button = QToolButton()
-        button.setText(text)
+        button.setToolButtonStyle(toolbutton_style)
+        button.setDefaultAction(QAction(button))
+        if text:
+            button.defaultAction().setText(text)
+            button.defaultAction().setIconText(text)
         button.setPopupMode(popup_mode)
         button.setMenu(QMenu())
-        for action in actions:
-            button.menu().addAction(action)
+        if icon_name:
+            button.defaultAction().setIcon(QIcon.fromTheme(icon_name))
+
         toolbar.addWidget(button)
         return button

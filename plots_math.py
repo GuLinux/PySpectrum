@@ -25,16 +25,17 @@ class PlotsMath(QWidget):
         self.miles_dialog = MilesDialog()
         self.miles_dialog.fits_picked.connect(self.open_fits)
         self.toolbar = QToolBar('Instrument Response Toolbar')
-        #open_menu = QtCommons.addToolbarPopup(self.toolbar, "hello")
-
-        self.toolbar.addAction('Open', lambda: QtCommons.open_file('Open FITS Spectrum',"FITS Images (*.fit *.fits)", lambda f: self.open_fits(f[0]), self.settings.value("open_spectrum_last_dir", type=str) ))
-        self.toolbar.addAction('MILES', self.miles_dialog.show)
+        open_btn = QtCommons.addToolbarPopup(self.toolbar, text="Open...", icon_name='document-open')
+        open_btn.menu().addAction('FITS file', lambda: QtCommons.open_file('Open FITS Spectrum',"FITS Images (*.fit *.fits)", lambda f: self.open_fits(f[0]), self.settings.value("open_spectrum_last_dir", type=str) ))
+        open_btn.menu().addAction('MILES reference', self.miles_dialog.show)
         self.toolbar.addAction('Set operand', self.set_operand)
         self.toolbar.addSeparator()
         self.toolbar.addAction('Zoom', self.start_zoom)
         self.toolbar.addAction('Reset Zoom', lambda: self.plot.reset_zoom(self.x_axis, self.data.min(), self.data.max()) )
         self.toolbar.addSeparator()
-        self.toolbar.addAction('Remove Points', self.pick_rm_points)
+        remove_btn = QtCommons.addToolbarPopup(self.toolbar, text='Remove...')
+        remove_btn.menu().addAction(self.ui.actionSelectPointsToRemove)
+        self.ui.actionSelectPointsToRemove.triggered.connect(self.pick_rm_points)
         self.undo_action = self.toolbar.addAction('Undo', self.undo )
         self.undo_action.setEnabled(False)
         self.ui.spline_factor.valueChanged.connect(self.factor_valueChanged)
@@ -85,7 +86,6 @@ class PlotsMath(QWidget):
         spline = UnivariateSpline(self.x_axis, self.data, k=self.ui.spline_degrees.value(), s=spline_factor)
         self.f_x = lambda x: spline(x)
         self.plot.plot(self.x_axis, self.data, '--', self.x_axis, spline(self.x_axis), '-')
-        self.plot.axes.axis(self.rect)
         self.plot.figure.canvas.draw()
         
     def rm_points(self, min, max):
@@ -113,7 +113,6 @@ class PlotsMath(QWidget):
         data_f2 =  np.fromfunction(lambda x: f_x_b(x+self.x_axis[0]), self.x_axis.shape)
         self.data = data_f1/data_f2
         self.plot.plot(self.x_axis, data_f1, '-', self.x_axis, data_f2, "-", self.x_axis, self.data)
-
         self.plot.figure.canvas.draw()
         
     def save(self):
