@@ -69,6 +69,11 @@ class PlotsMath(QWidget):
         self.fits_spectrum = FitsSpectrum(fits_file)
         self.spectrum = self.fits_spectrum.spectrum
         self.spectrum.normalize_to_max()
+        if self.spectrum.dispersion() < 1:
+            print("dispersion too high ({}), reducing spectrum resolution".format(self.spectrum.dispersion()))
+            spline = InterpolatedUnivariateSpline(self.spectrum.wavelengths, self.spectrum.fluxes)
+            self.spectrum.wavelengths = np.arange(self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1]+1)
+            self.spectrum.fluxes = np.fromfunction(lambda x: spline(x+self.spectrum.wavelengths[0]), self.spectrum.wavelengths.shape)
         self.draw()
 
     @pyqtSlot(float)
