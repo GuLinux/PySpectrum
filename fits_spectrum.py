@@ -58,7 +58,8 @@ class FitsSpectrum:
         if len(self.fits_file) > 1 and self.fits_file[1].name != FitsSpectrum.CALIBRATION_DATA:
             hdu = self.fits_file[1]
             columns = dict([('WAVELENGTH' if 'WAVE' in c.name.upper() else c.name.upper(), index) for index, c in enumerate(hdu.columns)])
-            self.spectrum = Spectrum(fluxes=hdu.data.field('FLUX'), wavelengths=hdu.data.field('WAVELENGTH'))
+            print(columns)
+            self.spectrum = Spectrum(fluxes=hdu.data.field(columns['FLUX']), wavelengths=hdu.data.field(columns['WAVELENGTH']))
             return
         
         header = self.fits_file[0].header
