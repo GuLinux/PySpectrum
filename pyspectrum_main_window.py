@@ -8,6 +8,7 @@ import os
 from astropy.io import fits
 from qtcommons import QtCommons
 from plots_math import PlotsMath
+from pyspectrum_commons import *
 
 class PySpectrumMainWindow(QMainWindow):
     def __init__(self):
@@ -16,10 +17,10 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.settings = QSettings("GuLinux", "PySpectrum")
         QtCommons.addToolbarPopup(self.ui.toolBar, 'Load...', actions=[self.ui.actionOpen_Image,self.ui.actionCalibrate_FITS,self.ui.actionPlots_Math,self.ui.actionFinish_Spectrum])
-        self.ui.actionOpen_Image.triggered.connect(lambda: QtCommons.open_file('Open FITS Image',"FITS Images (*.fit *.fits)", self.open_image, self.settings.value("open_image_last_dir", type=str) ))
-        self.ui.actionCalibrate_FITS.triggered.connect(lambda: QtCommons.open_file('Open raw FITS Spectrum',"FITS Images (*.fit *.fits)", self.calibrate, self.settings.value("open_spectrum_last_dir", type=str) ))
+        self.ui.actionOpen_Image.triggered.connect(lambda: QtCommons.open_file('Open FITS Image',FITS_IMG_EXTS, self.open_image, self.settings.value("open_image_last_dir", type=str) ))
+        self.ui.actionCalibrate_FITS.triggered.connect(lambda: QtCommons.open_file('Open raw FITS Spectrum',FITS_EXTS, self.calibrate, self.settings.value("open_spectrum_last_dir", type=str) ))
         self.ui.actionPlots_Math.triggered.connect(self.plots_math)
-        self.ui.actionFinish_Spectrum.triggered.connect(lambda: QtCommons.open_file('Open FITS Spectrum',"FITS Images (*.fit *.fits)", self.finish_spectrum, self.settings.value("open_spectrum_last_dir", type=str) ))
+        self.ui.actionFinish_Spectrum.triggered.connect(lambda: QtCommons.open_file('Open FITS Spectrum',FITS_EXTS, self.finish_spectrum, self.settings.value("open_spectrum_last_dir", type=str) ))
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
         self.restoreGeometry(self.settings.value('window_geometry', QByteArray()))

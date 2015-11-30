@@ -8,6 +8,7 @@ from scipy.interpolate import *
 from miles import Miles
 from miles_dialog import MilesDialog
 from matplotlib.lines import Line2D
+from pyspectrum_commons import *
 
 class FinishSpectrum(QWidget):
     def __init__(self, fits_file, settings):
@@ -20,7 +21,7 @@ class FinishSpectrum(QWidget):
         self.spectrum = self.fits_spectrum.spectrum
         self.spectrum_plot = QtCommons.nestWidget(self.ui.plot, QMathPlotWidget())
         self.toolbar = QToolBar('Finish Spectrum Toolbar')
-        self.toolbar.addAction('Instrument Response', lambda: QtCommons.open_file('Open Instrument Response Profile', "FITS Images (*.fit *.fits)", lambda f: self.instrument_response(f[0])))
+        self.toolbar.addAction('Instrument Response', lambda: QtCommons.open_file('Open Instrument Response Profile', FITS_EXTS, lambda f: self.instrument_response(f[0])))
         self.toolbar.addAction("Zoom", self.spectrum_plot.select_zoom)
         self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.spectrum.wavelengths, self.spectrum.fluxes.min(), self.spectrum.fluxes.max()))
         remove_action = QtCommons.addToolbarPopup(self.toolbar, "Remove")
@@ -31,7 +32,7 @@ class FinishSpectrum(QWidget):
         self.miles_dialog = MilesDialog()
         self.miles_dialog.fits_picked.connect(self.open_reference)
         reference_action = QtCommons.addToolbarPopup(self.toolbar, "Reference")
-        reference_action.menu().addAction("Load from FITS file", lambda: QtCommons.open_file('Open Reference Profile', "FITS Images (*.fit *.fits)", lambda f: self.open_reference(f[0])))
+        reference_action.menu().addAction("Load from FITS file", lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.open_reference(f[0])))
         reference_action.menu().addAction("MILES library", lambda: self.miles_dialog.show())
         reference_action.menu().addAction("Close", lambda: self.spectrum_plot.rm_element('reference'))
         self.toolbar.addSeparator()

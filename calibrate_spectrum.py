@@ -16,6 +16,7 @@ from miles import Miles
 from miles_dialog import MilesDialog
 from scipy.interpolate import *
 from ui_select_plotted_point import Ui_SelectPlottedPoints
+from pyspectrum_commons import *
 
 class SelectPlottedPoints(QDialog):
     point = pyqtSignal(int)
@@ -83,7 +84,7 @@ class CalibrateSpectrum(QWidget):
         reference_from_file = reference_action.menu().addAction("Load from FITS file")
         reference_miles = reference_action.menu().addAction("MILES library")
         reference_miles.triggered.connect(lambda: self.miles_dialog.show())
-        reference_from_file.triggered.connect(lambda: QtCommons.open_file('Open Reference Profile', "FITS Images (*.fit *.fits)", lambda f: self.open_reference(f[0])))
+        reference_from_file.triggered.connect(lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.open_reference(f[0])))
         #reference_action.setEnabled(false)
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
 

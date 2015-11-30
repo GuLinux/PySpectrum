@@ -11,6 +11,8 @@ from astropy.io import fits
 from miles import Miles
 from miles_dialog import MilesDialog
 from collections import deque
+from pyspectrum_commons import *
+
 class PlotsMath(QWidget):
     
     F_X = Qt.UserRole + 1
@@ -26,7 +28,7 @@ class PlotsMath(QWidget):
         self.miles_dialog.fits_picked.connect(self.open_fits)
         self.toolbar = QToolBar('Instrument Response Toolbar')
         open_btn = QtCommons.addToolbarPopup(self.toolbar, text="Open...", icon_name='document-open')
-        open_btn.menu().addAction('FITS file', lambda: QtCommons.open_file('Open FITS Spectrum',"FITS Images (*.fit *.fits)", lambda f: self.open_fits(f[0]), self.settings.value("open_spectrum_last_dir", type=str) ))
+        open_btn.menu().addAction('FITS file', lambda: QtCommons.open_file('Open FITS Spectrum',FITS_EXTS, lambda f: self.open_fits(f[0]), self.settings.value("open_spectrum_last_dir", type=str) ))
         open_btn.menu().addAction('MILES reference', self.miles_dialog.show)
         self.save_result = self.toolbar.addAction('Save', lambda: QtCommons.save_file('Save Operation Result...', 'FITS file (.fit)', self.save, self.settings.value('last_plot_save_dir')))
         self.toolbar.addAction('Set operand', self.set_operand)
