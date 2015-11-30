@@ -100,6 +100,8 @@ class Ui_PlotsMath(object):
         self.actionZoom.setObjectName("actionZoom")
         self.actionReset_Zoom = QtWidgets.QAction(PlotsMath)
         self.actionReset_Zoom.setObjectName("actionReset_Zoom")
+        self.actionUndo = QtWidgets.QAction(PlotsMath)
+        self.actionUndo.setObjectName("actionUndo")
 
         self.retranslateUi(PlotsMath)
         QtCore.QMetaObject.connectSlotsByName(PlotsMath)
@@ -120,4 +122,6 @@ class Ui_PlotsMath(object):
         self.actionZoom.setShortcut(_translate("PlotsMath", "Ctrl++"))
         self.actionReset_Zoom.setText(_translate("PlotsMath", "Reset Zoom"))
         self.actionReset_Zoom.setShortcut(_translate("PlotsMath", "Ctrl+-"))
+        self.actionUndo.setText(_translate("PlotsMath", "Undo"))
+        self.actionUndo.setShortcut(_translate("PlotsMath", "Ctrl+Z"))
 

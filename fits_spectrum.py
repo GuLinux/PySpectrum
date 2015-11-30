@@ -28,6 +28,8 @@ class Spectrum:
         self.wavelengths = self.wavelengths[start:end]
         self.fluxes = self.fluxes[start:end]
         
+    def wavelength_index(self, wavelength):
+        return [i for i, j in enumerate(self.wavelengths) if j <= wavelength][-1]
         
     def normalize_to_max(self):
         self.fluxes /= self.fluxes.max()
@@ -58,9 +60,13 @@ class FitsSpectrum:
         self.spectrum = Spectrum(fluxes, first_wavelength = x_start, dispersion = dispersion)
         
     def x_calibrated(self, value):
+        print("DEPRECATED CALL to x_calibrated")
+        traceback.print_stack()
         return self.spectrum.dispersion() * value + self.spectrum.wavelengths[0]
     
     def x_uncalibrated(self, value):
+        print("DEPRECATED CALL to x_uncalibrated")
+        traceback.print_stack()
         return (value-self.spectrum.wavelengths[0])/self.spectrum.dispersion()
         
     def x_axis(self):

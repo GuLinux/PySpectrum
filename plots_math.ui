@@ -196,6 +196,14 @@
     <string>Ctrl+-</string>
    </property>
   </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

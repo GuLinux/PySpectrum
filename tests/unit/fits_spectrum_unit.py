@@ -45,6 +45,13 @@ class TestSpectrum(unittest.TestCase):
         assert_array_equal(spectrum.fluxes, [0.3, 0.5])
         
         
+    def test_get_index_from_wavelength(self):
+        spectrum = Spectrum(np.array([0.2, 0.3, 0.5, 0.7]), np.array([3, 6, 9, 12]))
+        self.assertEqual(1, spectrum.wavelength_index(6))
+        self.assertEqual(0, spectrum.wavelength_index(5))
+        self.assertEqual(0, spectrum.wavelength_index(3))
+        self.assertEqual(2, spectrum.wavelength_index(9))
+        self.assertEqual(3, spectrum.wavelength_index(12))
         
 
 if __name__ == '__main__':
