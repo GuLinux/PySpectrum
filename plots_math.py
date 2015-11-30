@@ -31,8 +31,10 @@ class PlotsMath(QWidget):
         self.save_result = self.toolbar.addAction('Save', lambda: QtCommons.save_file('Save Operation Result...', 'FITS file (.fit)', self.save, self.settings.value('last_plot_save_dir')))
         self.toolbar.addAction('Set operand', self.set_operand)
         self.toolbar.addSeparator()
-        self.toolbar.addAction('Zoom', self.start_zoom)
-        self.toolbar.addAction('Reset Zoom', lambda: self.plot.reset_zoom(self.x_axis, self.data.min(), self.data.max()) )
+        self.toolbar.addAction(self.ui.actionZoom)
+        self.ui.actionZoom.triggered.connect(self.start_zoom)
+        self.toolbar.addAction(self.ui.actionReset_Zoom)
+        self.ui.actionReset_Zoom.triggered.connect(self.reset_zoom)
         self.toolbar.addSeparator()
         remove_btn = QtCommons.addToolbarPopup(self.toolbar, text='Remove...')
         remove_btn.menu().addAction(self.ui.actionSelectPointsToRemove)
@@ -106,7 +108,9 @@ class PlotsMath(QWidget):
             return
         self.store_undo()
         points_map = [(x,l) for x,l in zip(self.x_axis, self.data) if (x>point[0] and direction == 'before') or (x<point[0] and direction=='after')]
-        self.x_axis, self.data = zip(*points_map)
+        self.x_axis = np.array([x[0] for x in points_map])
+        self.data = np.array([x[1] for x in points_map])
+        self.reset_zoom()
         self.draw()
     
     def set_operand(self):
@@ -132,5 +136,8 @@ class PlotsMath(QWidget):
         fits_file = fits.HDUList([hdu])
         hdu.header['CRPIX1'] = 1
         hdu.header['CRVAL1'] = self.x_axis[0]
-        hdu.header['CDELT1'] = 1
-        hdu.writeto(fits_file, clobber=True)
+        hdu.header['CDELT1'] = (self.x_axis[-1]-self.x_axis[0])/(len(self.x_axis)-1)
+        hdu.writeto(filename[0], clobber=True)
+
+    def reset_zoom(self):
+        self.plot.reset_zoom(self.x_axis, self.data.min(), self.data.max())

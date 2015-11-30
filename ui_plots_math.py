@@ -96,6 +96,10 @@ class Ui_PlotsMath(object):
         self.gridLayout.addWidget(self.plot, 0, 0, 4, 1)
         self.actionSelectPointsToRemove = QtWidgets.QAction(PlotsMath)
         self.actionSelectPointsToRemove.setObjectName("actionSelectPointsToRemove")
+        self.actionZoom = QtWidgets.QAction(PlotsMath)
+        self.actionZoom.setObjectName("actionZoom")
+        self.actionReset_Zoom = QtWidgets.QAction(PlotsMath)
+        self.actionReset_Zoom.setObjectName("actionReset_Zoom")
 
         self.retranslateUi(PlotsMath)
         QtCore.QMetaObject.connectSlotsByName(PlotsMath)
@@ -112,4 +116,8 @@ class Ui_PlotsMath(object):
         self.execute.setText(_translate("PlotsMath", "Execute"))
         self.actionSelectPointsToRemove.setText(_translate("PlotsMath", "Select points to remove"))
         self.actionSelectPointsToRemove.setShortcut(_translate("PlotsMath", "Ctrl+R"))
+        self.actionZoom.setText(_translate("PlotsMath", "Zoom"))
+        self.actionZoom.setShortcut(_translate("PlotsMath", "Ctrl++"))
+        self.actionReset_Zoom.setText(_translate("PlotsMath", "Reset Zoom"))
+        self.actionReset_Zoom.setShortcut(_translate("PlotsMath", "Ctrl+-"))
 
