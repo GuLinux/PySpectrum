@@ -58,3 +58,6 @@ class FitsSpectrum:
         
     def name(self):
         return self.fits_file.filename()
+    
+    def trim(self, x_lambda, direction):
+        pass

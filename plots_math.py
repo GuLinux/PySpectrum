@@ -10,7 +10,7 @@ import numpy as np
 from astropy.io import fits
 from miles import Miles
 from miles_dialog import MilesDialog
-
+from collections import deque
 class PlotsMath(QWidget):
     
     F_X = Qt.UserRole + 1
@@ -31,6 +31,9 @@ class PlotsMath(QWidget):
         self.toolbar.addSeparator()
         self.toolbar.addAction('Zoom', self.start_zoom)
         self.toolbar.addAction('Reset Zoom', lambda: self.plot.reset_zoom(self.x_axis, self.data.min(), self.data.max()) )
+        self.toolbar.addSeparator()
+        self.undo_action = self.toolbar.addAction('Undo', self.undo )
+        self.undo_action.setEnabled(False)
         self.ui.spline_factor.valueChanged.connect(self.factor_valueChanged)
         self.ui.spline_degrees.valueChanged.connect(lambda v: self.draw())
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.draw())
@@ -39,7 +42,19 @@ class PlotsMath(QWidget):
         self.ui.remove_points.clicked.connect(self.pick_rm_points)
         self.operands_model = QStandardItemModel()
         self.ui.operands_listview.setModel(self.operands_model)
+        self.undo_buffer = deque(maxlen=20)
         
+    def undo(self):
+        undo = self.undo_buffer.pop()
+        self.x_axis = undo[0]
+        self.data = undo[1]
+        self.draw()
+        self.undo_action.setEnabled(len(self.undo_buffer)>0)
+        
+    def store_undo(self):
+        self.undo_buffer.append((np.copy(self.x_axis), np.copy(self.data)))
+        self.undo_action.setEnabled(True)
+
     def open_fits(self, filename):
         fits_file = fits.open(filename)
         self.fits_spectrum = FitsSpectrum(fits_file)
@@ -72,6 +87,7 @@ class PlotsMath(QWidget):
         self.plot.figure.canvas.draw()
         
     def rm_points(self, min, max):
+        self.store_undo()
         min = self.fits_spectrum.x_uncalibrated(min)
         max = self.fits_spectrum.x_uncalibrated(max)
         rect = lambda x: x*((self.data[max]-self.data[min])/(max-min)) + self.data[min]
