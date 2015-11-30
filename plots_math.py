@@ -107,9 +107,9 @@ class PlotsMath(QWidget):
         if not point[1]:
             return
         self.store_undo()
-        points_map = [(x,l) for x,l in zip(self.x_axis, self.data) if (x>point[0] and direction == 'before') or (x<point[0] and direction=='after')]
-        self.x_axis = np.array([x[0] for x in points_map])
-        self.data = np.array([x[1] for x in points_map])
+        self.fits_spectrum.trim(point[0], direction)
+        self.x_axis = self.fits_spectrum.x_axis()
+        self.data = self.fits_spectrum.data()
         self.reset_zoom()
         self.draw()
     

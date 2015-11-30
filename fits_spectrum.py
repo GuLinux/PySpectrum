@@ -36,7 +36,12 @@ class FitsSpectrum:
     def data(self):
         return self.fits_file[0].data[0] if self.fits_file[0].header.get('NAXIS2', 0) == 1 else self.fits_file[0].data
     
-    
+            
+    def trim(self, point, direction):
+        points_map = [(x,l) for x,l in zip(self.x_axis(), self.data()) if (x>point and direction == 'before') or (x<point and direction=='after')]
+        #self.x_axis = np.array([x[0] for x in points_map])
+        self.fits_file[0].data = np.array([x[1] for x in points_map])
+        
     def plot_to(self, axes):
         axes.plot(self.x_axis(), self.data())
         axes.figure.canvas.draw()
