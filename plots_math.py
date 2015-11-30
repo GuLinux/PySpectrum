@@ -1,7 +1,7 @@
 from ui_plots_math import Ui_PlotsMath
 from scipy.interpolate import *
 from qmathplotwidget import QMathPlotWidget
-from PyQt5.QtWidgets import QWidget, QToolBar, QToolButton, QMenu, QAction
+from PyQt5.QtWidgets import QWidget, QToolBar, QToolButton, QMenu, QAction, QInputDialog
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QByteArray, QTimer
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from fits_spectrum import FitsSpectrum
@@ -28,6 +28,7 @@ class PlotsMath(QWidget):
         open_btn = QtCommons.addToolbarPopup(self.toolbar, text="Open...", icon_name='document-open')
         open_btn.menu().addAction('FITS file', lambda: QtCommons.open_file('Open FITS Spectrum',"FITS Images (*.fit *.fits)", lambda f: self.open_fits(f[0]), self.settings.value("open_spectrum_last_dir", type=str) ))
         open_btn.menu().addAction('MILES reference', self.miles_dialog.show)
+        self.save_result = self.toolbar.addAction('Save', lambda: QtCommons.save_file('Save Operation Result...', 'FITS file (.fit)', self.save, self.settings.value('last_plot_save_dir')))
         self.toolbar.addAction('Set operand', self.set_operand)
         self.toolbar.addSeparator()
         self.toolbar.addAction('Zoom', self.start_zoom)
@@ -35,6 +36,8 @@ class PlotsMath(QWidget):
         self.toolbar.addSeparator()
         remove_btn = QtCommons.addToolbarPopup(self.toolbar, text='Remove...')
         remove_btn.menu().addAction(self.ui.actionSelectPointsToRemove)
+        remove_btn.menu().addAction("Points before...", lambda: self.trim('before'))
+        remove_btn.menu().addAction("Points after...", lambda: self.trim('after'))
         self.ui.actionSelectPointsToRemove.triggered.connect(self.pick_rm_points)
         self.undo_action = self.toolbar.addAction('Undo', self.undo )
         self.undo_action.setEnabled(False)
@@ -97,6 +100,15 @@ class PlotsMath(QWidget):
         self.draw()
         self.plot.rm_element('pick_rm_points')
         
+    def trim(self, direction):
+        point = QInputDialog.getInt(None, 'Trim curve', 'Enter wavelength for trimming', self.x_axis[0] if direction == 'before' else self.x_axis[-1], self.x_axis[0], self.x_axis[-1])
+        if not point[1]:
+            return
+        self.store_undo()
+        points_map = [(x,l) for x,l in zip(self.x_axis, self.data) if (x>point[0] and direction == 'before') or (x<point[0] and direction=='after')]
+        self.x_axis, self.data = zip(*points_map)
+        self.draw()
+    
     def set_operand(self):
         item = QStandardItem(self.fits_spectrum.name())
         item.setData(self.f_x, PlotsMath.F_X)
@@ -114,7 +126,11 @@ class PlotsMath(QWidget):
         self.data = data_f1/data_f2
         self.plot.plot(self.x_axis, data_f1, '-', self.x_axis, data_f2, "-", self.x_axis, self.data)
         self.plot.figure.canvas.draw()
-        
-    def save(self):
-        pass
-        
+
+    def save(self, filename):
+        hdu = fits.PrimaryHDU(self.data)
+        fits_file = fits.HDUList([hdu])
+        hdu.header['CRPIX1'] = 1
+        hdu.header['CRVAL1'] = self.x_axis[0]
+        hdu.header['CDELT1'] = 1
+        hdu.writeto(fits_file, clobber=True)

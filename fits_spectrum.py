@@ -18,6 +18,7 @@ class FitsSpectrum:
             
         self.dispersion, self.x_start = np.polyfit([i['x'] for i in points], [i['wavelength'] for i in points], 1)
         
+
     def reset(self):
         header = self.fits_file[0].header
         self.dispersion = self.fits_file[0].header.get('CDELT1', 1)
@@ -59,5 +60,3 @@ class FitsSpectrum:
     def name(self):
         return self.fits_file.filename()
     
-    def trim(self, x_lambda, direction):
-        pass
