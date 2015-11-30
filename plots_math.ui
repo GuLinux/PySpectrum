@@ -83,19 +83,6 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>334</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label">
         <property name="text">
@@ -139,13 +126,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="0">
-       <widget class="QPushButton" name="remove_points">
-        <property name="text">
-         <string>Remove Points</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
@@ -175,7 +155,20 @@
      </layout>
     </widget>
    </item>
-   <item row="0" column="0" rowspan="3">
+   <item row="3" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>334</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="0" rowspan="4">
     <widget class="QWidget" name="plot" native="true"/>
    </item>
   </layout>
