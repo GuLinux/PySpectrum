@@ -1,4 +1,4 @@
-compile_ui: pyspectrum_main_window.ui import_image.ui rotate_image_dialog.ui calibrate_spectrum.ui miles_dialog.ui select_plotted_point.ui plots_math.ui
+compile_ui: pyspectrum_main_window.ui import_image.ui rotate_image_dialog.ui calibrate_spectrum.ui miles_dialog.ui select_plotted_point.ui plots_math.ui finish_spectrum.ui
 	for ui in $^; do pyuic5 $$ui -o ui_$$( basename $$ui .ui).py ; done
 
 all: compile_ui
@@ -8,7 +8,6 @@ run: all
 	
 unit_tests: all
 	python3 -m unittest tests/unit/fits_spectrum_unit.py
-
 
 tests: unit_tests
   

@@ -43,9 +43,12 @@ class Ui_PySpectrumMainWindow(object):
         self.actionCalibrate_FITS.setObjectName("actionCalibrate_FITS")
         self.actionPlots_Math = QtWidgets.QAction(PySpectrumMainWindow)
         self.actionPlots_Math.setObjectName("actionPlots_Math")
+        self.actionFinish_Spectrum = QtWidgets.QAction(PySpectrumMainWindow)
+        self.actionFinish_Spectrum.setObjectName("actionFinish_Spectrum")
         self.toolBar.addAction(self.actionOpen_Image)
         self.toolBar.addAction(self.actionCalibrate_FITS)
         self.toolBar.addAction(self.actionPlots_Math)
+        self.toolBar.addAction(self.actionFinish_Spectrum)
 
         self.retranslateUi(PySpectrumMainWindow)
         QtCore.QMetaObject.connectSlotsByName(PySpectrumMainWindow)
@@ -59,4 +62,5 @@ class Ui_PySpectrumMainWindow(object):
         self.actionCalibrate_FITS.setText(_translate("PySpectrumMainWindow", "&Calibrate FITS"))
         self.actionCalibrate_FITS.setShortcut(_translate("PySpectrumMainWindow", "Ctrl+S"))
         self.actionPlots_Math.setText(_translate("PySpectrumMainWindow", "Plots Math"))
+        self.actionFinish_Spectrum.setText(_translate("PySpectrumMainWindow", "Finish Spectrum"))
 

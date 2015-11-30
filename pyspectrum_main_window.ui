@@ -40,6 +40,7 @@
    <addaction name="actionOpen_Image"/>
    <addaction name="actionCalibrate_FITS"/>
    <addaction name="actionPlots_Math"/>
+   <addaction name="actionFinish_Spectrum"/>
   </widget>
   <action name="actionOpen_Image">
    <property name="icon">
@@ -68,6 +69,11 @@
   <action name="actionPlots_Math">
    <property name="text">
     <string>Plots Math</string>
+   </property>
+  </action>
+  <action name="actionFinish_Spectrum">
+   <property name="text">
+    <string>Finish Spectrum</string>
    </property>
   </action>
  </widget>

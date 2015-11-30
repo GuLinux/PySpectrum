@@ -2,6 +2,7 @@ from ui_pyspectrum_main_window import Ui_PySpectrumMainWindow
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from import_image import ImportImage
 from calibrate_spectrum import CalibrateSpectrum
+from finish_spectrum import FinishSpectrum
 from PyQt5.QtCore import QSettings, QByteArray
 import os
 from astropy.io import fits
@@ -17,6 +18,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui.actionOpen_Image.triggered.connect(lambda: QtCommons.open_file('Open FITS Image',"FITS Images (*.fit *.fits)", self.open_image, self.settings.value("open_image_last_dir", type=str) ))
         self.ui.actionCalibrate_FITS.triggered.connect(lambda: QtCommons.open_file('Open raw FITS Spectrum',"FITS Images (*.fit *.fits)", self.calibrate, self.settings.value("open_spectrum_last_dir", type=str) ))
         self.ui.actionPlots_Math.triggered.connect(self.plots_math)
+        self.ui.actionFinish_Spectrum.triggered.connect(lambda: QtCommons.open_file('Open FITS Spectrum',"FITS Images (*.fit *.fits)", self.finish_spectrum, self.settings.value("open_spectrum_last_dir", type=str) ))
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
         self.restoreGeometry(self.settings.value('window_geometry', QByteArray()))
@@ -54,3 +56,9 @@ class PySpectrumMainWindow(QMainWindow):
         self.settings.setValue(type + "_last_dir", os.path.dirname(file))
         self.settings.setValue(type + "_last_file", file)
         return fits.open(file)
+
+    def finish_spectrum(self, file):
+        fits_file = self.open_fits(file[0], 'open_spectrum')
+        widget = FinishSpectrum(fits_file, self.settings)
+        self.ui.stackedWidget.addWidget(widget)
+        self.ui.stackedWidget.setCurrentWidget(widget)

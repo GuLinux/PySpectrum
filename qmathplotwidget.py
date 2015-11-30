@@ -25,7 +25,7 @@ class QMathPlotWidgetBase(FigureCanvas):
         try:
             self.apply_zoom()
         except AttributeError:
-            pass
+            self.figure.canvas.draw()
         
     def apply_zoom(self):
         self.axes.axis(self.zoom_rect)
@@ -55,23 +55,23 @@ class QMathPlotWidgetBase(FigureCanvas):
                 pass
         if redraw:
             self.figure.canvas.draw()
-    
-
+    def add_element(self, element, name):
+        self.elements[name] = element
+        self.figure.canvas.draw()
+        
     def add_line(self, name, point, type='v', **kwargs):
         self.rm_element(name, redraw=False)
-        self.elements[name] = self.axes.axvline(point, **kwargs) if type == 'v' else self.axes.axhline(point, **kwargs)
-        self.figure.canvas.draw()
+        self.add_element(self.axes.axvline(point, **kwargs) if type == 'v' else self.axes.axhline(point, **kwargs), name)
 
     def add_span(self, name, min, max, type='v', **kwargs):
         self.rm_element(name, redraw=False)
-        self.elements[name] = self.axes.axvspan(min,max, **kwargs) if type == 'v' else self.axes.axhspan(min, max, **kwargs)
-        self.figure.canvas.draw()
+        self.add_element(self.axes.axvspan(min,max, **kwargs) if type == 'v' else self.axes.axhspan(min, max, **kwargs), name)
 
     def add_span_selector(self, name, callback, **kwargs):
-        self.elements[name] = SpanSelector(self.axes, callback, **kwargs)
+        self.add_element(SpanSelector(self.axes, callback, **kwargs), name)
         
     def add_rectangle_selector(self, name, callback, **kwargs):
-        self.elements[name] = RectangleSelector(self.axes, callback, **kwargs)
+        self.add_element(RectangleSelector(self.axes, callback, **kwargs), name)
 
 class QMathPlotWidget(QMathPlotWidgetBase):
     def __init__(self, **kwargs):
