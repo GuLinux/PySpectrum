@@ -35,8 +35,6 @@ class FitsSpectrum:
     def data(self):
         return self.fits_file[0].data[0] if self.fits_file[0].header.get('NAXIS2', 0) == 1 else self.fits_file[0].data
     
-    def set_data(self, data):
-        self.fits_file[0].data = data
     
     def plot_to(self, axes):
         axes.plot(self.x_axis(), self.data())
@@ -55,4 +53,5 @@ class FitsSpectrum:
             tbhdu.name = 'CALIBRATION_DATA'
             #self.fits_file.remove('calibration_data') #TODO: remove, or keep for history?
             self.fits_file.append(tbhdu)
+        print(filename)
         self.fits_file.writeto(filename, clobber=True)

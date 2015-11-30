@@ -77,7 +77,7 @@ class CalibrateSpectrum(QWidget):
         #self.ui.x_axis_pick.menu().addAction("Point")
         self.miles_dialog = MilesDialog()
         self.miles_dialog.fits_picked.connect(self.open_reference)
-        save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save')
+        save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_plot_dir')))
         reference_action = self.toolbar.addAction('Reference')
         reference_action.setMenu(QMenu())
         reference_from_file = reference_action.menu().addAction("Load from FITS file")
@@ -97,7 +97,6 @@ class CalibrateSpectrum(QWidget):
         self.ui.remove_calibration_point.setEnabled(False)
         self.ui.remove_calibration_point.clicked.connect(self.remove_calibration_point)
         self.ui.set_dispersion.clicked.connect(self.calibrate_with_dispersion)
-        save_action.triggered.connect(self.save)
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.wavelength_pick.setEnabled(not checked))
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_wavelength.setEnabled(not checked))
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
@@ -192,8 +191,5 @@ class CalibrateSpectrum(QWidget):
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
         
         
-    def save(self):
-        save_file = QFileDialog.getSaveFileName(None, "Save plot...", self.settings.value('last_save_plot_dir'), "FITS file (.fit)")[0]
-        if not save_file:
-            return
-        self.fits_spectrum.save(save_file, self.calibration_points())
+    def save(self, filename):
+        self.fits_spectrum.save(filename[0], self.calibration_points())
