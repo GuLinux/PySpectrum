@@ -65,3 +65,6 @@ class FitsSpectrum:
     def name(self):
         return self.fits_file.filename()
     
+    def normalize_to_max(self):
+        self.fits_file[0].data = self.data() / self.data().max()
+    

@@ -64,6 +64,7 @@ class CalibrateSpectrum(QWidget):
         super(CalibrateSpectrum, self).__init__()
         self.settings = settings
         self.fits_spectrum = FitsSpectrum(fits_file)
+        self.fits_spectrum.normalize_to_max()
         self.fits_file = fits_file
         self.ui = Ui_CalibrateSpectrum()
         self.ui.setupUi(self)
@@ -85,6 +86,8 @@ class CalibrateSpectrum(QWidget):
         reference_from_file.triggered.connect(lambda: QtCommons.open_file('Open Reference Profile', "FITS Images (*.fit *.fits)", lambda f: self.open_reference(f[0])))
         #reference_action.setEnabled(false)
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
+        
+        self.toolbar.addAction('Instrument Response', lambda: QtCommons.open_file('Open Instrument Response Profile', "FITS Images (*.fit *.fits)", lambda f: self.instrument_response(f[0])))
         
         self.calibration_model = QStandardItemModel()
         self.calibration_model.setHorizontalHeaderLabels(["x-axis", "wavelength", "error"])
@@ -189,6 +192,21 @@ class CalibrateSpectrum(QWidget):
         self.ui.dispersion.setValue(self.fits_spectrum.dispersion)
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
         
+    def instrument_response(self, filename):
+        instrument_response_file = fits.open(filename)
+        instrument_response_spectrum = FitsSpectrum(instrument_response_file)
+        #range = (max(instrument_response_spectrum.x_axis()[0], self.fits_spectrum.x_axis()[0]), min(instrument_response_spectrum.x_axis()[-1], self.fits_spectrum.x_axis()[-1]))
+        #self.fits_spectrum.trim(range[0], 'before')
+        #self.fits_spectrum.trim(range[1], 'after')
+        #self.fits_spectrum.plot_to(self.spectrum_plot.axes)
+        data = instrument_response_spectrum.data()
+        data /= data.max()
+        spline = InterpolatedUnivariateSpline(instrument_response_spectrum.x_axis(), data)
+        for index, value in enumerate(self.fits_spectrum.data()):
+            self.fits_spectrum.data()[index]/= spline(self.fits_spectrum.x_calibrated(index))
+        self.fits_spectrum.plot_to(self.spectrum_plot)
+        self.spectrum_plot.reset_zoom(self.fits_spectrum.x_axis(), self.fits_spectrum.data().min(), self.fits_spectrum.data().max())
+        print(range)
         
     def save(self, filename):
         self.fits_spectrum.save(filename[0], self.calibration_points())
