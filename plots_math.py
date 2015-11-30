@@ -46,6 +46,7 @@ class PlotsMath(QWidget):
         self.x_axis = self.fits_spectrum.x_axis()
         self.data = self.fits_spectrum.data()
         self.data /= self.data.max()
+        self.rect = [self.x_axis[0], self.x_axis[-1], 0, 1]
         self.draw()
 
     @pyqtSlot(float)
@@ -67,6 +68,7 @@ class PlotsMath(QWidget):
         spline = UnivariateSpline(self.x_axis, self.data, k=self.ui.spline_degrees.value(), s=spline_factor)
         self.f_x = lambda x: spline(x)
         self.plot.axes.plot(self.x_axis, self.data, '--', self.x_axis, spline(self.x_axis), '-')
+        self.plot.axes.axis(self.rect)
         self.plot.figure.canvas.draw()
         
     def rm_points(self, min, max):
@@ -78,12 +80,13 @@ class PlotsMath(QWidget):
         self.plot.rm_element('pick_rm_points')
         
     def zoom(self, a, b):
-        self.plot.axes.axis([a.xdata, b.xdata, a.ydata, b.ydata])
+        self.rect = [a.xdata, b.xdata, a.ydata, b.ydata]
+        self.plot.axes.axis(self.rect)
         self.plot.rm_element('zoom')
         self.plot.figure.canvas.draw()
         
     def reset_zoom(self):
-        self.plot.axes.axis([self.fits_spectrum.x_axis()[0], self.fits_spectrum.x_axis()[-1], self.fits_spectrum.data()[0], self.fits_spectrum.data()[-1]])
+        self.rect = [self.x_axis[0], self.x_axis[-1], 0, 1]
         self.draw()
         
     def set_operand(self):
