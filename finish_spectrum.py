@@ -38,7 +38,9 @@ class FinishSpectrum(QWidget):
         reference_action.menu().addAction("Reference library", lambda: self.reference_spectra_dialog.show())
         reference_action.menu().addAction("Close", lambda: self.spectrum_plot.rm_element('reference'))
         
-        self.toolbar.addAction('Spectral Lines', lambda: self.lines_dialog.show())
+        lines_menu = QtCommons.addToolbarPopup(self.toolbar, "Spectral Lines...")
+        lines_menu.menu().addAction('Lines Database', lambda: self.lines_dialog.show())
+        lines_menu.menu().addAction('Custom line', self.add_custom_line)
         
         self.toolbar.addSeparator()
         self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.spectrum_plot.figure.savefig(f[0], bbox_inches='tight', dpi=300)))
@@ -46,10 +48,14 @@ class FinishSpectrum(QWidget):
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_plot_dir')))
         self.lines = []
         
+    def add_custom_line(self):
+        wl = QInputDialog.getDouble(self, "Custom Line", "Enter line wavelength in Å", self.fits_spectrum.spectrum.wavelengths[0],self.fits_spectrum.spectrum.wavelengths[0],self.fits_spectrum.spectrum.wavelengths[-1],3)
+        if not wl[1]: return
+        self.add_lines([{'name': 'Custom Line', 'lambda': wl[0]}])
+        
     def add_lines(self, lines):
         for line in lines:
             self.lines.append(ReferenceLine(line['name'], line['lambda'], self.spectrum_plot.axes, lambda line: self.lines.remove(line)))
-            #self.spectrum_plot.add_line(line['name'], line['lambda'])
         
     def draw(self):
         self.spectrum_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes)
