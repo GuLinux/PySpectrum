@@ -12,8 +12,7 @@ from astropy.io import fits
 from fits_spectrum import FitsSpectrum
 from matplotlib.widgets import SpanSelector
 from matplotlib.lines import Line2D
-from miles import Miles
-from miles_dialog import MilesDialog
+from reference_spectra_dialog import ReferenceSpectraDialog
 from scipy.interpolate import *
 from ui_select_plotted_point import Ui_SelectPlottedPoints
 from pyspectrum_commons import *
@@ -61,7 +60,7 @@ class SelectPlottedPoints(QDialog):
         self.plot.figure.canvas.draw()
 
 class CalibrateSpectrum(QWidget):
-    def __init__(self, fits_file, settings):
+    def __init__(self, fits_file, settings, database):
         super(CalibrateSpectrum, self).__init__()
         self.settings = settings
         self.fits_spectrum = FitsSpectrum(fits_file)
@@ -77,13 +76,13 @@ class CalibrateSpectrum(QWidget):
         self.ui.x_axis_pick.menu().addAction("Central value from range").triggered.connect(lambda: self.pick_from_range('central'))
         self.ui.wavelength_pick.clicked.connect(self.pick_wavelength)
         #self.ui.x_axis_pick.menu().addAction("Point")
-        self.miles_dialog = MilesDialog()
-        self.miles_dialog.fits_picked.connect(self.open_reference)
+        self.reference_dialog = ReferenceSpectraDialog(database)
+        self.reference_dialog.fits_picked.connect(self.open_reference)
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_plot_dir')))
         reference_action = QtCommons.addToolbarPopup(self.toolbar, "Reference")
         reference_from_file = reference_action.menu().addAction("Load from FITS file")
-        reference_miles = reference_action.menu().addAction("MILES library")
-        reference_miles.triggered.connect(lambda: self.miles_dialog.show())
+        reference_action = reference_action.menu().addAction("Reference library")
+        reference_action.triggered.connect(lambda: self.reference_dialog.show())
         reference_from_file.triggered.connect(lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.open_reference(f[0])))
         #reference_action.setEnabled(false)
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())

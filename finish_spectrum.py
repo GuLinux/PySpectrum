@@ -5,14 +5,13 @@ from fits_spectrum import FitsSpectrum, Spectrum
 from qtcommons import *
 from astropy.io import fits
 from scipy.interpolate import *
-from miles import Miles
-from miles_dialog import MilesDialog
+from reference_spectra_dialog import ReferenceSpectraDialog
 from lines_dialog import LinesDialog
 from matplotlib.lines import Line2D
 from pyspectrum_commons import *
 
 class FinishSpectrum(QWidget):
-    def __init__(self, fits_file, settings):
+    def __init__(self, fits_file, settings, database):
         super(FinishSpectrum, self).__init__()
         self.settings = settings
         self.ui = Ui_FinishSpectrum()
@@ -30,13 +29,13 @@ class FinishSpectrum(QWidget):
         remove_action.menu().addAction("After point", lambda: self.remove('after'))
         self.toolbar.addSeparator()
         
-        self.miles_dialog = MilesDialog()
-        self.miles_dialog.fits_picked.connect(self.open_reference)
+        self.reference_spectra_dialog = ReferenceSpectraDialog(database)
+        self.reference_spectra_dialog.fits_picked.connect(self.open_reference)
         self.lines_dialog = LinesDialog()
         
         reference_action = QtCommons.addToolbarPopup(self.toolbar, "Reference")
         reference_action.menu().addAction("Load from FITS file", lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.open_reference(f[0])))
-        reference_action.menu().addAction("MILES library", lambda: self.miles_dialog.show())
+        reference_action.menu().addAction("Reference library", lambda: self.reference_spectra_dialog.show())
         reference_action.menu().addAction("Close", lambda: self.spectrum_plot.rm_element('reference'))
         
         self.toolbar.addAction('Spectral Lines', lambda: self.lines_dialog.show())

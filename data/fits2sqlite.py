@@ -26,14 +26,15 @@ def file2table(filename, hdu, tablename, database, create_table = True):
     codes = {'L': 'INTEGER', 'B': 'BLOB', 'I': 'INTEGER', 'J': 'INTEGER', 'K': 'INTEGER', 'E': 'REAL', 'D': 'REAL', 'A': 'TEXT'}
     conn = sqlite3.connect(database)
     c = conn.cursor()
+    column_names = [c.name.replace('-', '_') for c in table.columns]
     if create_table:
-        columns = ["{} {}".format(column.name, codes[column.format[-1]]) for column in table.columns]
+        columns = ["{} {}".format(column.name.replace('-', '_'), codes[column.format[-1]]) for column in table.columns]
         query="CREATE TABLE {} ({});".format(tablename, ", ".join(columns))
         print("Creating table with query:")
         print(query)
         c.execute(query)
         print("\n")
-    query = "INSERT INTO {} ({}) VALUES({});".format(tablename, ', '.join([c.name for c in table.columns]), ', '.join(['?']*len(table.columns)))
+    query = "INSERT INTO {} ({}) VALUES({});".format(tablename, ', '.join(column_names), ', '.join(['?']*len(table.columns)))
     print("Adding data with query: ")
     print(query)
     c.executemany(query, table.data)

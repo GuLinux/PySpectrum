@@ -9,11 +9,13 @@ from astropy.io import fits
 from qtcommons import QtCommons
 from plots_math import PlotsMath
 from pyspectrum_commons import *
+import sqlite3
 
 class PySpectrumMainWindow(QMainWindow):
     def __init__(self):
         super(PySpectrumMainWindow, self).__init__()
         self.ui = Ui_PySpectrumMainWindow()
+        self.database = sqlite3.connect('data/pyspectrum.db')
         self.ui.setupUi(self)
         self.settings = QSettings("GuLinux", "PySpectrum")
         QtCommons.addToolbarPopup(self.ui.toolBar, 'Load...', actions=[self.ui.actionOpen_Image,self.ui.actionCalibrate_FITS,self.ui.actionPlots_Math,self.ui.actionFinish_Spectrum])
@@ -43,12 +45,12 @@ class PySpectrumMainWindow(QMainWindow):
     
     def calibrate(self, file):
         fits_file = self.open_fits(file[0], 'open_spectrum')
-        widget = CalibrateSpectrum(fits_file, self.settings)
+        widget = CalibrateSpectrum(fits_file, self.settings, self.database)
         self.ui.stackedWidget.addWidget(widget)
         self.ui.stackedWidget.setCurrentWidget(widget)
 
     def plots_math(self):
-        widget = PlotsMath(self.settings)
+        widget = PlotsMath(self.settings, self.database)
         self.ui.stackedWidget.addWidget(widget)
         self.ui.stackedWidget.setCurrentWidget(widget)
 
@@ -61,6 +63,6 @@ class PySpectrumMainWindow(QMainWindow):
 
     def finish_spectrum(self, file):
         fits_file = self.open_fits(file[0], 'open_spectrum')
-        widget = FinishSpectrum(fits_file, self.settings)
+        widget = FinishSpectrum(fits_file, self.settings, self.database)
         self.ui.stackedWidget.addWidget(widget)
         self.ui.stackedWidget.setCurrentWidget(widget)
