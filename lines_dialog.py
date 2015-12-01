@@ -15,7 +15,7 @@ class LinesDialog(QDialog):
     
     def __init__(self, database, settings, plot_widget, axes = None):
         super(LinesDialog, self).__init__()
-        axes = axes if axes else plot_widget.axes
+        self.axes = axes if axes else plot_widget.axes
         self.database = database
         self.plot_widget = plot_widget
         self.settings = settings
@@ -37,13 +37,18 @@ class LinesDialog(QDialog):
         self.ui.lambda_to.editingFinished.connect(self.populate)
         self.accepted.connect(self.collect_selected_lines)
         self.populate()
-        self.ui.pick_wavelengths.clicked.connect(lambda: plot_widget.add_span_selector("pick_lines_lambda", self.picked_wavelengths, axes=axes, direction='horizontal'))
+        self.ui.pick_wavelengths.clicked.connect(self.pick_wavelengths_clicked)
+        
+    def pick_wavelengths_clicked(self):
+        self.plot_widget.add_span_selector("pick_lines_lambda", self.picked_wavelengths, axes=self.axes, direction='horizontal')
+        self.lower()
         
     def closeEvent(self, ev):
         self.settings.setValue('pick_lines_geometry', self.saveGeometry())
         QDialog.closeEvent(self, ev)
         
     def picked_wavelengths(self, start, end):
+        self.raise_()
         self.ui.lambda_from.setValue(start)
         self.ui.lambda_to.setValue(end)
         self.plot_widget.rm_element("pick_lines_lambda")

@@ -55,7 +55,7 @@ class FinishSpectrum(QWidget):
         hdu_spectral_lines = [h for h in fits_file if h.name == FitsSpectrum.SPECTRAL_LINES]
         if len(hdu_spectral_lines) > 0:                
             for line in hdu_spectral_lines[-1].data:
-                self.lines.append(ReferenceLine(line[0], line[1], self.profile_plot.axes, lambda line: self.lines.remove(line), show_wavelength=line[3], fontsize=line[2]))
+                self.lines.append(ReferenceLine(line[0], line[1], self.profile_plot.axes, lambda line: self.lines.remove(line), show_wavelength=line[3], fontsize=line[2], position=(line[4], line[5])))
         
     def add_custom_line(self):
         wl = QInputDialog.getDouble(self, "Custom Line", "Enter line wavelength in Å", self.fits_spectrum.spectrum.wavelengths[0],self.fits_spectrum.spectrum.wavelengths[0],self.fits_spectrum.spectrum.wavelengths[-1],3)
@@ -70,7 +70,7 @@ class FinishSpectrum(QWidget):
     def split_view(self):
         figure = self.spectrum_plot.figure
         figure.clear()
-        gs = gridspec.GridSpec(11,1)
+        gs = gridspec.GridSpec(10,1)
         self.profile_plot = figure.add_subplot(gs[0:-1])
         self.synthetize = figure.add_subplot(gs[-1], sharex = self.profile_plot)
         self.synthetize.yaxis.set_visible(False)
@@ -81,7 +81,7 @@ class FinishSpectrum(QWidget):
         crange = (3800, 7800)
         if not crange[0] < wavelength < crange[1]: return (0,0,0,0)
         value = plt.cm.gist_rainbow(1-((wavelength-crange[0]) / (crange[1]-crange[0]) ) )
-        return [value[0], value[1], value[2], math.sqrt(flux)]
+        return [value[0], value[1], value[2], math.pow(flux, 3/5)]
     
     def draw(self):
         self.profile_plot.clear()
@@ -89,7 +89,7 @@ class FinishSpectrum(QWidget):
 
         self.synthetize.axes.set_axis_bgcolor('black')
         colors = [FinishSpectrum.synthetize(w, self.spectrum.fluxes[i]) for i,w in enumerate(self.spectrum.wavelengths)]
-        im_height = 100
+        im_height = 150
         colors = np.array(colors*im_height).reshape(im_height,len(colors),4)
         self.synthetize.imshow(colors, extent=[self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1], 0, im_height])
         self.profile_plot.figure.tight_layout()

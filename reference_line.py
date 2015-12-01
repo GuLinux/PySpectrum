@@ -6,7 +6,7 @@ from ui_line_edit import Ui_LineEdit
 class ReferenceLine:
     lock = None
 
-    def __init__(self, name, wavelength, axes, on_remove, show_wavelength = False, fontsize = 16):
+    def __init__(self, name, wavelength, axes, on_remove, show_wavelength = False, fontsize = 16, position = None):
         self.axes = axes
         self.wavelength = wavelength
         self.name = name
@@ -36,6 +36,12 @@ class ReferenceLine:
         self.edit_dialog_ui.remove_line.clicked.connect(self.edit_dialog.reject)
         self.edit_dialog_ui.remove_line.clicked.connect(self.remove)
         self.update_line()
+        if position:
+            self.label.set_x(position[0])
+            self.label.set_y(position[1])
+        
+    def position(self):
+        return self.label.get_unitless_position()
         
     def update_line(self):
         self.name = self.edit_dialog_ui.line_text.text()
@@ -60,7 +66,7 @@ class ReferenceLine:
             self.edit_dialog.show()
             return
         ReferenceLine.lock = self
-        x0, y0 = self.label.get_unitless_position()
+        x0, y0 = self.position()
         self.press = x0, y0, event.xdata, event.ydata
         canvas = self.axes.figure.canvas
         axes = self.axes
@@ -73,8 +79,6 @@ class ReferenceLine:
 
         # and blit just the redrawn area
         canvas.blit(axes.bbox)
-        
-
         
     def onmove(self, event):
         if event.inaxes != self.label.axes: return

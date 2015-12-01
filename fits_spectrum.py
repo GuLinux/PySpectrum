@@ -104,7 +104,9 @@ class FitsSpectrum:
             wavelengths = fits.Column(name='wavelength', format='D', array=[line.wavelength for line in spectral_lines])
             font_sizes = fits.Column(name='font_sizes', format='D', array=[line.fontsize for line in spectral_lines])
             show_lambdas = fits.Column(name='show_lambda', format='L', array=[line.show_lambda for line in spectral_lines])
-            cols = fits.ColDefs([texts, wavelengths, font_sizes, show_lambdas])
+            x_pos = fits.Column(name='x_pos', format='D', array=[line.position()[0] for line in spectral_lines])
+            y_pos = fits.Column(name='y_pos', format='D', array=[line.position()[1] for line in spectral_lines])
+            cols = fits.ColDefs([texts, wavelengths, font_sizes, show_lambdas, x_pos, y_pos])
             tbhdu = fits.BinTableHDU.from_columns(cols)
             tbhdu.name = FitsSpectrum.SPECTRAL_LINES
             for hdu in [h for h in self.fits_file if h.name == FitsSpectrum.SPECTRAL_LINES]: self.fits_file.remove(hdu)
