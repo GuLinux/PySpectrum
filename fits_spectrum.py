@@ -33,6 +33,7 @@ class Spectrum:
         return indexes[-1] if indexes else 0
         
     def normalize_to_max(self):
+        self.fluxes -= self.fluxes.min()
         self.fluxes /= self.fluxes.max()
 
 class FitsSpectrum:

@@ -64,6 +64,7 @@ class FinishSpectrum(QWidget):
     def add_lines(self, lines):
         for line in lines:
             self.lines.append(ReferenceLine(line['name'], line['lambda'], self.profile_plot.axes, lambda line: self.lines.remove(line)))
+
     def synthetize(wavelength, flux):
         crange = (3800, 7800)
         if not crange[0] < wavelength < crange[1]: return (0,0,0,0)
