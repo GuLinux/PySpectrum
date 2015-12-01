@@ -36,6 +36,7 @@ class Spectrum:
 
 class FitsSpectrum:
     CALIBRATION_DATA = 'CALIBRATION_DATA'
+    SPECTRAL_LINES = 'SPECTRAL_LINES'
     
     def __init__(self, fits_file):
         self.fits_file = fits_file
@@ -93,11 +94,22 @@ class FitsSpectrum:
         axes.plot(self.spectrum.wavelengths, self.spectrum.fluxes)
         axes.figure.canvas.draw()
             
-    def save(self, filename, calibration_points = []):
+    def save(self, filename, calibration_points = [], spectral_lines = []):
         header = self.fits_file[0].header
         header['CRPIX1'] = 1
         header['CRVAL1'] = self.spectrum.wavelengths[0]
         header['CDELT1'] = self.spectrum.dispersion()
+        if len(spectral_lines) > 0:
+            texts = fits.Column(name='text', format='20A', array=[line.name for line in spectral_lines])
+            wavelengths = fits.Column(name='wavelength', format='D', array=[line.wavelength for line in spectral_lines])
+            font_sizes = fits.Column(name='font_sizes', format='D', array=[line.fontsize for line in spectral_lines])
+            show_lambdas = fits.Column(name='show_lambda', format='L', array=[line.show_lambda for line in spectral_lines])
+            cols = fits.ColDefs([texts, wavelengths, font_sizes, show_lambdas])
+            tbhdu = fits.BinTableHDU.from_columns(cols)
+            tbhdu.name = FitsSpectrum.SPECTRAL_LINES
+            for hdu in [h for h in self.fits_file if h.name == FitsSpectrum.SPECTRAL_LINES]: self.fits_file.remove(hdu)
+            self.fits_file.append(tbhdu)
+            
         if len(calibration_points) > 0:
             pixels = fits.Column(name='x_axis', format='K', array=[point['x'] for point in calibration_points])
             wavelengths = fits.Column(name='wavelength', format='D', array=[point['wavelength'] for point in calibration_points])

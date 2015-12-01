@@ -129,4 +129,4 @@ class FinishSpectrum(QWidget):
     def save(self, filename):
         for line in self.lines:
             print(line)
-        self.fits_spectrum.save(filename[0])
+        self.fits_spectrum.save(filename[0], spectral_lines = self.lines)

@@ -6,13 +6,15 @@ from ui_line_edit import Ui_LineEdit
 class ReferenceLine:
     lock = None
 
-    def __init__(self, name, wavelength, axes, on_remove):
+    def __init__(self, name, wavelength, axes, on_remove, show_wavelength = False, fontsize = 16):
         self.axes = axes
         self.wavelength = wavelength
         self.name = name
+        self.fontsize = fontsize
+        self.show_lambda = show_wavelength
         self.on_remove = on_remove
         self.line = self.axes.axvline(wavelength, color='red')
-        self.label = axes.text(wavelength + 50, 0.5, name, fontsize=18)
+        self.label = axes.text(wavelength + 50, 0.5, name, fontsize=fontsize)
         self.connections = [
             axes.figure.canvas.mpl_connect('button_press_event', self.onclick),
             axes.figure.canvas.mpl_connect('button_release_event', self.onrelease),
@@ -23,6 +25,7 @@ class ReferenceLine:
         self.edit_dialog = QDialog()
         self.edit_dialog_ui = Ui_LineEdit()
         self.edit_dialog_ui.setupUi(self.edit_dialog)
+        self.edit_dialog_ui.show_lambda.setChecked(show_wavelength)
         self.edit_dialog_ui.wavelength.setText("{} Å".format(wavelength))
         self.edit_dialog_ui.line_text.setText(name)
         self.edit_dialog.accepted.connect(self.update_line)
@@ -32,13 +35,14 @@ class ReferenceLine:
         self.edit_dialog_ui.reset_default_size.clicked.connect(lambda: self.edit_dialog_ui.text_size.setValue(text_size))
         self.edit_dialog_ui.remove_line.clicked.connect(self.edit_dialog.reject)
         self.edit_dialog_ui.remove_line.clicked.connect(self.remove)
+        self.update_line()
         
     def update_line(self):
-        text = self.edit_dialog_ui.line_text.text()
-        if(self.edit_dialog_ui.show_lambda.isChecked()):
-               text += "\n{}".format(self.wavelength)
-        self.label.set_text(text)
-        self.label.set_size(self.edit_dialog_ui.text_size.value())
+        self.name = self.edit_dialog_ui.line_text.text()
+        self.show_lambda = self.edit_dialog_ui.show_lambda.isChecked()
+        self.fontsize = self.edit_dialog_ui.text_size.value()
+        self.label.set_text("{}\n{}".format(self.name, self.wavelength) if self.show_lambda else self.name)
+        self.label.set_size(self.fontsize)
         self.label.figure.canvas.draw()
         
     def remove(self):
