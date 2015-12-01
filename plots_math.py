@@ -98,10 +98,10 @@ class PlotsMath(QWidget):
         self.plot.plot(None, self.spectrum.wavelengths, self.spectrum.fluxes, '--', self.spectrum.wavelengths, spline(self.spectrum.wavelengths), '-')
         self.plot.figure.canvas.draw()
         
-    def rm_points(self, min, max):
+    def rm_points(self, wmin, wmax):
         self.store_undo()
-        x_min = self.spectrum.wavelength_index(min)
-        x_max = self.spectrum.wavelength_index(max)+1
+        x_min = self.spectrum.wavelength_index(max(self.spectrum.wavelengths[0], wmin))
+        x_max = self.spectrum.wavelength_index(min(self.spectrum.wavelengths[-1], wmax))
         m=(self.spectrum.fluxes[x_max]-self.spectrum.fluxes[x_min])/(x_max-x_min)
         q = self.spectrum.fluxes[x_min]
         
