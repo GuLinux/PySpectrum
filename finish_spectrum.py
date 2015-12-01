@@ -31,7 +31,7 @@ class FinishSpectrum(QWidget):
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
         self.reference_spectra_dialog.fits_picked.connect(self.open_reference)
         self.lines_dialog = LinesDialog(database)
-        
+        self.lines_dialog.lines.connect(self.add_lines)
         reference_action = QtCommons.addToolbarPopup(self.toolbar, "Reference")
         reference_action.menu().addAction("Load from FITS file", lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.open_reference(f[0])))
         reference_action.menu().addAction("Reference library", lambda: self.reference_spectra_dialog.show())
@@ -43,6 +43,11 @@ class FinishSpectrum(QWidget):
         self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.spectrum_plot.figure.savefig(f[0], bbox_inches='tight', dpi=300)))
         self.draw()
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_plot_dir')))
+        
+    def add_lines(self, lines):
+        for line in lines:
+            self.spectrum_plot.add_line(line['name'], line['lambda'])
+        
     def draw(self):
         self.spectrum_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes)
         self.spectrum_plot.axes.set_xlabel('lambda (Å)')
