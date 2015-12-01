@@ -29,7 +29,8 @@ class Spectrum:
         self.fluxes = self.fluxes[start:end]
         
     def wavelength_index(self, wavelength):
-        return [i for i, j in enumerate(self.wavelengths) if j <= wavelength][-1]
+        indexes = [i for i, j in enumerate(self.wavelengths) if j <= wavelength]
+        return indexes[-1] if indexes else 0
         
     def normalize_to_max(self):
         self.fluxes /= self.fluxes.max()

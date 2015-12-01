@@ -19,7 +19,7 @@ class Ui_CalibrateSpectrum(object):
         self.splitter.setObjectName("splitter")
         self.spectrum_plot_widget = QtWidgets.QWidget(self.splitter)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.spectrum_plot_widget.sizePolicy().hasHeightForWidth())
         self.spectrum_plot_widget.setSizePolicy(sizePolicy)

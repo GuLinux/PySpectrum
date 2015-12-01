@@ -20,7 +20,7 @@
       <string>Operands</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="0">
+      <item row="0" column="0" colspan="2">
        <widget class="QListView" name="operands_listview">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
@@ -30,6 +30,26 @@
         </property>
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="remove_operand">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Remove</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="clear_operands">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Clear</string>
         </property>
        </widget>
       </item>
@@ -179,7 +199,14 @@
     </spacer>
    </item>
    <item row="0" column="0" rowspan="4">
-    <widget class="QWidget" name="plot" native="true"/>
+    <widget class="QWidget" name="plot" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
    </item>
   </layout>
   <action name="actionSelectPointsToRemove">

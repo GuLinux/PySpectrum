@@ -30,8 +30,8 @@ class FinishSpectrum(QWidget):
         self.toolbar.addAction("Zoom", lambda: self.spectrum_plot.select_zoom(self.profile_plot.axes))
         self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.spectrum.wavelengths, self.spectrum.fluxes.min(), self.spectrum.fluxes.max(), self.profile_plot.axes))
         remove_action = QtCommons.addToolbarPopup(self.toolbar, "Remove")
-        remove_action.menu().addAction("Before point", lambda: self.remove('before'))
-        remove_action.menu().addAction("After point", lambda: self.remove('after'))
+        remove_action.menu().addAction("Before point", lambda: spectrum_trim_dialog(self.spectrum, 'before', self.profile_plot.axes, lambda: self.draw()))
+        remove_action.menu().addAction("After point", lambda: spectrum_trim_dialog(self.spectrum, 'after', self.profile_plot.axes, lambda: self.draw()))
         self.toolbar.addSeparator()
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
         self.reference_spectra_dialog.fits_picked.connect(self.open_reference)
@@ -111,19 +111,7 @@ class FinishSpectrum(QWidget):
         self.spectrum.fluxes /= response_data
         self.spectrum.normalize_to_max()
         self.draw()
-        
-    def remove(self, direction):
-        point = QInputDialog.getInt(None, 'Trim curve', 'Enter wavelength for trimming', self.spectrum.wavelengths[0] if direction == 'before' else self.spectrum.wavelengths[-1], self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1])
-        if not point[1]:
-            return
-        if direction == 'before':
-            self.spectrum.cut(start=self.spectrum.wavelength_index(point[0]))
-        else:
-            self.spectrum.cut(end=self.spectrum.wavelength_index(point[0]))
-            
-        self.spectrum.normalize_to_max()
-        self.draw()
-        
+
     def open_reference(self, file):
         fits_spectrum = FitsSpectrum(fits.open(file))
         fits_spectrum.spectrum.normalize_to_max()
