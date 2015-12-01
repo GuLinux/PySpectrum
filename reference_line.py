@@ -23,6 +23,7 @@ class ReferenceLine:
         self.edit_dialog = QDialog()
         self.edit_dialog_ui = Ui_LineEdit()
         self.edit_dialog_ui.setupUi(self.edit_dialog)
+        self.edit_dialog_ui.wavelength.setText("{} Å".format(wavelength))
         self.edit_dialog_ui.line_text.setText(name)
         self.edit_dialog.accepted.connect(self.update_line)
         self.edit_dialog_ui.reset_default_text.clicked.connect(lambda: self.edit_dialog_ui.line_text.setText(name))
