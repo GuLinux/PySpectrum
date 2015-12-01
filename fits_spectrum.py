@@ -104,9 +104,8 @@ class FitsSpectrum:
             cols = fits.ColDefs([pixels, wavelengths])
             tbhdu = fits.BinTableHDU.from_columns(cols)
             tbhdu.name = FitsSpectrum.CALIBRATION_DATA
-            #self.fits_file.remove('calibration_data') #TODO: remove, or keep for history?
+            for hdu in [h for h in self.fits_file if h.name == FitsSpectrum.CALIBRATION_DATA]: self.fits_file.remove(hdu)
             self.fits_file.append(tbhdu)
-        print(filename)
         self.fits_file[0].data = self.spectrum.fluxes
         self.fits_file.writeto(filename, clobber=True)
         

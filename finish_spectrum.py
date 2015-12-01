@@ -65,11 +65,11 @@ class FinishSpectrum(QWidget):
     def split_view(self):
         figure = self.spectrum_plot.figure
         figure.clear()
-        gs = gridspec.GridSpec(10,1)
-        self.profile_plot = figure.add_subplot(gs[0:9])
+        gs = gridspec.GridSpec(11,1)
+        self.profile_plot = figure.add_subplot(gs[0:-1])
         self.synthetize = figure.add_subplot(gs[-1], sharex = self.profile_plot)
         self.synthetize.yaxis.set_visible(False)
-        self.profile_plot.xaxis.set_visible(False)
+        self.synthetize.xaxis.set_visible(False)
         self.draw()
         
     def synthetize(wavelength, flux):
@@ -81,14 +81,15 @@ class FinishSpectrum(QWidget):
     def draw(self):
         self.profile_plot.clear()
         self.profile_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes)
-        self.spectrum_plot.axes.set_xlabel('lambda (Å)')
-        self.profile_plot.axes.set_ylabel('relative flux')
+
         self.synthetize.axes.set_axis_bgcolor('black')
         colors = [FinishSpectrum.synthetize(w, self.spectrum.fluxes[i]) for i,w in enumerate(self.spectrum.wavelengths)]
-        im_width = 200
-        colors = np.array(colors*im_width).reshape(im_width,len(colors),4)
-        self.synthetize.imshow(colors, extent=[self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1], 0, 200])
+        im_height = 100
+        colors = np.array(colors*im_height).reshape(im_height,len(colors),4)
+        self.synthetize.imshow(colors, extent=[self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1], 0, im_height])
         self.profile_plot.figure.tight_layout()
+        self.profile_plot.axes.set_xlabel('lambda (Å)')
+        self.profile_plot.axes.set_ylabel('relative flux')
         self.spectrum_plot.figure.canvas.draw()
         
     def instrument_response(self, filename):
@@ -126,4 +127,6 @@ class FinishSpectrum(QWidget):
         self.spectrum_plot.add_element(line, 'reference')
         
     def save(self, filename):
+        for line in self.lines:
+            print(line)
         self.fits_spectrum.save(filename[0])
