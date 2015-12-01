@@ -106,7 +106,7 @@ class CalibrateSpectrum(QWidget):
         self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.fits_spectrum.spectrum.wavelengths, self.fits_spectrum.spectrum.fluxes.min(), self.fits_spectrum.spectrum.fluxes.max()))
         self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.spectrum_plot.figure.savefig(f[0], bbox_inches='tight')))
 
-        hdu_calibration_points = [h for h in self.fits_file if h.name == 'CALIBRATION_DATA']
+        hdu_calibration_points = [h for h in self.fits_file if h.name == FitsSpectrum.CALIBRATION_DATA]
         if len(hdu_calibration_points) > 0:                
             for point in hdu_calibration_points[-1].data:
                 self.add_calibration_point_data(point[0], point[1])

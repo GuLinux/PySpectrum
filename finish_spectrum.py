@@ -52,6 +52,10 @@ class FinishSpectrum(QWidget):
         self.lines_dialog.lines.connect(self.add_lines)
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_plot_dir')))
         self.lines = []
+        hdu_spectral_lines = [h for h in fits_file if h.name == FitsSpectrum.SPECTRAL_LINES]
+        if len(hdu_spectral_lines) > 0:                
+            for line in hdu_spectral_lines[-1].data:
+                self.lines.append(ReferenceLine(line[0], line[1], self.profile_plot.axes, lambda line: self.lines.remove(line), show_wavelength=line[3], fontsize=line[2]))
         
     def add_custom_line(self):
         wl = QInputDialog.getDouble(self, "Custom Line", "Enter line wavelength in Å", self.fits_spectrum.spectrum.wavelengths[0],self.fits_spectrum.spectrum.wavelengths[0],self.fits_spectrum.spectrum.wavelengths[-1],3)
@@ -62,6 +66,7 @@ class FinishSpectrum(QWidget):
         for line in lines:
             self.lines.append(ReferenceLine(line['name'], line['lambda'], self.profile_plot.axes, lambda line: self.lines.remove(line)))
         
+
     def split_view(self):
         figure = self.spectrum_plot.figure
         figure.clear()
@@ -127,6 +132,4 @@ class FinishSpectrum(QWidget):
         self.spectrum_plot.add_element(line, 'reference')
         
     def save(self, filename):
-        for line in self.lines:
-            print(line)
         self.fits_spectrum.save(filename[0], spectral_lines = self.lines)
