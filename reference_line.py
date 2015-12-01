@@ -6,10 +6,11 @@ from ui_line_edit import Ui_LineEdit
 class ReferenceLine:
     lock = None
 
-    def __init__(self, name, wavelength, axes):
+    def __init__(self, name, wavelength, axes, on_remove):
         self.axes = axes
         self.wavelength = wavelength
         self.name = name
+        self.on_remove = on_remove
         self.line = self.axes.axvline(wavelength, color='red')
         self.label = axes.text(wavelength + 50, 0.5, name, fontsize=18)
         self.connections = [
@@ -41,6 +42,7 @@ class ReferenceLine:
         self.line.remove()
         self.label.remove()
         self.axes.figure.canvas.draw()
+        self.on_remove(self)
         
     def onclick(self, event):
         if not self.label.contains(event)[0]: return

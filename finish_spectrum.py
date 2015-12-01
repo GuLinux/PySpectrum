@@ -48,7 +48,7 @@ class FinishSpectrum(QWidget):
         
     def add_lines(self, lines):
         for line in lines:
-            self.lines.append(ReferenceLine(line['name'], line['lambda'], self.spectrum_plot.axes))
+            self.lines.append(ReferenceLine(line['name'], line['lambda'], self.spectrum_plot.axes, lambda line: self.lines.remove(line)))
             #self.spectrum_plot.add_line(line['name'], line['lambda'])
         
     def draw(self):
