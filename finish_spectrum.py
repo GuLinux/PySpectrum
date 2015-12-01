@@ -70,7 +70,7 @@ class FinishSpectrum(QWidget):
     def split_view(self):
         figure = self.spectrum_plot.figure
         figure.clear()
-        gs = gridspec.GridSpec(10,1)
+        gs = gridspec.GridSpec(11,1)
         self.profile_plot = figure.add_subplot(gs[0:-1])
         self.synthetize = figure.add_subplot(gs[-1], sharex = self.profile_plot)
         self.synthetize.yaxis.set_visible(False)

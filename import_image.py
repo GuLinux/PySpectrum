@@ -79,6 +79,7 @@ class ImportImage(QWidget):
     def draw_plot(self, axes, data):
         axes.clear()
         axes.plot(data)
+        axes.figure.tight_layout()
         axes.figure.canvas.draw()
         
     def spatial_profile(self):
