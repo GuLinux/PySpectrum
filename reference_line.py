@@ -1,38 +1,56 @@
 import matplotlib
+from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
+from ui_line_edit import Ui_LineEdit
 
+# code adapted from here: http://matplotlib.org/users/event_handling.html
 class ReferenceLine:
+    lock = None
 
     def __init__(self, name, wavelength, axes):
         self.axes = axes
         self.wavelength = wavelength
         self.name = name
         self.line = self.axes.axvline(wavelength, color='red')
-        self.label = axes.text(wavelength, 0.5, name, fontsize=18)
-        axes.figure.canvas.mpl_connect('button_press_event', self.onclick)
-        axes.figure.canvas.mpl_connect('button_release_event', self.onrelease)
-        axes.figure.canvas.mpl_connect('motion_notify_event', self.onmove)
+        self.label = axes.text(wavelength + 50, 0.5, name, fontsize=18)
+        self.connections = [
+            axes.figure.canvas.mpl_connect('button_press_event', self.onclick),
+            axes.figure.canvas.mpl_connect('button_release_event', self.onrelease),
+            axes.figure.canvas.mpl_connect('motion_notify_event', self.onmove),
+            ]
         self.axes.figure.canvas.draw()
-        self.dragging = False
         self.press = None
-        self.live = True
+        self.edit_dialog = QDialog()
+        self.edit_dialog_ui = Ui_LineEdit()
+        self.edit_dialog_ui.setupUi(self.edit_dialog)
+        self.edit_dialog_ui.line_text.setText(name)
+        self.edit_dialog.accepted.connect(self.update_line)
+        self.edit_dialog_ui.reset_default.clicked.connect(lambda: self.edit_dialog_ui.line_text.setText(name))
+        self.edit_dialog_ui.remove_line.clicked.connect(self.edit_dialog.reject)
+        self.edit_dialog_ui.remove_line.clicked.connect(self.remove)
+        
+    def update_line(self):
+        text = self.edit_dialog_ui.line_text.text()
+        if(self.edit_dialog_ui.show_lambda.isChecked()):
+               text += "\n{}".format(self.wavelength)
+        self.label.set_text(text)
+        self.label.figure.canvas.draw()
         
     def remove(self):
+        for connection in self.connections:
+            self.axes.figure.canvas.mpl_disconnect(connection)
         self.line.remove()
         self.label.remove()
         self.axes.figure.canvas.draw()
         
     def onclick(self, event):
-        if not self.live: return
-        if not self.__check_bbox(event):
-            return
+        if not self.label.contains(event)[0]: return
+        if ReferenceLine.lock is not None: return
         if event.dblclick:
-            self.remove()
+            self.edit_dialog.show()
             return
-        
-        x0 = event.xdata
-        y0 = event.ydata
+        ReferenceLine.lock = self
+        x0, y0 = self.label.get_unitless_position()
         self.press = x0, y0, event.xdata, event.ydata
-
         canvas = self.axes.figure.canvas
         axes = self.axes
         self.label.set_animated(True)
@@ -45,11 +63,13 @@ class ReferenceLine:
         # and blit just the redrawn area
         canvas.blit(axes.bbox)
         
+
+        
     def onmove(self, event):
-        if not self.live: return
         if event.inaxes != self.label.axes: return
-        if not self.press:
-            return
+        if ReferenceLine.lock is not self: return
+        if not self.press: return
+    
         x0, y0, xpress, ypress = self.press
         dx = event.xdata - xpress
         dy = event.ydata - ypress
@@ -65,11 +85,12 @@ class ReferenceLine:
         axes.draw_artist(self.label)
 
         # blit just the redrawn area
-        canvas.blit(axes.bbox)        
+        canvas.blit(axes.bbox)
+    
     def onrelease(self, event):
-        if not self.live: return
+        if ReferenceLine.lock is not self: return
         self.press = None
-        #DraggableRectangle.lock = None
+        ReferenceLine.lock = None
 
         # turn off the rect animation property and reset the background
         self.label.set_animated(False)
@@ -78,6 +99,3 @@ class ReferenceLine:
         # redraw the full figure
         self.label.figure.canvas.draw()
         
-        
-    def __check_bbox(self, event):
-        return self.label.contains(event)[0]

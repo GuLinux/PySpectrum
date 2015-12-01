@@ -31,7 +31,7 @@ class FinishSpectrum(QWidget):
         self.toolbar.addSeparator()
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
         self.reference_spectra_dialog.fits_picked.connect(self.open_reference)
-        self.lines_dialog = LinesDialog(database)
+        self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot)
         self.lines_dialog.lines.connect(self.add_lines)
         reference_action = QtCommons.addToolbarPopup(self.toolbar, "Reference")
         reference_action.menu().addAction("Load from FITS file", lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.open_reference(f[0])))

@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_LinesDialog(object):
     def setupUi(self, LinesDialog):
         LinesDialog.setObjectName("LinesDialog")
-        LinesDialog.resize(587, 198)
+        LinesDialog.resize(682, 523)
         self.gridLayout_2 = QtWidgets.QGridLayout(LinesDialog)
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.groupBox = QtWidgets.QGroupBox(LinesDialog)
@@ -48,6 +48,9 @@ class Ui_LinesDialog(object):
         self.lambda_to.setMaximum(9999999)
         self.lambda_to.setObjectName("lambda_to")
         self.horizontalLayout.addWidget(self.lambda_to)
+        self.pick_wavelengths = QtWidgets.QToolButton(self.groupBox)
+        self.pick_wavelengths.setObjectName("pick_wavelengths")
+        self.horizontalLayout.addWidget(self.pick_wavelengths)
         self.gridLayout_2.addWidget(self.groupBox, 0, 0, 1, 1)
         self.lines = QtWidgets.QTableView(LinesDialog)
         self.lines.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
@@ -74,4 +77,5 @@ class Ui_LinesDialog(object):
         self.label.setText(_translate("LinesDialog", "Element"))
         self.label_2.setText(_translate("LinesDialog", "Wavelength"))
         self.label_3.setText(_translate("LinesDialog", "to"))
+        self.pick_wavelengths.setText(_translate("LinesDialog", "..."))
 

@@ -1,7 +1,8 @@
 from ui_lines_dialog import Ui_LinesDialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox
-from PyQt5.QtCore import Qt, QObject, pyqtSignal, QSortFilterProxyModel
+from PyQt5.QtCore import Qt, QObject, pyqtSignal, QSortFilterProxyModel, QSettings, QByteArray
+
 import sqlite3
 
 class LinesDialog(QDialog):
@@ -12,11 +13,14 @@ class LinesDialog(QDialog):
         item.setData({'z': element[0], 'code': element[1], 'name': element[2]})
         return item
     
-    def __init__(self, database):
+    def __init__(self, database, settings, plot_widget):
         super(LinesDialog, self).__init__()
         self.database = database
+        self.plot_widget = plot_widget
+        self.settings = settings
         self.ui = Ui_LinesDialog()
         self.ui.setupUi(self)
+        self.restoreGeometry(self.settings.value('pick_lines_geometry', QByteArray()))
         self.model = QStandardItemModel()
         self.elements_model = QStandardItemModel()
         self.ui.lines.setModel(self.model)
@@ -32,7 +36,18 @@ class LinesDialog(QDialog):
         self.ui.lambda_to.editingFinished.connect(self.populate)
         self.accepted.connect(self.collect_selected_lines)
         self.populate()
+        self.ui.pick_wavelengths.clicked.connect(lambda: plot_widget.add_span_selector("pick_lines_lambda", self.picked_wavelengths, direction='horizontal'))
         
+    def closeEvent(self, ev):
+        self.settings.setValue('pick_lines_geometry', self.saveGeometry())
+        QDialog.closeEvent(self, ev)
+        
+    def picked_wavelengths(self, start, end):
+        self.ui.lambda_from.setValue(start)
+        self.ui.lambda_to.setValue(end)
+        self.plot_widget.rm_element("pick_lines_lambda")
+        self.populate()
+
     def collect_selected_lines(self):
         selected_rows = self.ui.lines.selectionModel().selectedRows()
         if selected_rows:
