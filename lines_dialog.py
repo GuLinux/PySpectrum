@@ -34,6 +34,8 @@ class LinesDialog(QDialog):
         
         self.ui.elements.currentTextChanged.connect(lambda t: self.populate())
         self.ui.lambda_from.editingFinished.connect(self.populate)
+        self.ui.name.editingFinished.connect(self.populate)
+        self.ui.sp_types.toggled.connect(self.populate)
         self.ui.lambda_to.editingFinished.connect(self.populate)
         self.accepted.connect(self.collect_selected_lines)
         self.populate()
@@ -76,6 +78,10 @@ class LinesDialog(QDialog):
             conditions.append("(Lambda >= {})".format(self.ui.lambda_from.value()))
         if self.ui.lambda_to.value() > 0:
             conditions.append("(Lambda <= {})".format(self.ui.lambda_to.value()))
+        if self.ui.name.text():
+            conditions.append("(Element like '%{}%')".format(self.ui.name.text()))
+        if self.ui.sp_types.isChecked():
+            conditions.append("(SpTypes <> '')")
         
         for row in c.execute(query.format(" AND ".join(conditions))):
             first_item = QStandardItem("{}".format(row[0]))
