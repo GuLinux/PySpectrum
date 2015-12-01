@@ -25,7 +25,10 @@ class ReferenceLine:
         self.edit_dialog_ui.setupUi(self.edit_dialog)
         self.edit_dialog_ui.line_text.setText(name)
         self.edit_dialog.accepted.connect(self.update_line)
-        self.edit_dialog_ui.reset_default.clicked.connect(lambda: self.edit_dialog_ui.line_text.setText(name))
+        self.edit_dialog_ui.reset_default_text.clicked.connect(lambda: self.edit_dialog_ui.line_text.setText(name))
+        text_size = self.label.get_size()
+        self.edit_dialog_ui.text_size.setValue(text_size)
+        self.edit_dialog_ui.reset_default_size.clicked.connect(lambda: self.edit_dialog_ui.text_size.setValue(text_size))
         self.edit_dialog_ui.remove_line.clicked.connect(self.edit_dialog.reject)
         self.edit_dialog_ui.remove_line.clicked.connect(self.remove)
         
@@ -34,6 +37,7 @@ class ReferenceLine:
         if(self.edit_dialog_ui.show_lambda.isChecked()):
                text += "\n{}".format(self.wavelength)
         self.label.set_text(text)
+        self.label.set_size(self.edit_dialog_ui.text_size.value())
         self.label.figure.canvas.draw()
         
     def remove(self):
