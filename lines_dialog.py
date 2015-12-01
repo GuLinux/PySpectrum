@@ -1,6 +1,6 @@
 from ui_lines_dialog import Ui_LinesDialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox
+from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QTableView
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QSortFilterProxyModel, QSettings, QByteArray
 
 import sqlite3
@@ -13,7 +13,7 @@ class LinesDialog(QDialog):
         item.setData({'z': element[0], 'code': element[1], 'name': element[2]})
         return item
     
-    def __init__(self, database, settings, plot_widget, axes = None):
+    def __init__(self, database, settings, plot_widget, axes = None, enable_picker = True, selection_mode = 'multi'):
         super(LinesDialog, self).__init__()
         self.axes = axes if axes else plot_widget.axes
         self.database = database
@@ -37,7 +37,9 @@ class LinesDialog(QDialog):
         self.ui.lambda_to.editingFinished.connect(self.populate)
         self.accepted.connect(self.collect_selected_lines)
         self.populate()
+        self.ui.pick_wavelengths.setEnabled(enable_picker)
         self.ui.pick_wavelengths.clicked.connect(self.pick_wavelengths_clicked)
+        self.ui.lines.setSelectionMode({'multi':QTableView.MultiSelection, 'single':QTableView.SingleSelection}[selection_mode])
         
     def pick_wavelengths_clicked(self):
         self.plot_widget.add_span_selector("pick_lines_lambda", self.picked_wavelengths, axes=self.axes, direction='horizontal')

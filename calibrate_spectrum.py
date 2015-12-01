@@ -16,6 +16,7 @@ from reference_spectra_dialog import ReferenceSpectraDialog
 from scipy.interpolate import *
 from ui_select_plotted_point import Ui_SelectPlottedPoints
 from pyspectrum_commons import *
+from lines_dialog import LinesDialog
 
 class SelectPlottedPoints(QDialog):
     point = pyqtSignal(int)
@@ -37,6 +38,7 @@ class SelectPlottedPoints(QDialog):
         self.restoreGeometry(settings.value('select_plotted_points_geometry', QByteArray()))
         self.finished.connect(lambda: settings.setValue('select_plotted_points_geometry', self.saveGeometry()))
         self.ui.x_coordinate.valueChanged.connect(self.set_point)
+        
         QTimer.singleShot(100, self.draw)
 
     @pyqtSlot(float)
@@ -74,7 +76,7 @@ class CalibrateSpectrum(QWidget):
         self.ui.x_axis_pick.menu().addAction("Maximum from range").triggered.connect(lambda: self.pick_from_range('maximum'))
         self.ui.x_axis_pick.menu().addAction("Minimum from range").triggered.connect(lambda: self.pick_from_range('minimum'))
         self.ui.x_axis_pick.menu().addAction("Central value from range").triggered.connect(lambda: self.pick_from_range('central'))
-        self.ui.wavelength_pick.clicked.connect(self.pick_wavelength)
+        self.ui.wavelength_pick.clicked.connect(lambda: self.lines_dialog.show())
         #self.ui.x_axis_pick.menu().addAction("Point")
         self.reference_dialog = ReferenceSpectraDialog(database)
         self.reference_dialog.fits_picked.connect(self.open_reference)
@@ -105,6 +107,9 @@ class CalibrateSpectrum(QWidget):
         self.toolbar.addAction("Zoom", self.spectrum_plot.select_zoom)
         self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.fits_spectrum.spectrum.wavelengths, self.fits_spectrum.spectrum.fluxes.min(), self.fits_spectrum.spectrum.fluxes.max()))
         self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.spectrum_plot.figure.savefig(f[0], bbox_inches='tight')))
+        
+        self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot)
+        self.lines_dialog.lines.connect(self.picked_line)
 
         hdu_calibration_points = [h for h in self.fits_file if h.name == FitsSpectrum.CALIBRATION_DATA]
         if len(hdu_calibration_points) > 0:                
@@ -150,6 +155,9 @@ class CalibrateSpectrum(QWidget):
         wavelength_item.setData(wavelength)
         self.calibration_model.appendRow([x_axis_item, wavelength_item, QStandardItem("n/a")])
         self.spectrum_plot.rm_element('x_axis_pick')
+        
+    def picked_line(self, lines):
+        self.ui.point_wavelength.setValue(lines[0]['lambda'])
         
     def pick_wavelength(self):
         # TODO: add a full database of spectral lines
