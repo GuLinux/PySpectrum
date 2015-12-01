@@ -43,6 +43,9 @@ class LinesDialog(QDialog):
         self.ui.pick_wavelengths.clicked.connect(self.pick_wavelengths_clicked)
         self.ui.lines.setSelectionMode({'multi':QTableView.MultiSelection, 'single':QTableView.SingleSelection}[selection_mode])
         
+    def set_picker_enabled(self,enabled):
+        self.ui.pick_wavelengths.setEnabled(enabled)
+        
     def pick_wavelengths_clicked(self):
         self.plot_widget.add_span_selector("pick_lines_lambda", self.picked_wavelengths, axes=self.axes, direction='horizontal')
         self.lower()

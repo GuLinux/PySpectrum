@@ -32,7 +32,7 @@ class ImportImage(QWidget):
         self.toolbar.addAction(QIcon.fromTheme('document-save'), "Save", lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.config.value('last_plot_save_dir')))
         self.toolbar.addAction(QIcon.fromTheme('edit-select'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
-        self.max_spatial_delta = self.max_spatial_delta_angle = 0
+        self.max_spatial_delta = self.max_spatial_delta_angle = self.degrees = 0
         self.rotate(0)
         self.__init_rotate_dialog__()
         
@@ -55,10 +55,17 @@ class ImportImage(QWidget):
         self.rotate_dialog = QDialog()
         ui = Ui_RotateImageDialog()
         ui.setupUi(self.rotate_dialog)
-        ui.bb.button(QDialogButtonBox.Apply).clicked.connect(lambda: self.rotate(ui.rotate_spinbox.value()))
+        apply_rotation = lambda: self.rotate(ui.rotate_spinbox.value())
+        ui.rotate_spinbox.editingFinished.connect(apply_rotation)
+        ui.rotate_spinbox.valueChanged.connect(lambda v: ui.degrees_slider.setValue(ui.rotate_spinbox.value() * 1000))
+        
+        ui.degrees_slider.sliderMoved.connect(lambda v: ui.rotate_spinbox.setValue(v/1000.))
+        ui.degrees_slider.sliderReleased.connect(apply_rotation)
+        ui.bb.button(QDialogButtonBox.Apply).clicked.connect(apply_rotation)
         ui.bb.button(QDialogButtonBox.Close).clicked.connect(lambda: self.rotate_dialog.accept())
         
     def rotate(self, degrees):
+        if self.degrees == degrees: return
         self.degrees = degrees
         self.rotated = scipy.ndimage.interpolation.rotate(self.data, self.degrees, reshape=True, order=5, mode='constant')
         self.image_view.set_data(self.rotated)
@@ -71,7 +78,7 @@ class ImportImage(QWidget):
         self.max_spatial_delta = max(delta, self.max_spatial_delta)
         self.max_spatial_delta_angle = degrees if self.max_spatial_delta == delta else self.max_spatial_delta_angle
         
-        self.ui.delta_label.setText("Delta: {:.2f}, max: {:.2f} at {:.2f} deg".format(delta, self.max_spatial_delta, self.max_spatial_delta_angle))
+        self.ui.delta_label.setText("Delta: {:.3f}, max: {:.3f} at {:.3f} deg".format(delta, self.max_spatial_delta, self.max_spatial_delta_angle))
         self.draw_plot(self.spectrum_plot.axes, self.spectrum_profile())
         self.draw_plot(self.spatial_plot.axes, self.spatial_profile())
         

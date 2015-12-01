@@ -167,7 +167,9 @@ class CalibrateSpectrum(QWidget):
         
         if points_number == 0:
             self.fits_spectrum.reset()
+            self.lines_dialog.set_picker_enabled(False)
         else:
+            self.lines_dialog.set_picker_enabled(True)
             points = sorted(self.calibration_points(), key=lambda point: point['x'])
             self.fits_spectrum.calibrate(points, self.ui.dispersion.value() )
             for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-self.fits_spectrum.spectrum.wavelengths[p['x']])) for p in points]:
