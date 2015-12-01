@@ -67,22 +67,7 @@ class FitsSpectrum:
         x_start = self.fits_file[0].header.get('CRVAL1', 0)
         fluxes = self.fits_file[0].data[0] if self.fits_file[0].header.get('NAXIS2', 0) == 1 else self.fits_file[0].data
         self.spectrum = Spectrum(fluxes, first_wavelength = x_start, dispersion = dispersion)
-        
-    def x_calibrated(self, value):
-        print("DEPRECATED CALL to x_calibrated")
-        traceback.print_stack()
-        return self.spectrum.dispersion() * value + self.spectrum.wavelengths[0]
-    
-    def x_uncalibrated(self, value):
-        print("DEPRECATED CALL to x_uncalibrated")
-        traceback.print_stack()
-        return (value-self.spectrum.wavelengths[0])/self.spectrum.dispersion()
-        
-    def x_axis(self):
-        print("DEPRECATED CALL to x_axis")
-        traceback.print_stack()
-        return self.spectrum.wavelengths
-    
+
     def data(self):
         print("DEPRECATED CALL to data")
         traceback.print_stack()
@@ -92,6 +77,7 @@ class FitsSpectrum:
         
     def plot_to(self, axes):
         axes.plot(self.spectrum.wavelengths, self.spectrum.fluxes)
+        axes.figure.tight_layout()
         axes.figure.canvas.draw()
             
     def save(self, filename, calibration_points = [], spectral_lines = []):
