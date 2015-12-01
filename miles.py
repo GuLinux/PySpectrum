@@ -2,6 +2,7 @@ from PyQt5.QtCore import QStandardPaths
 import os
 import json
 import urllib
+import gzip
 
 
 class Miles:
@@ -12,13 +13,13 @@ class Miles:
         
     def fits(self, miles_number):
         cache_path = QStandardPaths.writableLocation(QStandardPaths.CacheLocation) + "/miles"
-        file_path = "{}/s{}.fits".format(cache_path, miles_number)
+        file_path = "{}/s{}.fits.gz".format(cache_path, miles_number)
         try:
             os.makedirs(cache_path)
         except FileExistsError:
             pass
         if not os.path.exists(file_path):
-            
-            remote_file = urllib.request.FancyURLopener()
-            remote_file.retrieve("http://www.iac.es/proyecto/miles/media/stellar_libraries/MILES/s{}.fits".format(miles_number), file_path)
+            request = urllib.request.urlopen("http://www.iac.es/proyecto/miles/media/stellar_libraries/MILES/s{}.fits".format(miles_number))
+            with gzip.open(file_path, 'wb') as f:
+                f.write(request.read())
         return file_path
