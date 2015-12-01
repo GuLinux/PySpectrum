@@ -10,6 +10,10 @@ from lines_dialog import LinesDialog
 from matplotlib.lines import Line2D
 from pyspectrum_commons import *
 from reference_line import ReferenceLine
+from matplotlib import gridspec
+import matplotlib as plt
+import numpy as np
+import math
 
 class FinishSpectrum(QWidget):
     def __init__(self, fits_file, settings, database):
@@ -23,16 +27,14 @@ class FinishSpectrum(QWidget):
         self.spectrum_plot = QtCommons.nestWidget(self.ui.plot, QMathPlotWidget())
         self.toolbar = QToolBar('Finish Spectrum Toolbar')
         self.toolbar.addAction('Instrument Response', lambda: QtCommons.open_file('Open Instrument Response Profile', FITS_EXTS, lambda f: self.instrument_response(f[0])))
-        self.toolbar.addAction("Zoom", self.spectrum_plot.select_zoom)
-        self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.spectrum.wavelengths, self.spectrum.fluxes.min(), self.spectrum.fluxes.max()))
+        self.toolbar.addAction("Zoom", lambda: self.spectrum_plot.select_zoom(self.profile_plot.axes))
+        self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.spectrum.wavelengths, self.spectrum.fluxes.min(), self.spectrum.fluxes.max(), self.profile_plot.axes))
         remove_action = QtCommons.addToolbarPopup(self.toolbar, "Remove")
         remove_action.menu().addAction("Before point", lambda: self.remove('before'))
         remove_action.menu().addAction("After point", lambda: self.remove('after'))
         self.toolbar.addSeparator()
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
         self.reference_spectra_dialog.fits_picked.connect(self.open_reference)
-        self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot)
-        self.lines_dialog.lines.connect(self.add_lines)
         reference_action = QtCommons.addToolbarPopup(self.toolbar, "Reference")
         reference_action.menu().addAction("Load from FITS file", lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.open_reference(f[0])))
         reference_action.menu().addAction("Reference library", lambda: self.reference_spectra_dialog.show())
@@ -44,7 +46,10 @@ class FinishSpectrum(QWidget):
         
         self.toolbar.addSeparator()
         self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.spectrum_plot.figure.savefig(f[0], bbox_inches='tight', dpi=300)))
+        self.split_view()
         self.draw()
+        self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, self.profile_plot.axes)
+        self.lines_dialog.lines.connect(self.add_lines)
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_plot_dir')))
         self.lines = []
         
@@ -55,12 +60,35 @@ class FinishSpectrum(QWidget):
         
     def add_lines(self, lines):
         for line in lines:
-            self.lines.append(ReferenceLine(line['name'], line['lambda'], self.spectrum_plot.axes, lambda line: self.lines.remove(line)))
+            self.lines.append(ReferenceLine(line['name'], line['lambda'], self.profile_plot.axes, lambda line: self.lines.remove(line)))
         
+    def split_view(self):
+        figure = self.spectrum_plot.figure
+        figure.clear()
+        gs = gridspec.GridSpec(10,1)
+        self.profile_plot = figure.add_subplot(gs[0:9])
+        self.synthetize = figure.add_subplot(gs[-1], sharex = self.profile_plot)
+        self.synthetize.yaxis.set_visible(False)
+        self.profile_plot.xaxis.set_visible(False)
+        self.draw()
+        
+    def synthetize(wavelength, flux):
+        crange = (3800, 7800)
+        if not crange[0] < wavelength < crange[1]: return (0,0,0,0)
+        value = plt.cm.gist_rainbow(1-((wavelength-crange[0]) / (crange[1]-crange[0]) ) )
+        return [value[0], value[1], value[2], math.sqrt(flux)]
+    
     def draw(self):
-        self.spectrum_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes)
+        self.profile_plot.clear()
+        self.profile_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes)
         self.spectrum_plot.axes.set_xlabel('lambda (Å)')
-        self.spectrum_plot.axes.set_ylabel('relative flux')
+        self.profile_plot.axes.set_ylabel('relative flux')
+        self.synthetize.axes.set_axis_bgcolor('black')
+        colors = [FinishSpectrum.synthetize(w, self.spectrum.fluxes[i]) for i,w in enumerate(self.spectrum.wavelengths)]
+        im_width = 200
+        colors = np.array(colors*im_width).reshape(im_width,len(colors),4)
+        self.synthetize.imshow(colors, extent=[self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1], 0, 200])
+        self.profile_plot.figure.tight_layout()
         self.spectrum_plot.figure.canvas.draw()
         
     def instrument_response(self, filename):
@@ -76,8 +104,7 @@ class FinishSpectrum(QWidget):
         response_data = [spline(x) for x in self.spectrum.wavelengths]
         self.spectrum.fluxes /= response_data
         self.spectrum.normalize_to_max()
-        self.spectrum_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes, "-", self.spectrum.wavelengths, response_data, "--")
-        
+        self.draw()
         
     def remove(self, direction):
         point = QInputDialog.getInt(None, 'Trim curve', 'Enter wavelength for trimming', self.spectrum.wavelengths[0] if direction == 'before' else self.spectrum.wavelengths[-1], self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1])
@@ -95,7 +122,7 @@ class FinishSpectrum(QWidget):
         fits_spectrum = FitsSpectrum(fits.open(file))
         fits_spectrum.spectrum.normalize_to_max()
         line = Line2D(fits_spectrum.x_axis(), fits_spectrum.data(), color='gray')
-        self.spectrum_plot.axes.add_line(line)
+        self.profile_plot.axes.add_line(line)
         self.spectrum_plot.add_element(line, 'reference')
         
     def save(self, filename):

@@ -95,7 +95,7 @@ class PlotsMath(QWidget):
         spline_factor = self.ui.spline_factor.value() if not self.ui.spline_factor_auto.isChecked() else None
         spline = UnivariateSpline(self.spectrum.wavelengths, self.spectrum.fluxes, k=self.ui.spline_degrees.value(), s=spline_factor)
         self.f_x = lambda x: spline(x)
-        self.plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes, '--', self.spectrum.wavelengths, spline(self.spectrum.wavelengths), '-')
+        self.plot.plot(None, self.spectrum.wavelengths, self.spectrum.fluxes, '--', self.spectrum.wavelengths, spline(self.spectrum.wavelengths), '-')
         self.plot.figure.canvas.draw()
         
     def rm_points(self, min, max):

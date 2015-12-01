@@ -20,28 +20,30 @@ class QMathPlotWidgetBase(FigureCanvas):
         FigureCanvas.updateGeometry(self)
         self.elements = {}
         
-    def plot(self, *args, **kwargs):
-        self.axes.plot(*args, **kwargs)
+    def plot(self, axes = None, *args, **kwargs):
+        axes = axes if axes else self.axes
+        _plot = axes.plot(*args, **kwargs)
         try:
-            self.apply_zoom()
+            self.apply_zoom(axes)
         except AttributeError:
             self.figure.canvas.draw()
+        return _plot
         
-    def apply_zoom(self):
-        self.axes.axis(self.zoom_rect)
+    def apply_zoom(self, axes):
+        axes.axis(self.zoom_rect)
         self.figure.canvas.draw()
         
-    def select_zoom(self):
-        def on_rect_selected(self,a,b):
+    def select_zoom(self, axes = None):
+        def on_rect_selected(self,a,b, axes):
             self.zoom_rect = [a.xdata, b.xdata, a.ydata, b.ydata]
             self.rm_element('zoom')
-            self.apply_zoom()
+            self.apply_zoom(axes)
+        axes = axes if axes else self.axes
+        self.add_rectangle_selector('zoom', lambda a,b: on_rect_selected(self, a, b, axes), axes)
         
-        self.add_rectangle_selector('zoom', lambda a,b: on_rect_selected(self, a, b))
-        
-    def reset_zoom(self, x_range, ymin, ymax):
+    def reset_zoom(self, x_range, ymin, ymax, axes = None):
         self.zoom_rect = [x_range[0], x_range[-1], ymin, ymax]
-        self.apply_zoom()
+        self.apply_zoom(axes if axes else self.axes)
         
     def rm_element(self, name, redraw = True):
         element = self.elements.pop(name, None)
@@ -67,11 +69,13 @@ class QMathPlotWidgetBase(FigureCanvas):
         self.rm_element(name, redraw=False)
         self.add_element(self.axes.axvspan(min,max, **kwargs) if type == 'v' else self.axes.axhspan(min, max, **kwargs), name)
 
-    def add_span_selector(self, name, callback, **kwargs):
-        self.add_element(SpanSelector(self.axes, callback, **kwargs), name)
+    def add_span_selector(self, name, callback, axes = None, **kwargs):
+        axes = axes if axes else self.axes
+        self.add_element(SpanSelector(axes, callback, **kwargs), name)
         
-    def add_rectangle_selector(self, name, callback, **kwargs):
-        self.add_element(RectangleSelector(self.axes, callback, **kwargs), name)
+    def add_rectangle_selector(self, name, callback, axes = None, **kwargs):
+        axes = axes if axes else self.axes
+        self.add_element(RectangleSelector(axes, callback, **kwargs), name)
 
 class QMathPlotWidget(QMathPlotWidgetBase):
     def __init__(self, **kwargs):
