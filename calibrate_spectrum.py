@@ -79,17 +79,13 @@ class CalibrateSpectrum(QWidget):
         self.ui.x_axis_pick.menu().addAction("Minimum from range").triggered.connect(lambda: self.pick_from_range('minimum'))
         self.ui.x_axis_pick.menu().addAction("Central value from range").triggered.connect(lambda: self.pick_from_range('central'))
         self.ui.wavelength_pick.clicked.connect(lambda: self.lines_dialog.show())
-        #self.ui.x_axis_pick.menu().addAction("Point")
-        self.reference_dialog = ReferenceSpectraDialog(database)
-        self.reference_dialog.fits_picked.connect(self.open_reference)
+
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_plot_dir')))
-        reference_action = QtCommons.addToolbarPopup(self.toolbar, "Reference")
-        reference_from_file = reference_action.menu().addAction("Load from FITS file")
-        reference_action = reference_action.menu().addAction("Reference library")
-        reference_action.triggered.connect(lambda: self.reference_dialog.show())
-        reference_from_file.triggered.connect(lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.open_reference(f[0])))
-        #reference_action.setEnabled(false)
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
+        
+        self.reference_spectra_dialog = ReferenceSpectraDialog(database)
+        self.reference_spectra_dialog.setup_menu(self.toolbar, self.spectrum_plot.axes)
+
 
         self.calibration_model = QStandardItemModel()
         self.calibration_model.setHorizontalHeaderLabels(["x-axis", "wavelength", "error"])
@@ -118,13 +114,7 @@ class CalibrateSpectrum(QWidget):
                 self.add_calibration_point_data(point[0], point[1])
         self.calculate_calibration()
     
-    def open_reference(self, file):
-        fits_spectrum = FitsSpectrum(fits.open(file))
-        fits_spectrum.spectrum.normalize_to_max()
-        line = Line2D(fits_spectrum.spectrum.wavelengths, fits_spectrum.spectrum.fluxes, color='gray')
-        self.spectrum_plot.axes.add_line(line)
-        self.spectrum_plot.figure.canvas.draw()
-        
+  
     def picked_from_range(self, type, min, max):
         min=(self.fits_spectrum.spectrum.wavelength_index(min))
         max=(self.fits_spectrum.spectrum.wavelength_index(max))

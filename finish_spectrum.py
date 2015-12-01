@@ -25,6 +25,7 @@ class FinishSpectrum(QWidget):
         self.fits_spectrum.spectrum.normalize_to_max()
         self.spectrum = self.fits_spectrum.spectrum
         self.spectrum_plot = QtCommons.nestWidget(self.ui.plot, QMathPlotWidget())
+        self.split_view()
         self.toolbar = QToolBar('Finish Spectrum Toolbar')
         self.toolbar.addAction('Instrument Response', lambda: QtCommons.open_file('Open Instrument Response Profile', FITS_EXTS, lambda f: self.instrument_response(f[0])))
         self.toolbar.addAction("Zoom", lambda: self.spectrum_plot.select_zoom(self.profile_plot.axes))
@@ -33,12 +34,9 @@ class FinishSpectrum(QWidget):
         remove_action.menu().addAction("Before point", lambda: spectrum_trim_dialog(self.spectrum, 'before', self.profile_plot.axes, lambda: self.draw()))
         remove_action.menu().addAction("After point", lambda: spectrum_trim_dialog(self.spectrum, 'after', self.profile_plot.axes, lambda: self.draw()))
         self.toolbar.addSeparator()
+        
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
-        self.reference_spectra_dialog.fits_picked.connect(self.open_reference)
-        reference_action = QtCommons.addToolbarPopup(self.toolbar, "Reference")
-        reference_action.menu().addAction("Load from FITS file", lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.open_reference(f[0])))
-        reference_action.menu().addAction("Reference library", lambda: self.reference_spectra_dialog.show())
-        reference_action.menu().addAction("Close", lambda: self.spectrum_plot.rm_element('reference'))
+        self.reference_spectra_dialog.setup_menu(self.toolbar, self.profile_plot.axes)
         
         lines_menu = QtCommons.addToolbarPopup(self.toolbar, "Spectral Lines...")
         lines_menu.menu().addAction('Lines Database', lambda: self.lines_dialog.show())
@@ -46,11 +44,12 @@ class FinishSpectrum(QWidget):
         
         self.toolbar.addSeparator()
         self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.spectrum_plot.figure.savefig(f[0], bbox_inches='tight', dpi=300)))
-        self.split_view()
-        self.draw()
         self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, self.profile_plot.axes)
         self.lines_dialog.lines.connect(self.add_lines)
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_plot_dir')))
+        
+        self.draw()
+        
         self.lines = []
         hdu_spectral_lines = [h for h in fits_file if h.name == FitsSpectrum.SPECTRAL_LINES]
         if len(hdu_spectral_lines) > 0:                
@@ -112,12 +111,5 @@ class FinishSpectrum(QWidget):
         self.spectrum.normalize_to_max()
         self.draw()
 
-    def open_reference(self, file):
-        fits_spectrum = FitsSpectrum(fits.open(file))
-        fits_spectrum.spectrum.normalize_to_max()
-        line = Line2D(fits_spectrum.spectrum.wavelengths, fits_spectrum.spectrum.fluxes, color='gray')
-        self.profile_plot.axes.add_line(line)
-        self.spectrum_plot.add_element(line, 'reference')
-        
     def save(self, filename):
         self.fits_spectrum.save(filename[0], spectral_lines = self.lines)

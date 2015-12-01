@@ -4,6 +4,11 @@ from PyQt5.QtCore import Qt, QObject, pyqtSignal, QSortFilterProxyModel
 
 from reference_catalogues import ReferenceCatalogues
 from pyui.reference_spectra_dialog import Ui_ReferenceSpectraDialog
+from qtcommons import *
+from pyspectrum_commons import *
+from fits_spectrum import FitsSpectrum
+from astropy.io import fits
+from matplotlib.lines import Line2D
 
 class ReferenceSpectraDialog(QDialog):
     
@@ -47,9 +52,33 @@ class ReferenceSpectraDialog(QDialog):
             item = QStandardItem(entry['sptype'])
             item.setData(entry)
             self.full_model.appendRow(item)
-        
             
     def load_fits(self):
         original_index = self.model.mapToSource(self.ui.entries.selectionModel().selectedIndexes()[0])
         entry = self.full_model.item(original_index.row()).data()
         self.fits_picked.emit(self.reference_catalogues.fits(entry))
+        
+        
+    def setup_menu(self, toolbar, axes):
+        self.current_line = None
+        reference_action = QtCommons.addToolbarPopup(toolbar, "Reference")
+        reference_action.menu().addAction("Load from FITS file", lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.__open_reference(f[0], axes)))
+        reference_action.menu().addAction("Reference library", lambda: self.show())
+        self.close_action = reference_action.menu().addAction("Close", lambda: self.__close_reference(axes))
+        self.close_action.setEnabled(False)
+        self.fits_picked.connect(lambda f: self.__open_reference(f, axes))
+
+    def __open_reference(self, file, axes):
+        fits_spectrum = FitsSpectrum(fits.open(file))
+        fits_spectrum.spectrum.normalize_to_max()
+        self.current_line = Line2D(fits_spectrum.spectrum.wavelengths, fits_spectrum.spectrum.fluxes, color='gray')
+        axes.add_line(self.current_line)
+        axes.figure.canvas.draw()
+        self.close_action.setEnabled(True)
+        
+    def __close_reference(self, axes):
+        self.close_action.setEnabled(False)
+        if self.current_line:
+            self.current_line.remove()
+            self.current_line = None
+            axes.figure.canvas.draw()
