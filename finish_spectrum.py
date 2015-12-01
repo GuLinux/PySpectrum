@@ -7,6 +7,7 @@ from astropy.io import fits
 from scipy.interpolate import *
 from miles import Miles
 from miles_dialog import MilesDialog
+from lines_dialog import LinesDialog
 from matplotlib.lines import Line2D
 from pyspectrum_commons import *
 
@@ -31,10 +32,15 @@ class FinishSpectrum(QWidget):
         
         self.miles_dialog = MilesDialog()
         self.miles_dialog.fits_picked.connect(self.open_reference)
+        self.lines_dialog = LinesDialog()
+        
         reference_action = QtCommons.addToolbarPopup(self.toolbar, "Reference")
         reference_action.menu().addAction("Load from FITS file", lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.open_reference(f[0])))
         reference_action.menu().addAction("MILES library", lambda: self.miles_dialog.show())
         reference_action.menu().addAction("Close", lambda: self.spectrum_plot.rm_element('reference'))
+        
+        self.toolbar.addAction('Spectral Lines', lambda: self.lines_dialog.show())
+        
         self.toolbar.addSeparator()
         self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.spectrum_plot.figure.savefig(f[0], bbox_inches='tight')))
         self.draw()
