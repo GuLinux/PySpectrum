@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>444</width>
-    <height>326</height>
+    <width>587</width>
+    <height>198</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,56 +19,57 @@
      <property name="title">
       <string>Filters</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="3" column="2" colspan="6">
-       <widget class="QComboBox" name="comboBox"/>
-      </item>
-      <item row="0" column="2">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
+        <property name="text">
+         <string>Element</string>
         </property>
-       </spacer>
+       </widget>
       </item>
-      <item row="0" column="6" rowspan="2">
+      <item>
+       <widget class="QComboBox" name="elements">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Wavelength</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="lambda_from">
+        <property name="maximum">
+         <number>9999999</number>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label_3">
         <property name="text">
          <string>to</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="0" rowspan="2" colspan="2">
-       <widget class="QCheckBox" name="checkBox">
-        <property name="text">
-         <string>Wavelength range</string>
+      <item>
+       <widget class="QSpinBox" name="lambda_to">
+        <property name="maximum">
+         <number>9999999</number>
         </property>
        </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="checkBox_2">
-        <property name="text">
-         <string>Element</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3" rowspan="2">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>from</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="7" rowspan="2">
-       <widget class="QSpinBox" name="spinBox_2"/>
-      </item>
-      <item row="0" column="4" rowspan="2" colspan="2">
-       <widget class="QSpinBox" name="spinBox"/>
       </item>
      </layout>
     </widget>
