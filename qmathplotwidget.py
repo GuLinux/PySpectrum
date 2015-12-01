@@ -57,16 +57,16 @@ class QMathPlotWidgetBase(FigureCanvas):
                 pass
         if redraw:
             self.figure.canvas.draw()
+
     def add_element(self, element, name):
+        self.rm_element(name, redraw=False)
         self.elements[name] = element
         self.figure.canvas.draw()
         
     def add_line(self, name, point, type='v', **kwargs):
-        self.rm_element(name, redraw=False)
         self.add_element(self.axes.axvline(point, **kwargs) if type == 'v' else self.axes.axhline(point, **kwargs), name)
 
     def add_span(self, name, min, max, type='v', **kwargs):
-        self.rm_element(name, redraw=False)
         self.add_element(self.axes.axvspan(min,max, **kwargs) if type == 'v' else self.axes.axhspan(min, max, **kwargs), name)
 
     def add_span_selector(self, name, callback, axes = None, **kwargs):

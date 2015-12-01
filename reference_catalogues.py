@@ -3,13 +3,14 @@ import os
 import json
 import urllib.request
 import gzip
+import collections
 
 class ReferenceCatalogues:
     def __init__(self, database):
         self.database = database
         c = database.cursor()
         cats = c.execute('SELECT id, "table", "name", spectra_url, gzipped, file_column, sptype_column FROM spectra_catalogues ORDER BY id ASC')
-        self.catalogues = dict([(c[2], {'id':c[0],'table':c[1],'name':c[2],'url':c[3],'gzipped':c[4]==1, 'columns': {'sptype': c[6], 'file':c[5]} }) for c in cats])
+        self.catalogues = collections.OrderedDict([(c[2], {'id':c[0],'table':c[1],'name':c[2],'url':c[3],'gzipped':c[4]==1, 'columns': {'sptype': c[6], 'file':c[5]} }) for c in cats])
         
     def spectra(self, catalog):
         cat_info = self.catalogues[catalog]

@@ -115,7 +115,7 @@ class FinishSpectrum(QWidget):
     def open_reference(self, file):
         fits_spectrum = FitsSpectrum(fits.open(file))
         fits_spectrum.spectrum.normalize_to_max()
-        line = Line2D(fits_spectrum.spectrum.wavelengths, fits_spectrum.data(), color='gray')
+        line = Line2D(fits_spectrum.spectrum.wavelengths, fits_spectrum.spectrum.fluxes, color='gray')
         self.profile_plot.axes.add_line(line)
         self.spectrum_plot.add_element(line, 'reference')
         

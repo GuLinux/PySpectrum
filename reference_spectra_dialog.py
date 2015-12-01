@@ -39,6 +39,8 @@ class ReferenceSpectraDialog(QDialog):
         catalogue = self.catalogues_model.item(self.ui.catalogue.currentIndex()).data()
         self.full_model.setHorizontalHeaderLabels(['Spectral Type'])
         entries = self.reference_catalogues.spectra(catalogue['name'])
+        self.ui.type_filter.clear()
+        self.ui.type_filter.addItem('')
         self.ui.type_filter.addItems( sorted(set([i['sptype'] for i in entries])) )
         
         for entry in entries:

@@ -108,7 +108,6 @@ class CalibrateSpectrum(QWidget):
         self.toolbar.addSeparator()
         self.toolbar.addAction("Zoom", self.spectrum_plot.select_zoom)
         self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.fits_spectrum.spectrum.wavelengths, self.fits_spectrum.spectrum.fluxes.min(), self.fits_spectrum.spectrum.fluxes.max()))
-        self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.spectrum_plot.figure.savefig(f[0], bbox_inches='tight')))
         
         self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, enable_picker = False, selection_mode = 'single')
         self.lines_dialog.lines.connect(self.picked_line)

@@ -58,6 +58,7 @@ class PlotsMath(QWidget):
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.draw())
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.ui.spline_factor.setEnabled(not v))
         self.ui.execute.clicked.connect(self.execute_operation)
+        self.plot.figure.tight_layout()
         self.undo_buffer = deque(maxlen=20)
         
     def undo(self):
@@ -76,10 +77,10 @@ class PlotsMath(QWidget):
         self.fits_spectrum = FitsSpectrum(fits_file)
         self.spectrum = self.fits_spectrum.spectrum
         self.spectrum.normalize_to_max()
-        if self.spectrum.dispersion() < 1:
+        if self.spectrum.dispersion() <0.5:
             print("dispersion too high ({}), reducing spectrum resolution".format(self.spectrum.dispersion()))
             spline = InterpolatedUnivariateSpline(self.spectrum.wavelengths, self.spectrum.fluxes)
-            self.spectrum.wavelengths = np.arange(self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1])
+            self.spectrum.wavelengths = np.arange(self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1], 0.5)
             self.spectrum.fluxes = np.fromfunction(lambda x: spline(x+self.spectrum.wavelengths[0]), self.spectrum.wavelengths.shape)
         self.draw()
 
@@ -102,6 +103,7 @@ class PlotsMath(QWidget):
         spline = UnivariateSpline(self.spectrum.wavelengths, self.spectrum.fluxes, k=self.ui.spline_degrees.value(), s=spline_factor)
         self.f_x = lambda x: spline(x)
         self.plot.plot(None, self.spectrum.wavelengths, self.spectrum.fluxes, '--', self.spectrum.wavelengths, spline(self.spectrum.wavelengths), '-')
+        self.plot.figure.tight_layout()
         self.plot.figure.canvas.draw()
         
     def rm_points(self, wmin, wmax):

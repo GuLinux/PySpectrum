@@ -1,8 +1,38 @@
-compile_ui: ui/pyspectrum_main_window.ui ui/import_image.ui ui/rotate_image_dialog.ui ui/calibrate_spectrum.ui ui/line_edit.ui \
-	    ui/reference_spectra_dialog.ui ui/select_plotted_point.ui ui/plots_math.ui ui/lines_dialog.ui ui/finish_spectrum.ui 
-	for ui in $^; do pyuic5 $$ui -o pyui/$$( basename $$ui .ui).py ; done
+pyui/pyspectrum_main_window.py: ui/pyspectrum_main_window.ui
+	pyuic5 $^ -o $@
+	
+pyui/import_image.py: ui/import_image.ui
+	pyuic5 $^ -o $@
+	
+pyui/rotate_image_dialog.py: ui/rotate_image_dialog.ui
+	pyuic5 $^ -o $@
+	
+pyui/calibrate_spectrum.py: ui/calibrate_spectrum.ui
+	pyuic5 $^ -o $@
+	
+pyui/line_edit.py: ui/line_edit.ui
+	pyuic5 $^ -o $@
+	
+pyui/reference_spectra_dialog.py: ui/reference_spectra_dialog.ui
+	pyuic5 $^ -o $@
+	
+pyui/select_plotted_point.py: ui/select_plotted_point.ui
+	pyuic5 $^ -o $@
+	
+pyui/plots_math.py: ui/plots_math.ui
+	pyuic5 $^ -o $@
+	
+pyui/lines_dialog.py: ui/lines_dialog.ui
+	pyuic5 $^ -o $@
+	
+pyui/finish_spectrum.py: ui/finish_spectrum.ui
+	pyuic5 $^ -o $@
 
-all: compile_ui
+compile_ui: pyui/pyspectrum_main_window.py pyui/import_image.py pyui/rotate_image_dialog.py pyui/calibrate_spectrum.py pyui/line_edit.py \
+	    pyui/reference_spectra_dialog.py pyui/select_plotted_point.py pyui/plots_math.py pyui/lines_dialog.py pyui/finish_spectrum.py 
+
+
+all: pyui/pyspectrum_main_window.py compile_ui
 
 run: all
 	python3 pyspectrum.py
