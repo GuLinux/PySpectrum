@@ -87,7 +87,7 @@ class FitsSpectrum:
         header['CRVAL1'] = self.spectrum.wavelengths[0]
         header['CDELT1'] = self.spectrum.dispersion()
         if len(spectral_lines) > 0:
-            texts = fits.Column(name='text', format='20A', array=[line.name for line in spectral_lines])
+            texts = fits.Column(name='text', format='20A', array=[line.name.encode() for line in spectral_lines])
             wavelengths = fits.Column(name='wavelength', format='D', array=[line.wavelength for line in spectral_lines])
             font_sizes = fits.Column(name='font_sizes', format='D', array=[line.fontsize for line in spectral_lines])
             show_lambdas = fits.Column(name='show_lambda', format='L', array=[line.show_lambda for line in spectral_lines])

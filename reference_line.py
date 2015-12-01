@@ -68,7 +68,7 @@ class ReferenceLine:
         self.name = self.line_text.text()
         self.show_lambda = self.edit_dialog_ui.show_lambda.isChecked()
         self.fontsize = self.edit_dialog_ui.text_size.value()
-        self.label.set_text("{}\n{}".format(self.name, self.wavelength) if self.show_lambda else self.name)
+        self.label.set_text("{}\n{} Å".format(self.name, self.wavelength) if self.show_lambda else self.name)
         self.label.set_size(self.fontsize)
         self.label.figure.canvas.draw()
         
