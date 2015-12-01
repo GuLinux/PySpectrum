@@ -9,6 +9,7 @@ from reference_spectra_dialog import ReferenceSpectraDialog
 from lines_dialog import LinesDialog
 from matplotlib.lines import Line2D
 from pyspectrum_commons import *
+from reference_line import ReferenceLine
 
 class FinishSpectrum(QWidget):
     def __init__(self, fits_file, settings, database):
@@ -43,10 +44,12 @@ class FinishSpectrum(QWidget):
         self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.spectrum_plot.figure.savefig(f[0], bbox_inches='tight', dpi=300)))
         self.draw()
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_plot_dir')))
+        self.lines = []
         
     def add_lines(self, lines):
         for line in lines:
-            self.spectrum_plot.add_line(line['name'], line['lambda'])
+            self.lines.append(ReferenceLine(line['name'], line['lambda'], self.spectrum_plot.axes))
+            #self.spectrum_plot.add_line(line['name'], line['lambda'])
         
     def draw(self):
         self.spectrum_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes)
