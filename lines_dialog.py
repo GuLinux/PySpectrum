@@ -1,4 +1,4 @@
-from ui_lines_dialog import Ui_LinesDialog
+from pyui.lines_dialog import Ui_LinesDialog
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QTableView
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QSortFilterProxyModel, QSettings, QByteArray

@@ -1,4 +1,4 @@
-from ui_finish_spectrum import Ui_FinishSpectrum
+from pyui.finish_spectrum import Ui_FinishSpectrum
 from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction, QInputDialog
 from qmathplotwidget import QMathPlotWidget
 from fits_spectrum import FitsSpectrum, Spectrum

@@ -1,4 +1,4 @@
-from ui_plots_math import Ui_PlotsMath
+from pyui.plots_math import Ui_PlotsMath
 from scipy.interpolate import *
 from qmathplotwidget import QMathPlotWidget
 from PyQt5.QtWidgets import QWidget, QToolBar, QToolButton, QMenu, QAction, QInputDialog

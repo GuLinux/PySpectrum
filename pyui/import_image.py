@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'import_image.ui'
+# Form implementation generated from reading ui file 'ui/import_image.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #

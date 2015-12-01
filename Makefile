@@ -1,5 +1,6 @@
-compile_ui: pyspectrum_main_window.ui import_image.ui rotate_image_dialog.ui calibrate_spectrum.ui reference_spectra_dialog.ui select_plotted_point.ui plots_math.ui lines_dialog.ui finish_spectrum.ui line_edit.ui
-	for ui in $^; do pyuic5 $$ui -o ui_$$( basename $$ui .ui).py ; done
+compile_ui: ui/pyspectrum_main_window.ui ui/import_image.ui ui/rotate_image_dialog.ui ui/calibrate_spectrum.ui ui/line_edit.ui \
+	    ui/reference_spectra_dialog.ui ui/select_plotted_point.ui ui/plots_math.ui ui/lines_dialog.ui ui/finish_spectrum.ui 
+	for ui in $^; do pyuic5 $$ui -o pyui/$$( basename $$ui .ui).py ; done
 
 all: compile_ui
 
@@ -12,4 +13,4 @@ unit_tests: all
 tests: unit_tests
   
 clean:
-	rm -f ui_*.py
+	rm -f pyui/*.py

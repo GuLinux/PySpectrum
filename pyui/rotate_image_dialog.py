@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'rotate_image_dialog.ui'
+# Form implementation generated from reading ui file 'ui/rotate_image_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #

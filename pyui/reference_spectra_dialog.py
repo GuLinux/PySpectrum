@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'reference_spectra_dialog.ui'
+# Form implementation generated from reading ui file 'ui/reference_spectra_dialog.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #

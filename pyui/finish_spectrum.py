@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'finish_spectrum.ui'
+# Form implementation generated from reading ui file 'ui/finish_spectrum.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #

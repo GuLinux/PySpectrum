@@ -1,11 +1,11 @@
-from ui_calibrate_spectrum import Ui_CalibrateSpectrum
+from pyui.calibrate_spectrum import Ui_CalibrateSpectrum
 from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction, QInputDialog
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QByteArray, QTimer
 from qmathplotwidget import QMathPlotWidget
 import matplotlib.pyplot as plt
 from qtcommons import QtCommons
-from ui_rotate_image_dialog import Ui_RotateImageDialog
+from pyui.rotate_image_dialog import Ui_RotateImageDialog
 import os
 import numpy as np
 from astropy.io import fits
@@ -14,7 +14,7 @@ from matplotlib.widgets import SpanSelector
 from matplotlib.lines import Line2D
 from reference_spectra_dialog import ReferenceSpectraDialog
 from scipy.interpolate import *
-from ui_select_plotted_point import Ui_SelectPlottedPoints
+from pyui.select_plotted_point import Ui_SelectPlottedPoints
 from pyspectrum_commons import *
 from lines_dialog import LinesDialog
 

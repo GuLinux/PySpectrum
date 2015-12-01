@@ -1,11 +1,11 @@
-from ui_import_image import Ui_ImportImage
+from pyui.import_image import Ui_ImportImage
 from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox
 from PyQt5.QtGui import QIcon
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import matplotlib.pyplot as plt
 from qtcommons import QtCommons
 import scipy.ndimage.interpolation
-from ui_rotate_image_dialog import Ui_RotateImageDialog
+from pyui.rotate_image_dialog import Ui_RotateImageDialog
 import os
 import numpy as np
 from astropy.io import fits

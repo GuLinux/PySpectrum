@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'select_plotted_point.ui'
+# Form implementation generated from reading ui file 'ui/select_plotted_point.ui'
 #
 # Created by: PyQt5 UI code generator 5.5.1
 #

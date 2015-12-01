@@ -1,6 +1,6 @@
 import matplotlib
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox, QLineEdit, QMenu
-from ui_line_edit import Ui_LineEdit
+from pyui.line_edit import Ui_LineEdit
 from qtcommons import QtCommons
 
 class GreekLineEdit(QLineEdit):

@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QDialog, QDialogButtonBox
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QSortFilterProxyModel
 
 from reference_catalogues import ReferenceCatalogues
-from ui_reference_spectra_dialog import Ui_ReferenceSpectraDialog
+from pyui.reference_spectra_dialog import Ui_ReferenceSpectraDialog
 
 class ReferenceSpectraDialog(QDialog):
     

@@ -1,4 +1,4 @@
-from ui_pyspectrum_main_window import Ui_PySpectrumMainWindow
+from pyui.pyspectrum_main_window import Ui_PySpectrumMainWindow
 from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from import_image import ImportImage
 from calibrate_spectrum import CalibrateSpectrum
