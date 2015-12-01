@@ -10,9 +10,13 @@ from qtcommons import QtCommons
 from plots_math import PlotsMath
 from pyspectrum_commons import *
 import sqlite3
+from matplotlib import rc
+from PyQt5.QtWidgets import QApplication
 
 class PySpectrumMainWindow(QMainWindow):
     def __init__(self):
+        font = QApplication.instance().font()
+        rc('font', **{'family':'serif','serif':[font.defaultFamily()]})
         super(PySpectrumMainWindow, self).__init__()
         self.ui = Ui_PySpectrumMainWindow()
         self.database = sqlite3.connect('data/pyspectrum.db')
