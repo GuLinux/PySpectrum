@@ -86,6 +86,9 @@ class FitsSpectrum:
         header['CRPIX1'] = 1
         header['CRVAL1'] = self.spectrum.wavelengths[0]
         header['CDELT1'] = self.spectrum.dispersion()
+        header['CD1_1'] = self.spectrum.dispersion()
+        header['CTYPE1'] = 'WAVE-WAV-PLY'
+        header['CUNIT1'] = 'Angstrom'
         if len(spectral_lines) > 0:
             texts = fits.Column(name='text', format='20A', array=[line.name.encode() for line in spectral_lines])
             wavelengths = fits.Column(name='wavelength', format='D', array=[line.wavelength for line in spectral_lines])

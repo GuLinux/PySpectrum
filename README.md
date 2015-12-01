@@ -10,10 +10,12 @@ PySpectrum is a Python-Qt5 application for amatorial spectrography. It aims at b
 * matplotlib
 * numpy
 * scipy
+* astroquery
 
-On ubuntu you might install all required dependencies with the following command:
+On ubuntu you might install all required dependencies with the following commands:
 
-    sudo apt-get install -y python3-pyqt5 python3-astropy python3-matplotlib python3-scipy
+    sudo apt-get install -y python3-pyqt5 python3-astropy python3-matplotlib python3-scipy python3-pip
+    sudo pip3 install astroquery
     
 ### Download ###
 

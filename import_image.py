@@ -1,6 +1,7 @@
 from pyui.import_image import Ui_ImportImage
 from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox
 from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import matplotlib.pyplot as plt
 from qtcommons import QtCommons
@@ -9,6 +10,7 @@ from pyui.rotate_image_dialog import Ui_RotateImageDialog
 import os
 import numpy as np
 from astropy.io import fits
+from object_properties_dialog import ObjectPropertiesDialog
 
 class ImportImage(QWidget):
     def __init__(self, fits_file, config):
@@ -32,9 +34,18 @@ class ImportImage(QWidget):
         self.toolbar.addAction(QIcon.fromTheme('document-save'), "Save", lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.config.value('last_plot_save_dir')))
         self.toolbar.addAction(QIcon.fromTheme('edit-select'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
+        self.toolbar.addSeparator()
+        self.object_properties_dialog = ObjectPropertiesDialog()
+        self.object_properties_dialog.properties_changed.connect(self.object_properties_changed)
+        self.toolbar.addAction("Object properties", self.object_properties_dialog.show)
         self.max_spatial_delta = self.max_spatial_delta_angle = self.degrees = 0
         self.rotate(0)
+        self.object_properties = None
         self.__init_rotate_dialog__()
+        
+    def object_properties_changed(self, properties):
+        self.object_properties = properties
+        print(self.object_properties)
         
     def background_span_selected(self, min, max):
         self.background_span_selection = (min, max)
@@ -101,6 +112,19 @@ class ImportImage(QWidget):
         data -= np.amin(data)
         data /= np.amax(data)
         hdu = fits.PrimaryHDU(data)
+        hdu.header['ORIGIN'] = 'PySpectrum'
         hdu.header['pyspec_rotated_by'] = self.degrees
+        if self.object_properties:
+            hdu.header['OBJECT'] = self.object_properties['name']
+            hdu.header['DATE'] = self.object_properties['date'].toString(Qt.ISODate)
+            hdu.header['CTYPE2'] = 'RA--TAN'
+            hdu.header['CRVAL2'] = self.object_properties['ra']
+            hdu.header['CTYPE3'] = 'DEC--TAN'
+            hdu.header['CRVAL3'] = self.object_properties['dec']
+            hdu.header['OBJTYPE'] = self.object_properties['type']
+            hdu.header['SPTYPE'] = self.object_properties['sptype']
+            hdu.header['OBSERVER'] = self.object_properties['observer']
+            hdu.header['INSTRUMENT'] = self.object_properties['instruments']
+            hdu.header['POSITION'] = self.object_properties['position']
         hdu.writeto(save_file[0], clobber=True)
     
