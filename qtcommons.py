@@ -4,7 +4,10 @@ from PyQt5.QtCore import Qt
 
 class QtCommons:
     def nestWidget(parent, child):
-        parent.setLayout(QVBoxLayout())
+        l = QVBoxLayout()
+        l.setContentsMargins(0,0,0,0)
+        l.setSpacing(0)
+        parent.setLayout(l)
         parent.layout().addWidget(child)
         return child
     

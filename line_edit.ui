@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>389</width>
+    <width>394</width>
     <height>187</height>
    </rect>
   </property>
@@ -22,42 +22,12 @@
     </widget>
    </item>
    <item row="0" column="1" colspan="2">
-    <widget class="QLineEdit" name="line_text"/>
-   </item>
-   <item row="4" column="1" colspan="2">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
+    <widget class="QWidget" name="line_text_wrapper" native="true"/>
    </item>
    <item row="0" column="3">
     <widget class="QPushButton" name="reset_default_text">
      <property name="text">
       <string>Default</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="4">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="3">
-    <widget class="QPushButton" name="remove_line">
-     <property name="text">
-      <string>Remove line</string>
      </property>
     </widget>
    </item>
@@ -75,24 +45,54 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="1" colspan="2">
-    <widget class="QDoubleSpinBox" name="text_size">
-     <property name="decimals">
-      <number>1</number>
+   <item row="2" column="0">
+    <widget class="QLabel" name="wavelength">
+     <property name="text">
+      <string>TextLabel</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1" colspan="3">
+   <item row="2" column="1" colspan="2">
     <widget class="QCheckBox" name="show_lambda">
      <property name="text">
       <string>Show wavelength</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="wavelength">
+   <item row="3" column="3">
+    <widget class="QPushButton" name="remove_line">
      <property name="text">
-      <string>TextLabel</string>
+      <string>Remove line</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="5" column="2" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="QDoubleSpinBox" name="text_size">
+     <property name="decimals">
+      <number>1</number>
      </property>
     </widget>
    </item>

@@ -1,6 +1,26 @@
 import matplotlib
-from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
+from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox, QLineEdit, QMenu
 from ui_line_edit import Ui_LineEdit
+from qtcommons import QtCommons
+
+class GreekLineEdit(QLineEdit):
+    def __init__(self, parent = None):
+        QLineEdit.__init__(self, parent)
+        
+    def contextMenuEvent(self, evt):
+        menu = self.createStandardContextMenu()
+        greek_letters = menu.addAction("Greek Letters")
+        greek_letters_menu = QMenu()
+        greek_letters.setMenu(greek_letters_menu)
+        greek_letters_menu.addAction("α (alpha)", lambda: self.setText(self.text() + " α"))
+        greek_letters_menu.addAction("β (beta)", lambda: self.setText(self.text() + " β"))
+        greek_letters_menu.addAction("γ (gamma)", lambda: self.setText(self.text() + " γ"))
+        greek_letters_menu.addAction("δ (delta)", lambda: self.setText(self.text() + " δ"))
+        greek_letters_menu.addAction("ε (epsilon)", lambda: self.setText(self.text() + " ε"))
+        greek_letters_menu.addAction("ζ (zeta)", lambda: self.setText(self.text() + " ζ"))
+        greek_letters_menu.addAction("η (eta)", lambda: self.setText(self.text() + " η"))
+        greek_letters_menu.addAction("θ (theta)", lambda: self.setText(self.text() + " θ"))
+        menu.exec(evt.globalPos());
 
 # code adapted from here: http://matplotlib.org/users/event_handling.html
 class ReferenceLine:
@@ -25,11 +45,12 @@ class ReferenceLine:
         self.edit_dialog = QDialog()
         self.edit_dialog_ui = Ui_LineEdit()
         self.edit_dialog_ui.setupUi(self.edit_dialog)
+        self.line_text = QtCommons.nestWidget(self.edit_dialog_ui.line_text_wrapper, GreekLineEdit())
         self.edit_dialog_ui.show_lambda.setChecked(show_wavelength)
         self.edit_dialog_ui.wavelength.setText("{} Å".format(wavelength))
-        self.edit_dialog_ui.line_text.setText(name)
+        self.line_text.setText(name)
         self.edit_dialog.accepted.connect(self.update_line)
-        self.edit_dialog_ui.reset_default_text.clicked.connect(lambda: self.edit_dialog_ui.line_text.setText(name))
+        self.edit_dialog_ui.reset_default_text.clicked.connect(lambda: self.line_text.setText(name))
         text_size = self.label.get_size()
         self.edit_dialog_ui.text_size.setValue(text_size)
         self.edit_dialog_ui.reset_default_size.clicked.connect(lambda: self.edit_dialog_ui.text_size.setValue(text_size))
@@ -44,7 +65,7 @@ class ReferenceLine:
         return self.label.get_unitless_position()
         
     def update_line(self):
-        self.name = self.edit_dialog_ui.line_text.text()
+        self.name = self.line_text.text()
         self.show_lambda = self.edit_dialog_ui.show_lambda.isChecked()
         self.fontsize = self.edit_dialog_ui.text_size.value()
         self.label.set_text("{}\n{}".format(self.name, self.wavelength) if self.show_lambda else self.name)
