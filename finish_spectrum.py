@@ -14,6 +14,7 @@ from matplotlib import gridspec
 import matplotlib as plt
 import numpy as np
 import math
+from view_object_properties import ViewObjectProperties
 
 import sys
 import os
