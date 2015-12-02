@@ -26,14 +26,14 @@ class GreekLineEdit(QLineEdit):
 class ReferenceLine:
     lock = None
 
-    def __init__(self, name, wavelength, axes, on_remove, show_wavelength = False, fontsize = 16, position = None):
+    def __init__(self, name, wavelength, axes, on_remove, show_wavelength = False, fontsize = 16, position = None, color='#80ff80'):
         self.axes = axes
         self.wavelength = wavelength
         self.name = name
         self.fontsize = fontsize
         self.show_lambda = show_wavelength
         self.on_remove = on_remove
-        self.line = self.axes.axvline(wavelength, color='red')
+        self.line = self.axes.axvline(wavelength, color=color)
         self.label = axes.text(wavelength + 50, 0.5, name, fontsize=fontsize)
         self.connections = [
             axes.figure.canvas.mpl_connect('button_press_event', self.onclick),

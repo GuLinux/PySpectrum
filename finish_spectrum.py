@@ -144,7 +144,7 @@ class FinishSpectrum(QWidget):
         im_height = 150
         colors = np.array(colors*im_height).reshape(im_height,len(colors),4)
         self.synthetize.imshow(colors, extent=[self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1], 0, im_height])
-        self.profile_plot.axes.set_xlabel('lambda (Å)')
+        self.profile_plot.axes.set_xlabel('wavelength (Å)')
         self.profile_plot.axes.set_ylabel('relative flux')
         self.spectrum_plot.figure.canvas.draw()
         self.gs.tight_layout(self.spectrum_plot.figure)
