@@ -125,9 +125,9 @@ class FinishSpectrum(QWidget):
     def split_view(self):
         figure = self.spectrum_plot.figure
         figure.clear()
-        self.gs = gridspec.GridSpec(20,1)
-        self.profile_plot = figure.add_subplot(self.gs[0:-2])
-        self.synthetize = figure.add_subplot(self.gs[-1], sharex = self.profile_plot)
+        self.gs = gridspec.GridSpec(40,1)
+        self.profile_plot = figure.add_subplot(self.gs[0:-6])
+        self.synthetize = figure.add_subplot(self.gs[-3:-1], sharex = self.profile_plot)
         self.synthetize.yaxis.set_visible(False)
         self.synthetize.xaxis.set_visible(False)
         self.draw()
