@@ -17,6 +17,7 @@ from scipy.interpolate import *
 from pyui.select_plotted_point import Ui_SelectPlottedPoints
 from pyspectrum_commons import *
 from lines_dialog import LinesDialog
+from view_object_properties import ViewObjectProperties
 
 class SelectPlottedPoints(QDialog):
     point = pyqtSignal(int)
@@ -104,6 +105,9 @@ class CalibrateSpectrum(QWidget):
         self.toolbar.addSeparator()
         self.toolbar.addAction("Zoom", self.spectrum_plot.select_zoom)
         self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.fits_spectrum.spectrum.wavelengths, self.fits_spectrum.spectrum.fluxes.min(), self.fits_spectrum.spectrum.fluxes.max()))
+        self.toolbar.addSeparator()
+        self.object_properties_dialog = ViewObjectProperties.dialog(fits_file)
+        self.toolbar.addAction("Properties", self.object_properties_dialog.show)
         
         self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, enable_picker = False, selection_mode = 'single')
         self.lines_dialog.lines.connect(self.picked_line)

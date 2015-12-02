@@ -93,6 +93,9 @@ class FinishSpectrum(QWidget):
         lines_menu.menu().addAction('Custom line', self.add_custom_line)
         
         self.toolbar.addSeparator()
+        self.object_properties_dialog = ViewObjectProperties.dialog(fits_file)
+        self.toolbar.addAction("Properties", self.object_properties_dialog.show)
+        self.toolbar.addSeparator()
         self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.spectrum_plot.figure.savefig(f[0], bbox_inches='tight', dpi=300)))
         self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, self.profile_plot.axes)
         self.lines_dialog.lines.connect(self.add_lines)

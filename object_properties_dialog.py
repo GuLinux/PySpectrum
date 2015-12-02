@@ -2,7 +2,7 @@ from astroquery.simbad import Simbad
 from PyQt5.QtWidgets import QDialog, QDialogButtonBox, QMessageBox
 from pyui.object_properties_dialog import Ui_ObjectPropertiesDialog
 import re
-from PyQt5.QtCore import Qt, QObject, pyqtSignal
+from PyQt5.QtCore import Qt, QObject, pyqtSignal, QDateTime
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 
@@ -22,6 +22,8 @@ class ObjectPropertiesDialog(QDialog):
         self.ui.simbad.clicked.connect(self.simbad_query)
         self.accepted.connect(self.emit_properties)
         enable_simbad_button()
+        # TODO: default values from file
+        self.ui.date.setDateTime(QDateTime.currentDateTime())
         
     def simbad_query(self):
         result = Simbad.query_object(self.ui.name.currentText())

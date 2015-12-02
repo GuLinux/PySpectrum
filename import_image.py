@@ -124,7 +124,7 @@ class ImportImage(QWidget):
             hdu.header['OBJTYPE'] = self.object_properties['type']
             hdu.header['SPTYPE'] = self.object_properties['sptype']
             hdu.header['OBSERVER'] = self.object_properties['observer']
-            hdu.header['INSTRUMENT'] = self.object_properties['instruments']
+            hdu.header['INSTRUMENT'] = self.object_properties['instruments'] #TODO: rename to equipment
             hdu.header['POSITION'] = self.object_properties['position']
         hdu.writeto(save_file[0], clobber=True)
     
