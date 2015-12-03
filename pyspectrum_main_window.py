@@ -25,6 +25,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.settings = QSettings("GuLinux", "PySpectrum")
         QtCommons.addToolbarPopup(self.ui.toolBar, 'File', actions=[self.ui.actionOpen_Image,self.ui.actionCalibrate_FITS,self.ui.actionPlots_Math,self.ui.actionFinish_Spectrum])
+        self.windows_menu = QtCommons.addToolbarPopup(self.ui.toolBar, 'Windows')
         self.actionClose = self.ui.toolBar.addAction(QIcon(':/close_20'), "Close")
         self.ui.actionOpen_Image.setIcon(QIcon(':/image_20'))
         self.ui.actionCalibrate_FITS.setIcon(QIcon(':/plot_20'))
@@ -39,6 +40,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
         self.restoreGeometry(self.settings.value('window_geometry', QByteArray()))
+        self.widgets = []
         
     def closeEvent(self, ev):
         self.settings.setValue('window_geometry', self.saveGeometry())
@@ -46,10 +48,11 @@ class PySpectrumMainWindow(QMainWindow):
         
     def close_widget(self):
         # TODO: close() on widget
+        self.widgets = [w for w in self.widgets if w[0] != self.ui.stackedWidget.currentWidget()]
         self.ui.stackedWidget.currentWidget().deleteLater()
+        self.__rebuild_windows_menu()
         
     def current_changed(self, index):
-        print(index)
         self.actionClose.setEnabled(index > 1)
         if self.current_widget_toolbar:
             self.removeToolBar(self.current_widget_toolbar)
@@ -59,28 +62,38 @@ class PySpectrumMainWindow(QMainWindow):
         
     def open_image(self, file):
         fits_file = self.open_fits(file[0], "open_image")
-        self.import_image = ImportImage(fits_file, self.settings)
-        self.ui.stackedWidget.addWidget(self.import_image)
-        self.ui.stackedWidget.setCurrentWidget(self.import_image)
+        self.__add_widget(ImportImage(fits_file, self.settings), 'Import Image - {}'.format(os.path.basename(file[0])))
     
     def calibrate(self, file):
         fits_file = self.open_fits(file[0], 'open_spectrum')
-        widget = CalibrateSpectrum(fits_file, self.settings, self.database)
-        self.ui.stackedWidget.addWidget(widget)
-        self.ui.stackedWidget.setCurrentWidget(widget)
+        self.__add_widget(CalibrateSpectrum(fits_file, self.settings, self.database), 'Calibrate - {}'.format(os.path.basename(file[0])))
 
     def plots_math(self):
-        widget = PlotsMath(self.settings, self.database)
-        self.ui.stackedWidget.addWidget(widget)
-        self.ui.stackedWidget.setCurrentWidget(widget)
+        self.__add_widget(PlotsMath(self.settings, self.database), 'Math')
 
+        
+    def finish_spectrum(self, file):
+        fits_file = self.open_fits(file[0], 'open_spectrum')
+        self.__add_widget(FinishSpectrum(fits_file, self.settings, self.database), 'Finish - {}'.format(os.path.basename(file[0])))
 
     def open_fits(self, filename, type):
         file = os.path.realpath(filename)
         return fits.open(file)
 
-    def finish_spectrum(self, file):
-        fits_file = self.open_fits(file[0], 'open_spectrum')
-        widget = FinishSpectrum(fits_file, self.settings, self.database)
+    def __add_widget(self, widget, title):
+        self.widgets.append( (widget, title) )
         self.ui.stackedWidget.addWidget(widget)
         self.ui.stackedWidget.setCurrentWidget(widget)
+        self.__rebuild_windows_menu()
+        
+    def __rebuild_windows_menu(self):
+        def add_action(self, name, widget):
+            trigger = lambda: self.ui.stackedWidget.setCurrentWidget(widget)
+            action = self.windows_menu.menu().addAction(name)
+            action.triggered.connect(trigger)
+            
+        self.windows_menu.menu().clear()
+        self.windows_menu.menu().addAction('Home', lambda: self.ui.stackedWidget.setCurrentIndex(0))
+        for w in self.widgets:
+            add_action(self, w[1], w[0])    
+        
