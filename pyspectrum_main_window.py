@@ -13,7 +13,7 @@ from pyspectrum_commons import *
 import sqlite3
 from matplotlib import rc
 from PyQt5.QtWidgets import QApplication
-import resources.resources
+import resources
 from homepage import HomePage
 
 class PySpectrumMainWindow(QMainWindow):

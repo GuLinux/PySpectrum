@@ -26,9 +26,11 @@ pyui/object_properties_dialog.py: ui/object_properties_dialog.ui
 pyui/homepage.py: ui/homepage.ui
 	pyuic5 $^ -o $@
 
+resources.py: resources/*
+	pyrcc5 resources/resources.qrc > resources.py
+
 .PHONY: compile_rcc
-compile_rcc: resources/resources.qrc
-	pyrcc5 resources/resources.qrc > resources/resources.py
+compile_rcc: resources.py
 
 .PHONY: compile_ui
 compile_ui: pyui/pyspectrum_main_window.py pyui/import_image.py pyui/rotate_image_dialog.py pyui/calibrate_spectrum.py pyui/line_edit.py pyui/homepage.py \
