@@ -42,6 +42,10 @@ class PySpectrumMainWindow(QMainWindow):
         self.restoreGeometry(self.settings.value('window_geometry', QByteArray()))
         self.widgets = [(self.homepage, "Home")]
         self.current_changed(self.ui.stackedWidget.indexOf(self.homepage))
+        def action_checked(actions, action):
+            for a in actions:
+                a.setChecked(a == action)
+        self.windows_menu.menu().triggered.connect(lambda a: action_checked(self.windows_menu.menu().actions(), a))
         self.__rebuild_windows_menu()
 
     def closeEvent(self, ev):
@@ -55,6 +59,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.__rebuild_windows_menu()
         
     def current_changed(self, index):
+        self.setWindowTitle([w[1] for w in self.widgets if w[0] == self.ui.stackedWidget.currentWidget()][0])
         self.actionClose.setEnabled(self.homepage != self.ui.stackedWidget.currentWidget() )
         if self.current_widget_toolbar:
             self.removeToolBar(self.current_widget_toolbar)
@@ -94,6 +99,8 @@ class PySpectrumMainWindow(QMainWindow):
         def add_action(self, name, widget):
             trigger = lambda: self.ui.stackedWidget.setCurrentWidget(widget)
             action = self.windows_menu.menu().addAction(name)
+            action.setCheckable(True)
+            action.setChecked(widget == self.ui.stackedWidget.currentWidget())
             action.triggered.connect(trigger)
             
         self.windows_menu.menu().clear()
