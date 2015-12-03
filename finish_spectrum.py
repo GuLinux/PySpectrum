@@ -33,7 +33,7 @@ class FinishSpectrum(QWidget):
         self.spectrum_plot = QtCommons.nestWidget(self.ui.plot, QMathPlotWidget())
         self.split_view()
         self.toolbar = QToolBar('Finish Spectrum Toolbar')
-        self.toolbar.addAction('Instrument Response', lambda: QtCommons.open_file('Open Instrument Response Profile', FITS_EXTS, lambda f: self.instrument_response(f[0])))
+        self.toolbar.addAction('Instrument Response', lambda: QtCommons.open_file_sticky('Open Instrument Response Profile', FITS_EXTS, lambda f: self.instrument_response(f[0]), settings, MATH_OPERATION_DIR, [RAW_PROFILE_DIR]))
         self.toolbar.addAction("Zoom", lambda: self.spectrum_plot.select_zoom(self.profile_plot.axes))
         self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.spectrum.wavelengths, self.spectrum.fluxes.min(), self.spectrum.fluxes.max(), self.profile_plot.axes))
         remove_action = QtCommons.addToolbarPopup(self.toolbar, "Remove")
@@ -42,22 +42,25 @@ class FinishSpectrum(QWidget):
         self.toolbar.addSeparator()
         
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
-        self.reference_spectra_dialog.setup_menu(self.toolbar, self.profile_plot.axes)
+        self.reference_spectra_dialog.setup_menu(self.toolbar, self.profile_plot.axes, settings)
         
         lines_menu = QtCommons.addToolbarPopup(self.toolbar, "Spectral Lines...")
         lines_menu.menu().addAction('Lines Database', lambda: self.lines_dialog.show())
         lines_menu.menu().addAction('Custom line', self.add_custom_line)
         
+        try: 
+            self.object_properties_dialog = ViewObjectProperties.dialog(fits_file)
+            self.toolbar.addSeparator()
+            self.toolbar.addAction("Properties", self.object_properties_dialog.show)
+            self.add_info(fits_file)
+        except KeyError:
+            pass
         self.toolbar.addSeparator()
-        self.object_properties_dialog = ViewObjectProperties.dialog(fits_file)
-        self.toolbar.addAction("Properties", self.object_properties_dialog.show)
-        self.toolbar.addSeparator()
-        self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.save_image(f[0]), self.settings.value('last_save_image_dir')))
+        self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file_sticky('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.save_image(f[0]), self.settings, EXPORT_IMAGES_DIR, [CALIBRATED_PROFILE_DIR]))
         self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, self.profile_plot.axes)
         self.lines_dialog.lines.connect(self.add_lines)
-        save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_finished_dir')))
+        save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, CALIBRATED_PROFILE_DIR))
         
-        self.add_info(fits_file)
         
         self.lines = []
         hdu_spectral_lines = [h for h in fits_file if h.name == FitsSpectrum.SPECTRAL_LINES]
@@ -142,12 +145,10 @@ class FinishSpectrum(QWidget):
         
         
     def save_image(self, filename):
-        self.settings.setValue('last_save_image_dir', os.path.dirname(filename))
         self.spectrum_plot.figure.savefig(filename, bbox_inches='tight', dpi=300)
 
     def save(self, filename):
         filename = filename[0]
-        self.settings.setValue('last_save_finished_dir', os.path.dirname(filename))
         self.fits_spectrum.save(filename, spectral_lines = self.lines)
         
         

@@ -23,10 +23,10 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.settings = QSettings("GuLinux", "PySpectrum")
         QtCommons.addToolbarPopup(self.ui.toolBar, 'Load...', actions=[self.ui.actionOpen_Image,self.ui.actionCalibrate_FITS,self.ui.actionPlots_Math,self.ui.actionFinish_Spectrum])
-        self.ui.actionOpen_Image.triggered.connect(lambda: QtCommons.open_file('Open FITS Image',FITS_IMG_EXTS, self.open_image, self.settings.value("open_image_last_dir", type=str) ))
-        self.ui.actionCalibrate_FITS.triggered.connect(lambda: QtCommons.open_file('Open raw FITS Spectrum',FITS_EXTS, self.calibrate, self.settings.value("open_spectrum_last_dir", type=str) ))
+        self.ui.actionOpen_Image.triggered.connect(lambda: QtCommons.open_file_sticky('Open FITS Image',FITS_IMG_EXTS, self.open_image, self.settings, IMPORT_IMG_DIR ))
+        self.ui.actionCalibrate_FITS.triggered.connect(lambda: QtCommons.open_file_sticky('Open raw FITS Spectrum',FITS_EXTS, self.calibrate, self.settings, RAW_PROFILE_DIR, [IMPORT_IMG_DIR] ))
         self.ui.actionPlots_Math.triggered.connect(self.plots_math)
-        self.ui.actionFinish_Spectrum.triggered.connect(lambda: QtCommons.open_file('Open FITS Spectrum',FITS_EXTS, self.finish_spectrum, self.settings.value("last_save_finished_dir", type=str) ))
+        self.ui.actionFinish_Spectrum.triggered.connect(lambda: QtCommons.open_file_sticky('Open FITS Spectrum',FITS_EXTS, self.finish_spectrum, self.settings, CALIBRATED_PROFILE_DIR, [RAW_PROFILE_DIR,IMPORT_IMG_DIR] ))
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
         self.restoreGeometry(self.settings.value('window_geometry', QByteArray()))
@@ -61,8 +61,6 @@ class PySpectrumMainWindow(QMainWindow):
 
     def open_fits(self, filename, type):
         file = os.path.realpath(filename)
-        self.settings.setValue(type + "_last_dir", os.path.dirname(file))
-        self.settings.setValue(type + "_last_file", file)
         return fits.open(file)
 
     def finish_spectrum(self, file):

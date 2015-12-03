@@ -1,7 +1,7 @@
 from pyui.plots_math import Ui_PlotsMath
 from scipy.interpolate import *
 from qmathplotwidget import QMathPlotWidget
-from PyQt5.QtWidgets import QWidget, QToolBar, QToolButton, QMenu, QAction, QInputDialog
+from PyQt5.QtWidgets import QWidget, QToolBar, QToolButton, QMenu, QAction, QInputDialog, QMessageBox
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QByteArray, QTimer
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from fits_spectrum import FitsSpectrum, Spectrum
@@ -27,9 +27,9 @@ class PlotsMath(QWidget):
         self.reference_dialog.fits_picked.connect(self.open_fits)
         self.toolbar = QToolBar('Instrument Response Toolbar')
         open_btn = QtCommons.addToolbarPopup(self.toolbar, text="Open...", icon_name='document-open')
-        open_btn.menu().addAction('FITS file', lambda: QtCommons.open_file('Open FITS Spectrum',FITS_EXTS, lambda f: self.open_fits(f[0]), self.settings.value("open_spectrum_last_dir", type=str) ))
+        open_btn.menu().addAction('FITS file', lambda: QtCommons.open_file_sticky('Open FITS Spectrum',FITS_EXTS, lambda f: self.open_fits(f[0]), self.settings, CALIBRATED_PROFILE_DIR, [RAW_PROFILE_DIR]))
         open_btn.menu().addAction('Reference library', self.reference_dialog.show)
-        self.save_result = self.toolbar.addAction('Save', lambda: QtCommons.save_file('Save Operation Result...', 'FITS file (.fit)', self.save, self.settings.value('last_plot_save_dir')))
+        self.save_result = self.toolbar.addAction('Save', lambda: QtCommons.save_file_sticky('Save Operation Result...', 'FITS file (.fit)', self.save, self.settings, MATH_OPERATION_DIR, [CALIBRATED_PROFILE_DIR]))
         self.toolbar.addAction('Set operand', self.set_operand)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.ui.actionZoom)
@@ -157,12 +157,14 @@ class PlotsMath(QWidget):
             return (wavelengths, mean_data/len(wavelengths))
         
         operations = { 0: divide, 1: mean }
-        
-        wavelengths, data = operations[self.ui.operation_type.currentIndex()](operands)
-        self.spectrum = Spectrum(data, wavelengths)
+        try:
+            wavelengths, data = operations[self.ui.operation_type.currentIndex()](operands)
+            self.spectrum = Spectrum(data, wavelengths)
             
-        self.spectrum.normalize_to_max()
-        self.draw()
+            self.spectrum.normalize_to_max()
+            self.draw()
+        except IndexError:
+            QMessageBox.warning(None, "Error", "Datasets are not compatible. Maybe you need to calibrate better, or use a different reference file")
 
     def save(self, filename):
         hdu = fits.PrimaryHDU(self.spectrum.fluxes)

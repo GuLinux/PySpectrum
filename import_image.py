@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import matplotlib.pyplot as plt
 from qtcommons import QtCommons
+from pyspectrum_commons import *
 import scipy.ndimage.interpolation
 from pyui.rotate_image_dialog import Ui_RotateImageDialog
 import os
@@ -13,9 +14,9 @@ from astropy.io import fits
 from object_properties_dialog import ObjectPropertiesDialog
 
 class ImportImage(QWidget):
-    def __init__(self, fits_file, config):
+    def __init__(self, fits_file, settings):
         super(ImportImage, self).__init__()
-        self.config = config
+        self.settings = settings
         self.fits_file = fits_file
         self.data=fits_file[0].data.astype(float)
         self.rotated = self.data
@@ -31,7 +32,7 @@ class ImportImage(QWidget):
         
         self.toolbar = QToolBar('Image Toolbar')
         self.toolbar.addAction(QIcon.fromTheme('transform-rotate'), "Rotate", lambda: self.rotate_dialog.show())
-        self.toolbar.addAction(QIcon.fromTheme('document-save'), "Save", lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.config.value('last_plot_save_dir')))
+        self.toolbar.addAction(QIcon.fromTheme('document-save'), "Save", lambda: QtCommons.save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, RAW_PROFILE_DIR ))
         self.toolbar.addAction(QIcon.fromTheme('edit-select'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
         self.toolbar.addSeparator()
@@ -107,7 +108,6 @@ class ImportImage(QWidget):
         return self.rotated[self.spectrum_span_selection[0]:self.spectrum_span_selection[1]+1,:].sum(0) if hasattr(self, 'spectrum_span_selection') else self.rotated.sum(0)
         
     def save(self, save_file):
-        self.config.setValue('last_plot_save_dir', os.path.dirname(os.path.realpath(save_file[0])))
         data = self.spectrum_profile()
         data -= np.amin(data)
         data /= np.amax(data)

@@ -81,11 +81,11 @@ class CalibrateSpectrum(QWidget):
         self.ui.x_axis_pick.menu().addAction("Central value from range").triggered.connect(lambda: self.pick_from_range('central'))
         self.ui.wavelength_pick.clicked.connect(lambda: self.lines_dialog.show())
 
-        save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_plot_dir')))
+        save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, CALIBRATED_PROFILE_DIR, [RAW_PROFILE_DIR]))
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
         
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
-        self.reference_spectra_dialog.setup_menu(self.toolbar, self.spectrum_plot.axes)
+        self.reference_spectra_dialog.setup_menu(self.toolbar, self.spectrum_plot.axes, settings)
 
 
         self.calibration_model = QStandardItemModel()
@@ -106,8 +106,11 @@ class CalibrateSpectrum(QWidget):
         self.toolbar.addAction("Zoom", self.spectrum_plot.select_zoom)
         self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.fits_spectrum.spectrum.wavelengths, self.fits_spectrum.spectrum.fluxes.min(), self.fits_spectrum.spectrum.fluxes.max()))
         self.toolbar.addSeparator()
-        self.object_properties_dialog = ViewObjectProperties.dialog(fits_file)
-        self.toolbar.addAction("Properties", self.object_properties_dialog.show)
+        try:
+            self.object_properties_dialog = ViewObjectProperties.dialog(fits_file)
+            self.toolbar.addAction("Properties", self.object_properties_dialog.show)
+        except KeyError:
+            print("Opened file without properties, skipping properties dialog")
         
         self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, enable_picker = False, selection_mode = 'single')
         self.lines_dialog.lines.connect(self.picked_line)

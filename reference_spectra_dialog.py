@@ -59,11 +59,11 @@ class ReferenceSpectraDialog(QDialog):
         self.fits_picked.emit(self.reference_catalogues.fits(entry))
         
         
-    def setup_menu(self, toolbar, axes):
+    def setup_menu(self, toolbar, axes, settings):
         self.current_line = None
         reference_action = QtCommons.addToolbarPopup(toolbar, "Reference")
         reference_action.menu().addAction("Reference library", lambda: self.show())
-        reference_action.menu().addAction("Load from FITS file", lambda: QtCommons.open_file('Open Reference Profile', FITS_EXTS, lambda f: self.__open_reference(f[0], axes)))
+        reference_action.menu().addAction("Load from FITS file", lambda: QtCommons.open_file_sticky('Open Reference Profile', FITS_EXTS, lambda f: self.__open_reference(f[0], axes), settings, REFERENCE_DIR ))
         self.close_action = reference_action.menu().addAction("Close", lambda: self.__close_reference(axes))
         self.close_action.setEnabled(False)
         self.fits_picked.connect(lambda f: self.__open_reference(f, axes))

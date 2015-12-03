@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFileDialog, QToolBar, QToolButton, QMenu, QAction
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QStandardPaths
+import os
 
 class QtCommons:
     def nestWidget(parent, child):
@@ -25,6 +26,27 @@ class QtCommons:
             dialog.setAcceptMode(QFileDialog.AcceptSave)
             dialog.fileSelected.connect(lambda file:on_ok((file,dialog.selectedNameFilter)))
         QtCommons.__open_dialog__(title, file_types, dir, setup_dialog)
+        
+    def __save_directory_setting_wrapper(settings, key_name, file_obj, on_ok):
+        settings.setValue(key_name, os.path.dirname(file_obj[0]))
+        on_ok(file_obj)
+        
+    def __get_directory(key_name, other_keys, default_path, settings):
+        if settings.contains(key_name):
+            return settings.value(key_name, type=str)
+        for key in other_keys:
+            if settings.contains(key):
+                return settings.value(key, type=str)
+        return default_path if default_path else QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
+            
+        
+    def save_file_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None):
+        directory = QtCommons.__get_directory(key_name, other_keys, default_path, settings)
+        QtCommons.save_file(title, file_types, lambda f: QtCommons.__save_directory_setting_wrapper(settings, key_name, f, on_ok), directory)
+        
+    def open_file_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None):
+        directory = QtCommons.__get_directory(key_name, other_keys, default_path, settings)
+        QtCommons.open_file(title, file_types, lambda f: QtCommons.__save_directory_setting_wrapper(settings, key_name, f, on_ok), directory)
 
     def __open_dialog__(title, file_types, dir, setup_dialog):
         dialog = QFileDialog()
