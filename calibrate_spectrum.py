@@ -81,7 +81,7 @@ class CalibrateSpectrum(QWidget):
         self.ui.x_axis_pick.menu().addAction("Central value from range").triggered.connect(lambda: self.pick_from_range('central'))
         self.ui.wavelength_pick.clicked.connect(lambda: self.lines_dialog.show())
 
-        save_action = self.toolbar.addAction(QIcon(':/save_20'), 'Save', lambda: QtCommons.save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, CALIBRATED_PROFILE_DIR, [RAW_PROFILE_DIR]))
+        save_action = self.toolbar.addAction(QIcon(':/save_20'), 'Save', lambda: save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, CALIBRATED_PROFILE, [RAW_PROFILE]))
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
         
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)

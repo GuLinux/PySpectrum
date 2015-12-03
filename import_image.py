@@ -32,7 +32,7 @@ class ImportImage(QWidget):
         
         self.toolbar = QToolBar('Image Toolbar')
         self.toolbar.addAction(QIcon(':/rotate_20'), "Rotate", lambda: self.rotate_dialog.show())
-        self.toolbar.addAction(QIcon(':/save_20'), "Save", lambda: QtCommons.save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, RAW_PROFILE_DIR ))
+        self.toolbar.addAction(QIcon(':/save_20'), "Save", lambda: save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, RAW_PROFILE ))
         self.toolbar.addAction(QIcon(':/select_20'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
         self.toolbar.addSeparator()
