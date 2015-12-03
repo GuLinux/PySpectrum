@@ -54,7 +54,7 @@
   </action>
   <action name="actionCalibrate_FITS">
    <property name="icon">
-    <iconset theme="document-open">
+    <iconset>
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">

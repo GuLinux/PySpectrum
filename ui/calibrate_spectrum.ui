@@ -97,8 +97,8 @@
              <string>Remove selected point</string>
             </property>
             <property name="icon">
-             <iconset theme="list-remove">
-              <normaloff>.</normaloff>.</iconset>
+             <iconset resource="../resources/resources.qrc">
+              <normaloff>:/remove_16.png</normaloff>:/remove_16.png</iconset>
             </property>
            </widget>
           </item>
@@ -139,8 +139,8 @@
              <string>Add calibration point</string>
             </property>
             <property name="icon">
-             <iconset theme="list-add">
-              <normaloff>.</normaloff>.</iconset>
+             <iconset resource="../resources/resources.qrc">
+              <normaloff>:/add_16.png</normaloff>:/add_16.png</iconset>
             </property>
            </widget>
           </item>
@@ -185,6 +185,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
