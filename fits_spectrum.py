@@ -122,6 +122,20 @@ class FitsSpectrum:
         self.fits_file[0].data = self.spectrum.fluxes
         self.fits_file.writeto(filename, clobber=True)
         
+    def __hdu_data(self, name):
+        hdu = [h for h in self.fits_file if h.name == name]
+        return hdu[-1].data if len(hdu) > 0 else []
+    
+    def __txt(fits_entry):
+        return fits_entry.decode() if type(fits_entry) == bytes else fits_entry
+
+    def labels(self):
+        #text = label[0].decode() # Was this needed?
+        return [{'text': FitsSpectrum.__txt(l[0]), 'coords': (l[1], l[2]), 'fontsize': l[3], 'type': l[4]} for l in self.__hdu_data(FitsSpectrum.LABELS)]
+    
+    def lines_labels(self):
+        return [{'text': FitsSpectrum.__txt(s[0]), 'wavelength': s[1], 'fontsize': s[2], 'display_wavelength': s[3], 'position': (s[4], s[5])} for s in self.__hdu_data(FitsSpectrum.SPECTRAL_LINES)]
+            
     def name(self):
         return self.fits_file.filename()
 

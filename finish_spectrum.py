@@ -62,38 +62,17 @@ class FinishSpectrum(QWidget):
             self.object_properties_dialog = ViewObjectProperties.dialog(fits_file)
             self.toolbar.addSeparator()
             self.toolbar.addAction("Properties", self.object_properties_dialog.show)
-        self.labels = []
-        hdu_labels = [h for h in fits_file if h.name == FitsSpectrum.LABELS]
-        if len(hdu_labels) > 0:                
-            for label in hdu_labels[-1].data:
-                try:
-                    text = label[0].decode()
-                except AttributeError:
-                    print("Warning: Attribute error on decode")
-                    text = label[0]
-                x = label[1]
-                y = label[2]
-                fontsize = label[3]
-                type = label[4]
-                self.add_label(text=text, coords=(x,y), type=type, fontsize=fontsize)
+        self.labels, self.lines = [], []
+        for label in self.fits_spectrum.labels():
+            self.add_label(text=label['text'], coords=label['coords'], type=label['type'], fontsize=label['fontsize'])
         
         self.toolbar.addSeparator()
         self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file_sticky('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.save_image(f[0]), self.settings, EXPORT_IMAGES_DIR, [CALIBRATED_PROFILE_DIR]))
         self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, self.profile_plot.axes)
         self.lines_dialog.lines.connect(self.add_lines)
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, CALIBRATED_PROFILE_DIR))
-        
-        
-        self.lines = []
-        hdu_spectral_lines = [h for h in fits_file if h.name == FitsSpectrum.SPECTRAL_LINES]
-        if len(hdu_spectral_lines) > 0:                
-            for line in hdu_spectral_lines[-1].data:
-                try:
-                    text = line[0].decode()
-                except AttributeError:
-                    print("Warning: Attribute error on decode")
-                    text = line[0]
-                self.lines.append(ReferenceLine(text, line[1], self.profile_plot.axes, lambda line: self.lines.remove(line), show_wavelength=line[3], fontsize=line[2], position=(line[4], line[5])))
+        for line in self.fits_spectrum.lines_labels():
+            self.lines.append(ReferenceLine(line['text'], line['wavelength'], self.profile_plot.axes, lambda line: self.lines.remove(line), show_wavelength=line['display_wavelength'], fontsize=line['fontsize'], position=line['position']))
                 
     
         
