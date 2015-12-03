@@ -1,7 +1,7 @@
 from pyui.import_image import Ui_ImportImage
-from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox
+from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QProgressDialog
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import matplotlib.pyplot as plt
 from qtcommons import QtCommons
@@ -91,15 +91,35 @@ class ImportImage(QWidget):
                 if delta > sum_max[1]:
                     sum_max = (deg, delta)
             return sum_max[0]
+        progress = QProgressDialog("Calculating best rotation angle", None, 0, 5, self);
+        progress.setWindowModality(Qt.WindowModal);
+        progress.show()
         
+        def show_progress(progressbar, progress, angle):
+            progressbar.setValue(progress)
+            QCoreApplication.instance().processEvents()
+            print("Step {}: {}".format(progress, round(angle, 3)))
+            
+        show_progress(progress, 0, 0)
+            
         ratio = max(self.data.shape[0]/100, self.data.shape[1]/100)
         small = scipy.ndimage.interpolation.zoom(self.data, 1./ratio)
-        angle = get_angle(small, np.arange(0, 180, step=0.1))
-        angle = get_angle(small, np.arange(angle-3., angle+3., step=0.001))
-        angle = get_angle(scipy.ndimage.interpolation.zoom(self.data, 3./ratio), np.arange(angle-1., angle+1., step=0.001))
-        angle = get_angle(self.data, np.arange(angle-0.01, angle+0.01, step=0.001))
+        
+        angle = get_angle(small, np.arange(0, 180, step=0.5))
+        show_progress(progress, 1, angle)
+        angle = get_angle(small, np.arange(angle-3., angle+3., step=0.05))
+        show_progress(progress, 2, angle)
+        angle = get_angle(scipy.ndimage.interpolation.zoom(self.data, 3./ratio), np.arange(angle-2, angle+2, step=0.01))
+        show_progress(progress, 3, angle)
+        angle = get_angle(self.data, np.arange(angle-0.1, angle+0.1, step=0.002))
+        show_progress(progress, 4, angle)
+        angle = get_angle(self.data, np.arange(angle-0.01, angle+0.01, step=0.0005))
+        show_progress(progress, 5, angle)
+        
         angle = round(angle, 3)
-        self.rotate(angle if angle >= 0 else angle-180.)
+        print("Step 5: {}".format(angle))
+        self.rotate(angle if angle >= 0 else angle+180.)
+        self.rotate_dialog.raise_()
             
         
     def rotate(self, degrees):
