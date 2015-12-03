@@ -31,12 +31,22 @@ class HomePage(QWidget):
         self.ui.recent_raw_list.setModel(self.recent_raw_model)
         self.ui.recent_calibrated_list.setModel(self.recent_calibrated_model)
         LastFilesList.instance().files_changed.connect(self.__populate_lists)
+        selected_path = lambda model, view: model.item(view.selectionModel().selectedRows()[0].row()).data()
+        button_enable = lambda view, button: view.selectionModel().selectionChanged.connect(lambda sel, desel: button.setEnabled(len(sel.indexes() )) )
+        
+        button_enable(self.ui.recent_raw_list, self.ui.calibrate)
+        button_enable(self.ui.recent_calibrated_list, self.ui.math)
+        button_enable(self.ui.recent_calibrated_list, self.ui.finish)
+        self.ui.calibrate.clicked.connect(lambda: self.calibrate.emit(selected_path(self.recent_raw_model, self.ui.recent_raw_list)))
+        self.ui.math.clicked.connect(lambda: self.math.emit(selected_path(self.recent_calibrated_model, self.ui.recent_calibrated_list)))
+        self.ui.finish.clicked.connect(lambda: self.finish.emit(selected_path(self.recent_calibrated_model, self.ui.recent_calibrated_list)))
         self.__populate_lists()
 
     def __populate_lists(self):
-        for key, model in {RAW_PROFILE: self.recent_raw_model, CALIBRATED_PROFILE: self.recent_calibrated_model}.items():
+        for key, model in [(RAW_PROFILE, self.recent_raw_model), (CALIBRATED_PROFILE, self.recent_calibrated_model)]:
             model.clear()
             for name, dir, path in LastFilesList.instance().last_files(key):
-                item = QStandardItem("{} ({})".format(name, dir))
+                model.setHorizontalHeaderLabels(["File", "Directory"])
+                item = QStandardItem(name)
                 item.setData(path)
-                model.appendRow(item)
+                model.appendRow([item, QStandardItem(dir)])
