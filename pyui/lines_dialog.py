@@ -63,6 +63,8 @@ class Ui_LinesDialog(object):
         self.name.setObjectName("name")
         self.gridLayout.addWidget(self.name, 1, 1, 1, 1)
         self.sp_types = QtWidgets.QCheckBox(self.groupBox)
+        self.sp_types.setCheckable(True)
+        self.sp_types.setChecked(False)
         self.sp_types.setObjectName("sp_types")
         self.gridLayout.addWidget(self.sp_types, 1, 2, 1, 3)
         self.pushButton = QtWidgets.QPushButton(self.groupBox)

@@ -18,6 +18,7 @@ from view_object_properties import ViewObjectProperties, ObjectProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from moveable_label import MoveableLabel
 from lambda2color import *
+from concurrent.futures import ThreadPoolExecutor
 
 class FinishSpectrum(QWidget):
     def __init__(self, fits_file, settings, database):
@@ -85,6 +86,13 @@ class FinishSpectrum(QWidget):
         if not crange[0] < wavelength < crange[1]: return (0,0,0,0)
         value = plt.cm.gist_rainbow(1-((wavelength-crange[0]) / (crange[1]-crange[0]) ) )
         return [value[0], value[1], value[2], math.pow(flux, 3/5)]
+    
+    def synthetize_img(wavelengths, fluxes):
+        f_fluxes = lambda f: math.pow(f, 3/5)
+        colors = [wavelength_to_rgb(w/10., f_fluxes(fluxes[i])) for i,w in enumerate(wavelengths)]
+        im_height = 150
+        colors = np.array(colors*im_height).reshape(im_height,len(colors),4)
+        return colors, im_height
         
 
     def split_view(self):
@@ -105,12 +113,11 @@ class FinishSpectrum(QWidget):
         self.profile_line = self.profile_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes, color='blue')[0]
 
         self.synthetize.axes.set_axis_bgcolor('black')
-        #colors = [FinishSpectrum.synthetize(w, self.spectrum.fluxes[i]) for i,w in enumerate(self.spectrum.wavelengths)]
-        f_fluxes = lambda f: math.pow(f, 3/5)
-        colors = [wavelength_to_rgb(w/10., f_fluxes(self.spectrum.fluxes[i])) for i,w in enumerate(self.spectrum.wavelengths)]
-        im_height = 150
-        colors = np.array(colors*im_height).reshape(im_height,len(colors),4)
-        self.synthetize.imshow(colors, extent=[self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1], 0, im_height])
+        
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(FinishSpectrum.synthetize_img, self.spectrum.wavelengths, self.spectrum.fluxes)
+            future.add_done_callback(lambda f: self.synthetize.imshow(f.result()[0], extent=[self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1], 0, f.result()[1]]) )
+
         self.profile_plot.axes.set_xlabel('wavelength (Å)')
         self.profile_plot.axes.set_ylabel('relative flux')
         self.profile_plot.axes.xaxis.set_major_locator(MultipleLocator(200))
