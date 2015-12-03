@@ -22,7 +22,7 @@ class PySpectrumMainWindow(QMainWindow):
         rc('font', **{'family':'serif','serif':[font.defaultFamily()]})
         super(PySpectrumMainWindow, self).__init__()
         self.ui = Ui_PySpectrumMainWindow()
-        self.database = sqlite3.connect('data/pyspectrum.db')
+        self.database = sqlite3.connect(os.path.join('data', 'pyspectrum.db'))
         self.ui.setupUi(self)
         self.settings = QSettings("GuLinux", "PySpectrum")
         self.homepage = HomePage(self.settings, self.database)

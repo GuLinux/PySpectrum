@@ -24,8 +24,8 @@ class ReferenceCatalogues:
         return ReferenceCatalogues.get_fits(catname, entry['file'], catalog['url'], catalog['gzipped'])
         
     def get_fits(catname, filename, url, is_gzipped):
-        cache_path = "{}/{}".format(QStandardPaths.writableLocation(QStandardPaths.CacheLocation), catname)
-        file_path = "{}/{}.gz".format(cache_path, filename)
+        cache_path = os.path.join(QStandardPaths.writableLocation(QStandardPaths.CacheLocation), catname)
+        file_path = os.path.join(cache_path, '{}.gz'.format(cache_path, filename))
         try:
             os.makedirs(cache_path)
         except FileExistsError:

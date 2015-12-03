@@ -1,4 +1,5 @@
 import json
+import os
 
 class Project:
     def __init__(self, name='', path='', file=None):
@@ -32,7 +33,7 @@ class Project:
         pass
     
     def __projectfile(self):
-        return "{}/project.json".format(self.path)
+        return os.path.join(self.path, 'project.json')
     
     def __to_JSON(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
