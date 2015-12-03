@@ -1,5 +1,5 @@
 from pyui.finish_spectrum import Ui_FinishSpectrum
-from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction, QInputDialog, QVBoxLayout, QLineEdit, QTextEdit, QSpinBox, QLabel
+from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction, QInputDialog, QVBoxLayout, QLineEdit, QTextEdit, QSpinBox, QLabel, QPushButton
 from qmathplotwidget import QMathPlotWidget
 from fits_spectrum import FitsSpectrum, Spectrum
 from qtcommons import *
@@ -44,17 +44,39 @@ class FinishSpectrum(QWidget):
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
         self.reference_spectra_dialog.setup_menu(self.toolbar, self.profile_plot.axes, settings)
         
-        lines_menu = QtCommons.addToolbarPopup(self.toolbar, "Spectral Lines...")
+        lines_menu = QtCommons.addToolbarPopup(self.toolbar, "Spectral Lines..")
         lines_menu.menu().addAction('Lines Database', lambda: self.lines_dialog.show())
         lines_menu.menu().addAction('Custom line', self.add_custom_line)
-        
+        labels_action = QtCommons.addToolbarPopup(self.toolbar, "Labels..")
         try: 
+            self.object_properties = ObjectProperties(fits_file)
+        except KeyError:
+            self.object_properties = None
+            pass
+        labels_action.menu().addAction('Title', self.add_title)
+        if self.object_properties:
+            labels_action.menu().addAction('Information from FITS file', self.add_fits_information_label)
+        labels_action.menu().addAction('Custom', self.add_label)
+        
+        if self.object_properties:
             self.object_properties_dialog = ViewObjectProperties.dialog(fits_file)
             self.toolbar.addSeparator()
             self.toolbar.addAction("Properties", self.object_properties_dialog.show)
-            self.add_info(fits_file)
-        except KeyError:
-            pass
+        self.labels = []
+        hdu_labels = [h for h in fits_file if h.name == FitsSpectrum.LABELS]
+        if len(hdu_labels) > 0:                
+            for label in hdu_labels[-1].data:
+                try:
+                    text = label[0].decode()
+                except AttributeError:
+                    print("Warning: Attribute error on decode")
+                    text = label[0]
+                x = label[1]
+                y = label[2]
+                fontsize = label[3]
+                type = label[4]
+                self.add_label(text=text, coords=(x,y), type=type, fontsize=fontsize)
+        
         self.toolbar.addSeparator()
         self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file_sticky('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.save_image(f[0]), self.settings, EXPORT_IMAGES_DIR, [CALIBRATED_PROFILE_DIR]))
         self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, self.profile_plot.axes)
@@ -84,11 +106,6 @@ class FinishSpectrum(QWidget):
         for line in lines:
             self.lines.append(ReferenceLine(line['name'], line['lambda'], self.profile_plot.axes, lambda line: self.lines.remove(line)))
 
-    def synthetize(wavelength, flux):
-        crange = (3800, 7800)
-        if not crange[0] < wavelength < crange[1]: return (0,0,0,0)
-        value = plt.cm.gist_rainbow(1-((wavelength-crange[0]) / (crange[1]-crange[0]) ) )
-        return [value[0], value[1], value[2], math.pow(flux, 3/5)]
     
     def synthetize_img(wavelengths, fluxes):
         f_fluxes = lambda f: math.pow(f, 3/5)
@@ -149,25 +166,37 @@ class FinishSpectrum(QWidget):
 
     def save(self, filename):
         filename = filename[0]
-        self.fits_spectrum.save(filename, spectral_lines = self.lines)
+        self.fits_spectrum.save(filename, spectral_lines = self.lines, labels = self.labels)
         
-        
-    def add_info(self, fits_file):
-        properties = ObjectProperties(fits_file)
+    def add_title(self):
+        title = self.object_properties.name if self.object_properties else 'Title - double click to edit'
+        self.add_label(text=title, coords=(self.spectrum.wavelengths[len(self.spectrum.wavelengths)/2-100], 0.95), fontsize=25, type='lineedit')
+    
+    def add_fits_information_label(self):
         info_text = "Object Name: {}, type: {}, spectral class: {}\nCoordinates: {}\nDate: {}\nObserver: {}\nEquipment: {}\nPosition: {}".format(
-                properties.name,
-                properties.type,
-                properties.sptype,
-                properties.printable_coordinates(),
-                properties.date.toString(),
-                properties.observer,
-                properties.equipment,
-                properties.position
+                self.object_properties.name,
+                self.object_properties.type,
+                self.object_properties.sptype,
+                self.object_properties.printable_coordinates(),
+                self.object_properties.date.toString(),
+                self.object_properties.observer,
+                self.object_properties.equipment,
+                self.object_properties.position
             )
-        self.title_widget = MoveableLabel(text=properties.name, on_dblclick=lambda: self.edit_label(self.title_widget), x=self.spectrum.wavelengths[len(self.spectrum.wavelengths)/2-100], y=0.95, fontsize=25, color='black', axes=self.profile_plot.axes)
-        self.info_widget = MoveableLabel(text=info_text, on_dblclick=lambda: self.edit_label(self.info_widget, type='textbox'), x=self.spectrum.wavelengths[len(self.spectrum.wavelengths)/4*3], y=0.80, fontsize=14, color='black', axes=self.profile_plot.axes)
-
+        self.add_label(info_text, type='textbox', coords=(self.spectrum.wavelengths[len(self.spectrum.wavelengths)/4*3], 0.80), fontsize=14)
+        self.profile_plot.figure.canvas.draw()
+    
+    def add_label(self, text=None, type='textbox', coords = None, fontsize = 12, color='black'):
+        if not coords: coords = (self.spectrum.wavelengths[len(self.spectrum.wavelengths)/2], 0.5)
+        self.labels.append((type, MoveableLabel(text=text if text else 'Label - double click to edit', on_dblclick=lambda l: self.edit_label(l, type=type), x=coords[0], y=coords[1], fontsize=fontsize, color=color, axes=self.profile_plot.axes)))
+        self.profile_plot.figure.canvas.draw()
+        
     def edit_label(self, label, type='lineedit'):
+        def remove_label(self, label, dialog):
+            label.remove()
+            self.labels.remove([l for l in self.labels if l[1] == label][0])
+            self.profile_plot.figure.canvas.draw()
+            dialog.reject()
         dialog = QDialog()
         dialog.setWindowTitle("Edit Label")
         dialog.setLayout(QVBoxLayout())
@@ -187,6 +216,9 @@ class FinishSpectrum(QWidget):
         button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         button_box.accepted.connect(dialog.accept)
         button_box.rejected.connect(dialog.reject)
+        remove_button = QPushButton('Remove')
+        remove_button.clicked.connect(lambda: remove_label(self, label, dialog))
+        dialog.layout().addWidget(remove_button)
         dialog.layout().addWidget(button_box)
         if QDialog.Accepted != dialog.exec():
             return

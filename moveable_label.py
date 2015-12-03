@@ -25,7 +25,7 @@ class MoveableLabel(Text):
         if not self.contains(event)[0]: return
         if MoveableLabel.lock is not None: return
         if event.dblclick:
-            self.on_dblclick()
+            self.on_dblclick(self)
             return
         MoveableLabel.lock = self
         x0, y0 = self.position()

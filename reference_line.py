@@ -69,3 +69,6 @@ class ReferenceLine:
         self.axes.figure.canvas.draw()
         self.on_remove(self)
         
+    def position(self):
+        return self.label.position()
+        

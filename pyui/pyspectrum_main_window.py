@@ -30,6 +30,7 @@ class Ui_PySpectrumMainWindow(object):
         self.statusbar.setObjectName("statusbar")
         PySpectrumMainWindow.setStatusBar(self.statusbar)
         self.toolBar = QtWidgets.QToolBar(PySpectrumMainWindow)
+        self.toolBar.setIconSize(QtCore.QSize(16, 16))
         self.toolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.toolBar.setObjectName("toolBar")
         PySpectrumMainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)

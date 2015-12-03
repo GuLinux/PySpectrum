@@ -39,6 +39,7 @@ class Spectrum:
 class FitsSpectrum:
     CALIBRATION_DATA = 'CALIBRATION_DATA'
     SPECTRAL_LINES = 'SPECTRAL_LINES'
+    LABELS = 'LABELS'
     
     def __init__(self, fits_file):
         self.fits_file = fits_file
@@ -81,8 +82,11 @@ class FitsSpectrum:
         axes.plot(self.spectrum.wavelengths, self.spectrum.fluxes)
         axes.figure.tight_layout()
         axes.figure.canvas.draw()
+        
+    def __add_table(self, name, columns):
+        pass
             
-    def save(self, filename, calibration_points = [], spectral_lines = []):
+    def save(self, filename, calibration_points = [], spectral_lines = [], labels = []):
         header = self.fits_file[0].header
         header['CRPIX1'] = 1
         header['CRVAL1'] = self.spectrum.wavelengths[0]
@@ -111,6 +115,18 @@ class FitsSpectrum:
             tbhdu.name = FitsSpectrum.CALIBRATION_DATA
             for hdu in [h for h in self.fits_file if h.name == FitsSpectrum.CALIBRATION_DATA]: self.fits_file.remove(hdu)
             self.fits_file.append(tbhdu)
+        if len(labels) > 0:
+            texts = fits.Column(name='text', format='500A', array=[line[1].get_text().encode() for line in labels])
+            x = fits.Column(name='x', format='D', array=[line[1].position()[0] for line in labels])
+            y = fits.Column(name='y', format='D', array=[line[1].position()[1] for line in labels])
+            font_sizes = fits.Column(name='font_size', format='D', array=[line[1].get_size() for line in labels])
+            types = fits.Column(name='type', format='15A', array=[line[0] for line in labels])
+            cols = fits.ColDefs([texts, x, y, font_sizes, types])
+            tbhdu = fits.BinTableHDU.from_columns(cols)
+            tbhdu.name = FitsSpectrum.LABELS
+            for hdu in [h for h in self.fits_file if h.name == FitsSpectrum.LABELS]: self.fits_file.remove(hdu)
+            self.fits_file.append(tbhdu)
+            
         self.fits_file[0].data = self.spectrum.fluxes
         self.fits_file.writeto(filename, clobber=True)
         
