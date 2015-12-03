@@ -50,11 +50,11 @@ class QMathPlotWidgetBase(FigureCanvas):
         if element != None:
             try:
                 element.remove()
-                del element
             except ValueError: #TODO: bug in matplotlib maybe?
                 pass
             except AttributeError:
                 pass
+            del element
         if redraw:
             self.figure.canvas.draw()
 
@@ -70,8 +70,12 @@ class QMathPlotWidgetBase(FigureCanvas):
         self.add_element(self.axes.axvspan(min,max, **kwargs) if type == 'v' else self.axes.axhspan(min, max, **kwargs), name)
 
     def add_span_selector(self, name, callback, axes = None, **kwargs):
+        def on_selected(self, name, callback, min, max):
+            self.elements[name].set_active(False)
+            self.rm_element(name)
+            callback(min, max)
         axes = axes if axes else self.axes
-        self.add_element(SpanSelector(axes, callback, **kwargs), name)
+        self.add_element(SpanSelector(axes, lambda min, max: on_selected(self, name, callback, min, max), **kwargs), name)
         
     def add_rectangle_selector(self, name, callback, axes = None, **kwargs):
         axes = axes if axes else self.axes

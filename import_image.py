@@ -52,7 +52,6 @@ class ImportImage(QWidget):
         self.background_span_selection = (min, max)
         self.spatial_plot.add_span('background_window', min, max, 'v', facecolor='gray', alpha=0.5)
         self.image_plot.add_span('background_window', min, max, 'h', facecolor='red', alpha=0.5, clip_on=True)
-        self.spatial_plot.rm_element('select_background')
         self.draw_plot(self.spectrum_plot.axes, self.spectrum_profile())
         
         
@@ -60,7 +59,6 @@ class ImportImage(QWidget):
         self.spectrum_span_selection = (min, max)
         self.spatial_plot.add_span('spectrum_window', min, max, 'v', facecolor='g', alpha=0.5)
         self.image_plot.add_span('spectrum_window', min, max, 'h', facecolor='y', alpha=0.5, clip_on=True)
-        self.spatial_plot.rm_element('select_spectrum')
         self.draw_plot(self.spectrum_plot.axes, self.spectrum_profile())
         
     def __init_rotate_dialog__(self):

@@ -116,7 +116,6 @@ class PlotsMath(QWidget):
         f = lambda x: x * m + q
         self.spectrum.fluxes[x_min:x_max] = np.fromfunction(f, self.spectrum.fluxes[x_min:x_max].shape)
         self.draw()
-        self.plot.rm_element('pick_rm_points')
         
     def trim(self, direction):
         point = QInputDialog.getInt(None, 'Trim curve', 'Enter wavelength for trimming', self.spectrum.wavelengths[0] if direction == 'before' else self.spectrum.wavelengths[-1], self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1])

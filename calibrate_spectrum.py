@@ -127,7 +127,6 @@ class CalibrateSpectrum(QWidget):
         max=(self.fits_spectrum.spectrum.wavelength_index(max))
         add_line = lambda x: self.spectrum_plot.add_line("x_axis_pick", self.fits_spectrum.spectrum.wavelengths[x], color='r')
         set_x_value = lambda x: self.ui.point_x_axis.setValue(x)
-        self.spectrum_plot.rm_element('pick_x_axis')
 
         if type != 'central':
             subplot = SelectPlottedPoints(self.fits_spectrum.spectrum.fluxes, min, max+1, self.settings, type)

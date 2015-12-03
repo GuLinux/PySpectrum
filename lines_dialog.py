@@ -58,7 +58,6 @@ class LinesDialog(QDialog):
         self.raise_()
         self.ui.lambda_from.setValue(start)
         self.ui.lambda_to.setValue(end)
-        self.plot_widget.rm_element("pick_lines_lambda")
         self.populate()
 
     def collect_selected_lines(self):
