@@ -14,6 +14,7 @@ import sqlite3
 from matplotlib import rc
 from PyQt5.QtWidgets import QApplication
 import resources.resources
+from homepage import HomePage
 
 class PySpectrumMainWindow(QMainWindow):
     def __init__(self):
@@ -24,6 +25,8 @@ class PySpectrumMainWindow(QMainWindow):
         self.database = sqlite3.connect('data/pyspectrum.db')
         self.ui.setupUi(self)
         self.settings = QSettings("GuLinux", "PySpectrum")
+        self.homepage = HomePage()
+        self.ui.stackedWidget.addWidget(self.homepage)
         QtCommons.addToolbarPopup(self.ui.toolBar, 'File', actions=[self.ui.actionOpen_Image,self.ui.actionCalibrate_FITS,self.ui.actionPlots_Math,self.ui.actionFinish_Spectrum])
         self.windows_menu = QtCommons.addToolbarPopup(self.ui.toolBar, 'Windows')
         self.actionClose = self.ui.toolBar.addAction(QIcon(':/close_20'), "Close")
@@ -40,7 +43,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
         self.restoreGeometry(self.settings.value('window_geometry', QByteArray()))
-        self.widgets = []
+        self.widgets = [(self.homepage, "Home")]
         
     def closeEvent(self, ev):
         self.settings.setValue('window_geometry', self.saveGeometry())
@@ -53,12 +56,11 @@ class PySpectrumMainWindow(QMainWindow):
         self.__rebuild_windows_menu()
         
     def current_changed(self, index):
-        self.actionClose.setEnabled(index > 1)
+        self.actionClose.setEnabled(self.homepage != self.ui.stackedWidget.currentWidget() )
         if self.current_widget_toolbar:
             self.removeToolBar(self.current_widget_toolbar)
-        if index > 1:
-            self.current_widget_toolbar = self.ui.stackedWidget.currentWidget().toolbar
-            self.addToolBar(self.current_widget_toolbar)
+        self.current_widget_toolbar = self.ui.stackedWidget.currentWidget().toolbar
+        self.addToolBar(self.current_widget_toolbar)
         
     def open_image(self, file):
         fits_file = self.open_fits(file[0], "open_image")
@@ -93,7 +95,6 @@ class PySpectrumMainWindow(QMainWindow):
             action.triggered.connect(trigger)
             
         self.windows_menu.menu().clear()
-        self.windows_menu.menu().addAction('Home', lambda: self.ui.stackedWidget.setCurrentIndex(0))
         for w in self.widgets:
             add_action(self, w[1], w[0])    
         

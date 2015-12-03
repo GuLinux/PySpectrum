@@ -18,12 +18,6 @@ class Ui_PySpectrumMainWindow(object):
         self.gridLayout.setObjectName("gridLayout")
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
         self.stackedWidget.setObjectName("stackedWidget")
-        self.page = QtWidgets.QWidget()
-        self.page.setObjectName("page")
-        self.stackedWidget.addWidget(self.page)
-        self.page_2 = QtWidgets.QWidget()
-        self.page_2.setObjectName("page_2")
-        self.stackedWidget.addWidget(self.page_2)
         self.gridLayout.addWidget(self.stackedWidget, 0, 0, 1, 1)
         PySpectrumMainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(PySpectrumMainWindow)
@@ -47,6 +41,7 @@ class Ui_PySpectrumMainWindow(object):
         self.actionFinish_Spectrum.setObjectName("actionFinish_Spectrum")
 
         self.retranslateUi(PySpectrumMainWindow)
+        self.stackedWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(PySpectrumMainWindow)
 
     def retranslateUi(self, PySpectrumMainWindow):
