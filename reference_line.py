@@ -26,7 +26,7 @@ class GreekLineEdit(QLineEdit):
 class ReferenceLine:
     lock = None
 
-    def __init__(self, name, wavelength, axes, on_remove, show_wavelength = False, fontsize = 16, position = None, color='#80ff80'):
+    def __init__(self, name, wavelength, axes, on_remove, show_wavelength = False, fontsize = 12, position = None, color='#80ff80'):
         self.axes = axes
         self.wavelength = wavelength
         self.name = name
@@ -107,6 +107,7 @@ class ReferenceLine:
         if not self.press: return
     
         x0, y0, xpress, ypress = self.press
+        if not event.xdata or not event.ydata or not xpress or not ypress: return
         dx = event.xdata - xpress
         dy = event.ydata - ypress
         self.label.set_x(x0+dx)

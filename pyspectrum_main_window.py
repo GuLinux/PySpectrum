@@ -26,7 +26,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.ui.actionOpen_Image.triggered.connect(lambda: QtCommons.open_file('Open FITS Image',FITS_IMG_EXTS, self.open_image, self.settings.value("open_image_last_dir", type=str) ))
         self.ui.actionCalibrate_FITS.triggered.connect(lambda: QtCommons.open_file('Open raw FITS Spectrum',FITS_EXTS, self.calibrate, self.settings.value("open_spectrum_last_dir", type=str) ))
         self.ui.actionPlots_Math.triggered.connect(self.plots_math)
-        self.ui.actionFinish_Spectrum.triggered.connect(lambda: QtCommons.open_file('Open FITS Spectrum',FITS_EXTS, self.finish_spectrum, self.settings.value("open_spectrum_last_dir", type=str) ))
+        self.ui.actionFinish_Spectrum.triggered.connect(lambda: QtCommons.open_file('Open FITS Spectrum',FITS_EXTS, self.finish_spectrum, self.settings.value("last_save_finished_dir", type=str) ))
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
         self.restoreGeometry(self.settings.value('window_geometry', QByteArray()))

@@ -15,6 +15,7 @@ import matplotlib as plt
 import numpy as np
 import math
 from view_object_properties import ViewObjectProperties
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 
 import sys
 import os
@@ -97,10 +98,10 @@ class FinishSpectrum(QWidget):
         self.object_properties_dialog = ViewObjectProperties.dialog(fits_file)
         self.toolbar.addAction("Properties", self.object_properties_dialog.show)
         self.toolbar.addSeparator()
-        self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.spectrum_plot.figure.savefig(f[0], bbox_inches='tight', dpi=300)))
+        self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.save_image(f[0])))
         self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, self.profile_plot.axes)
         self.lines_dialog.lines.connect(self.add_lines)
-        save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_plot_dir')))
+        save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_finished_dir')))
         
         self.draw()
         
@@ -108,7 +109,14 @@ class FinishSpectrum(QWidget):
         hdu_spectral_lines = [h for h in fits_file if h.name == FitsSpectrum.SPECTRAL_LINES]
         if len(hdu_spectral_lines) > 0:                
             for line in hdu_spectral_lines[-1].data:
-                self.lines.append(ReferenceLine(line[0].decode(), line[1], self.profile_plot.axes, lambda line: self.lines.remove(line), show_wavelength=line[3], fontsize=line[2], position=(line[4], line[5])))
+                try:
+                    text = line[0].decode()
+                except AttributeError:
+                    print("Warning: Attribute error on decode")
+                    text = line[0]
+                self.lines.append(ReferenceLine(text, line[1], self.profile_plot.axes, lambda line: self.lines.remove(line), show_wavelength=line[3], fontsize=line[2], position=(line[4], line[5])))
+                
+    
         
     def add_custom_line(self):
         wl = QInputDialog.getDouble(self, "Custom Line", "Enter line wavelength in Å", self.fits_spectrum.spectrum.wavelengths[0],self.fits_spectrum.spectrum.wavelengths[0],self.fits_spectrum.spectrum.wavelengths[-1],3)
@@ -139,6 +147,7 @@ class FinishSpectrum(QWidget):
     
     def draw(self):
         self.profile_plot.clear()
+
         self.profile_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes)
 
         self.synthetize.axes.set_axis_bgcolor('black')
@@ -150,6 +159,8 @@ class FinishSpectrum(QWidget):
         self.synthetize.imshow(colors, extent=[self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1], 0, im_height])
         self.profile_plot.axes.set_xlabel('wavelength (Å)')
         self.profile_plot.axes.set_ylabel('relative flux')
+        self.profile_plot.axes.xaxis.set_major_locator(MultipleLocator(200))
+        self.profile_plot.axes.xaxis.set_minor_locator(MultipleLocator(20))
         self.spectrum_plot.figure.canvas.draw()
         self.gs.tight_layout(self.spectrum_plot.figure)
         
@@ -167,6 +178,13 @@ class FinishSpectrum(QWidget):
         self.spectrum.fluxes /= response_data
         self.spectrum.normalize_to_max()
         self.draw()
+        
+        
+    def save_image(self, filename):
+        self.settings.setValue('last_save_image_dir', os.path.dirname(filename))
+        self.spectrum_plot.figure.savefig(filename, bbox_inches='tight', dpi=300)
 
     def save(self, filename):
-        self.fits_spectrum.save(filename[0], spectral_lines = self.lines)
+        filename = filename[0]
+        self.settings.setValue('last_save_finished_dir', os.path.dirname(filename))
+        self.fits_spectrum.save(filename, spectral_lines = self.lines)
