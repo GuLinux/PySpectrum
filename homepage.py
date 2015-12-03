@@ -13,6 +13,7 @@ class HomePage(QWidget):
     calibrate = pyqtSignal(str)
     math = pyqtSignal(str)
     finish = pyqtSignal(str)
+    new_project = pyqtSignal()
 
     def __init__(self, settings, database):
         QWidget.__init__(self)
@@ -31,7 +32,7 @@ class HomePage(QWidget):
         file_action.menu().addAction(QIcon(':/math_20'), 'Spectra Math', lambda: self.math.emit(None) )
         file_action.menu().addAction(QIcon(':/done_20'), 'Finish Spectrum', lambda: open_file_sticky('Open FITS Spectrum',FITS_EXTS, lambda f: self.finish.emit(f[0]), settings, CALIBRATED_PROFILE, [RAW_PROFILE,IMPORT_IMG] ))
         
-        project_action.menu().addAction(QIcon(':/project_new_20'), 'New').setEnabled(False)
+        project_action.menu().addAction(QIcon(':/project_new_20'), 'New', lambda: self.new_project.emit())
         project_action.menu().addAction(QIcon(':/new_open_20'), 'Open').setEnabled(False)
         
         self.recent_raw_model = QStandardItemModel()

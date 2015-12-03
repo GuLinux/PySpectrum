@@ -51,12 +51,12 @@ def spectrum_trim_dialog(spectrum, direction, axes, redraw):
     spectrum.normalize_to_max()
     redraw()
     
-def __save_filepath_setting_wrapper(settings, key_name, file_obj, on_ok):
+def save_path(settings, key_name, file_obj, on_ok):
     settings.setValue("{}_last_directory".format(key_name), os.path.dirname(file_obj[0]))
     LastFilesList.instance().add_file(key_name, file_obj[0])
     on_ok(file_obj)
 
-def __get_directory(key_name, other_keys, default_path, settings):
+def saved_directory(key_name, other_keys, default_path, settings):
     key_name = "{}_last_directory".format(key_name)
     if settings.contains(key_name):
         return settings.value(key_name, type=str)
@@ -66,9 +66,9 @@ def __get_directory(key_name, other_keys, default_path, settings):
     return default_path if default_path else QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
 
 def save_file_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None):
-    directory = __get_directory(key_name, other_keys, default_path, settings)
-    QtCommons.save_file(title, file_types, lambda f: __save_filepath_setting_wrapper(settings, key_name, f, on_ok), directory)
+    directory = saved_directory(key_name, other_keys, default_path, settings)
+    QtCommons.save_file(title, file_types, lambda f: save_path(settings, key_name, f, on_ok), directory)
         
 def open_file_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None):
-    directory = __get_directory(key_name, other_keys, default_path, settings)
-    QtCommons.open_file(title, file_types, lambda f: __save_filepath_setting_wrapper(settings, key_name, f, on_ok), directory)
+    directory = saved_directory(key_name, other_keys, default_path, settings)
+    QtCommons.open_file(title, file_types, lambda f: save_path(settings, key_name, f, on_ok), directory)

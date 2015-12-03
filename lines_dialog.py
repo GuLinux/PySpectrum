@@ -96,3 +96,8 @@ class LinesDialog(QDialog):
                 QStandardItem("{}".format(row[3])),
                 QStandardItem(row[4])
                 ])
+            
+    def keyPressEvent(self, evt):
+      if evt.key() == Qt.Key_Enter or evt.key() == Qt.Key_Return:
+        return
+        QDialog.keyPressEvent(self.evt)

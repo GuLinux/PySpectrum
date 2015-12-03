@@ -14,6 +14,7 @@ import sqlite3
 from matplotlib import rc
 from PyQt5.QtWidgets import QApplication
 import resources
+from project_dialog import ProjectDialog
 from homepage import HomePage
 
 class PySpectrumMainWindow(QMainWindow):
@@ -36,6 +37,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.homepage.calibrate.connect(self.calibrate)
         self.homepage.math.connect(self.plots_math)
         self.homepage.finish.connect(self.finish_spectrum)
+        self.homepage.new_project.connect(self.__new_project)
 
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
@@ -107,3 +109,6 @@ class PySpectrumMainWindow(QMainWindow):
         for w in self.widgets:
             add_action(self, w[1], w[0])
         
+    def __new_project(self):
+        dialog = ProjectDialog(self.settings)
+        dialog.exec()

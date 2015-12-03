@@ -2,15 +2,17 @@ import json
 import os
 
 class Project:
-    def __init__(self, name='', path='', file=None):
-        self.name = name
+    def __init__(self, path='', file=None):
         self.path = path
-        if file:
-            with open(file) as data_file:
+        if path:
+            with open(self.__projectfile) as data_file:
                 data = json.load(data_file)
                 self.name = data['name']
                 self.path = data['path']
                 
+    def set_path(self, path):
+        self.path = path
+        
     def raw_profiles(self):
         pass
     
