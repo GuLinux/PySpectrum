@@ -25,7 +25,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.database = sqlite3.connect('data/pyspectrum.db')
         self.ui.setupUi(self)
         self.settings = QSettings("GuLinux", "PySpectrum")
-        self.homepage = HomePage(self.settings)
+        self.homepage = HomePage(self.settings, self.database)
         self.ui.stackedWidget.addWidget(self.homepage)
         self.windows_menu = QtCommons.addToolbarPopup(self.ui.toolBar, 'Windows')
         self.actionClose = self.ui.toolBar.addAction(QIcon(':/close_20'), "Close")
