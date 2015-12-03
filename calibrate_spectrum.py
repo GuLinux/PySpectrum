@@ -17,7 +17,7 @@ from scipy.interpolate import *
 from pyui.select_plotted_point import Ui_SelectPlottedPoints
 from pyspectrum_commons import *
 from lines_dialog import LinesDialog
-from view_object_properties import ViewObjectProperties
+from object_properties import ViewObjectProperties
 
 class SelectPlottedPoints(QDialog):
     point = pyqtSignal(int)

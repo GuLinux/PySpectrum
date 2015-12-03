@@ -59,7 +59,7 @@ class FitsSpectrum:
         
 
     def reset(self):
-        if len(self.fits_file) > 1 and self.fits_file[1].name != FitsSpectrum.CALIBRATION_DATA:
+        if len(self.fits_file) > 1 and self.fits_file[1].name != FitsSpectrum.CALIBRATION_DATA and type(self.fits_file[1]) == fits.BinTableHDU:
             hdu = self.fits_file[1]
             columns = dict([('WAVELENGTH' if 'WAVE' in c.name.upper() else c.name.upper(), index) for index, c in enumerate(hdu.columns)])
             self.spectrum = Spectrum(fluxes=hdu.data.field(columns['FLUX']), wavelengths=hdu.data.field(columns['WAVELENGTH']))
@@ -91,12 +91,12 @@ class FitsSpectrum:
             
     def save(self, filename, calibration_points = [], spectral_lines = [], labels = []):
         header = self.fits_file[0].header
-        header['CRPIX1'] = 1
-        header['CRVAL1'] = self.spectrum.wavelengths[0]
-        header['CDELT1'] = self.spectrum.dispersion()
-        header['CD1_1'] = self.spectrum.dispersion()
-        header['CTYPE1'] = 'WAVE-WAV-PLY'
-        header['CUNIT1'] = 'Angstrom'
+        header.set('CRPIX1', comment='wavelength starting element', value=1)
+        header.set('CRVAL1', comment='first wavelength, Angstrom', value=self.spectrum.wavelengths[0])
+        header.set('CDELT1', comment='dispersion (Angstrom/pixel)', value = self.spectrum.dispersion())
+        header.set('CD1_1', comment='dispersion (Angstrom/pixel)', value = self.spectrum.dispersion())
+        header.set('CTYPE1', value = 'WAVE-WAV-PLY')
+        header.set('CUNIT1', value = 'Angstrom')
         if len(spectral_lines) > 0:
             texts = fits.Column(name='text', format='20A', array=[line.name.encode() for line in spectral_lines])
             wavelengths = fits.Column(name='wavelength', format='D', array=[line.wavelength for line in spectral_lines])

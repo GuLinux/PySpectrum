@@ -12,13 +12,22 @@ import os
 import numpy as np
 from astropy.io import fits
 from object_properties_dialog import ObjectPropertiesDialog
+from object_properties import ObjectProperties
 
 class ImportImage(QWidget):
     def __init__(self, fits_file, settings):
         super(ImportImage, self).__init__()
         self.settings = settings
         self.fits_file = fits_file
-        self.data=fits_file[0].data.astype(float)
+        try:
+            image_hdu_index = fits_file.index_of('IMAGE')
+        except KeyError:
+            image_hdu_index = 0
+        
+        original_image = fits.ImageHDU(data=fits_file[image_hdu_index].data, header=fits_file[image_hdu_index].header, name='IMAGE')
+        for hdu in [h for h in self.fits_file if h.name == 'IMAGE']: self.fits_file.remove(hdu)
+        self.fits_file.append(original_image)
+        self.data=fits_file[image_hdu_index].data.astype(float)
         self.rotated = self.data
         
         self.ui = Ui_ImportImage()
@@ -33,20 +42,16 @@ class ImportImage(QWidget):
         self.toolbar = QToolBar('Image Toolbar')
         self.toolbar.addAction(QIcon(':/rotate_20'), "Rotate", lambda: self.rotate_dialog.show())
         self.toolbar.addAction(QIcon(':/save_20'), "Save", lambda: save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, RAW_PROFILE ))
-        self.toolbar.addAction(QIcon(':/select_20'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
+        self.toolbar.addAction(QIcon(':/select_all_20'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
         self.toolbar.addSeparator()
-        self.object_properties_dialog = ObjectPropertiesDialog(settings)
-        self.object_properties_dialog.properties_changed.connect(self.object_properties_changed)
+        self.object_properties = ObjectProperties(self.fits_file)
+        self.object_properties_dialog = ObjectPropertiesDialog(settings, self.object_properties)
         self.toolbar.addAction("Object properties", self.object_properties_dialog.show)
         self.max_spatial_delta = self.max_spatial_delta_angle = self.degrees = 0
         self.__init_rotate_dialog__()
         self.rotate(0)
-        self.object_properties = None
         
-    def object_properties_changed(self, properties):
-        self.object_properties = properties
-        print(self.object_properties)
         
     def background_span_selected(self, min, max):
         self.background_span_selection = (min, max)
@@ -159,20 +164,10 @@ class ImportImage(QWidget):
         data = self.spectrum_profile()
         data -= np.amin(data)
         data /= np.amax(data)
-        hdu = fits.PrimaryHDU(data)
+        print(self.fits_file.info())
+        hdu = self.fits_file[0]
+        hdu.data = data
         hdu.header['ORIGIN'] = 'PySpectrum'
         hdu.header['pyspec_rotated_by'] = self.degrees
-        if self.object_properties:
-            hdu.header['OBJECT'] = self.object_properties['name']
-            hdu.header['DATE'] = self.object_properties['date'].toString(Qt.ISODate)
-            hdu.header['CTYPE2'] = 'RA--TAN'
-            hdu.header['CRVAL2'] = self.object_properties['ra']
-            hdu.header['CTYPE3'] = 'DEC--TAN'
-            hdu.header['CRVAL3'] = self.object_properties['dec']
-            hdu.header['OBJTYPE'] = self.object_properties['type']
-            hdu.header['SPTYPE'] = self.object_properties['sptype']
-            hdu.header['OBSERVER'] = self.object_properties['observer']
-            hdu.header['EQUIPMENT'] = self.object_properties['equipment']
-            hdu.header['POSITION'] = self.object_properties['position']
-        hdu.writeto(save_file[0], clobber=True)
+        self.fits_file.writeto(save_file[0], clobber=True)
     

@@ -5,29 +5,34 @@ import re
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QDateTime
 from astropy.coordinates import SkyCoord
 from astropy import units as u
+from object_properties import ObjectProperties
 
 Simbad.add_votable_fields('otype(V)')
 Simbad.add_votable_fields('sptype')
 
 class ObjectPropertiesDialog(QDialog):
-    properties_changed = pyqtSignal(dict)
-
-    def __init__(self, settings):
+    def __init__(self, settings, object_properties):
         super(ObjectPropertiesDialog, self).__init__()
         self.ui = Ui_ObjectPropertiesDialog()
         self.ui.setupUi(self)
         self.settings = settings
+        self.object_properties = object_properties
         enable_simbad_button = lambda: self.ui.simbad.setEnabled(len(self.ui.name.currentText()))
         self.ui.name.editTextChanged.connect(lambda txt: enable_simbad_button())
         self.ui.name.lineEdit().returnPressed.connect(self.simbad_query)
         self.ui.simbad.clicked.connect(self.simbad_query)
-        self.accepted.connect(self.emit_properties)
+        self.accepted.connect(self.save_properties)
         enable_simbad_button()
-        # TODO: default values from file
-        self.ui.date.setDateTime(QDateTime.currentDateTime())
-        self.ui.observer.setText(settings.value('observer'))
-        self.ui.equipment.setText(settings.value('equipment'))
-        self.ui.position.setText(settings.value('position'))
+        self.ui.name.setFocus()
+        self.ui.name.setEditText(object_properties.name)
+        self.ui.ra.setText(object_properties.ra_str())
+        self.ui.dec.setText(object_properties.dec_str())
+        self.ui.date.setDateTime(object_properties.date)
+        self.ui.type.setText(object_properties.type)
+        self.ui.sptype.setText(object_properties.sptype)
+        self.ui.observer.setText(object_properties.observer if object_properties.observer else settings.value('observer'))
+        self.ui.equipment.setText(object_properties.equipment if object_properties.observer else settings.value('equipment'))
+        self.ui.position.setText(object_properties.position if object_properties.observer else settings.value('position'))
         
     
     def simbad_query(self):
@@ -47,22 +52,19 @@ class ObjectPropertiesDialog(QDialog):
         self.ui.sptype.setText(row['SP_TYPE'].decode())
         self.ui.type.setText(row['OTYPE_V'].decode())
         
-    def emit_properties(self):
+    def save_properties(self):
         self.settings.setValue('observer', self.ui.observer.text())
         self.settings.setValue('equipment', self.ui.equipment.text())
         self.settings.setValue('position', self.ui.position.text())
-        coords = SkyCoord(ra=self.ui.ra.text(), dec=self.ui.dec.text(), unit=(u.hourangle, u.deg))
-        self.properties_changed.emit({
-            'name': self.ui.name.currentText(),
-            'ra': coords.ra.degree,
-            'dec': coords.dec.degree,
-            'type': self.ui.type.text(),
-            'sptype': self.ui.sptype.text(),
-            'date': self.ui.date.dateTime(),
-            'observer': self.ui.observer.text(),
-            'equipment': self.ui.equipment.text(),
-            'position': self.ui.position.text(),
-            })
+        self.object_properties.name = self.ui.name.currentText()
+        self.object_properties.date = self.ui.date.dateTime()
+        self.object_properties.coordinates = SkyCoord(ra=self.ui.ra.text(), dec=self.ui.dec.text(), unit=(u.hourangle, u.deg))
+        self.object_properties.type = self.ui.type.text()
+        self.object_properties.sptype = self.ui.sptype.text()
+        self.object_properties.observer = self.ui.observer.text()
+        self.object_properties.equipment = self.ui.equipment.text()
+        self.object_properties.position = self.ui.position.text()
+        self.object_properties.write()
         
     def keyPressEvent(self, evt):
       if evt.key() == Qt.Key_Enter or evt.key() == Qt.Key_Return:

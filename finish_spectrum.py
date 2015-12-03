@@ -14,7 +14,7 @@ from matplotlib import gridspec
 import matplotlib as plt
 import numpy as np
 import math
-from view_object_properties import ViewObjectProperties, ObjectProperties
+from object_properties import ViewObjectProperties, ObjectProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from moveable_label import MoveableLabel
 from lambda2color import *
