@@ -24,11 +24,15 @@ class HomePage(QWidget):
         self.toolbar = QToolBar()
         welcome_text = "{} {}".format(QApplication.instance().applicationName(), QApplication.instance().applicationVersion())
         self.ui.welcome_label.setText(self.ui.welcome_label.text().format(welcome_text))
-        file_action = QtCommons.addToolbarPopup(self.toolbar, 'File')
+        file_action = QtCommons.addToolbarPopup(self.toolbar, 'File', icon_file=':/file_20')
+        project_action = QtCommons.addToolbarPopup(self.toolbar, 'Project', icon_file=':/project_20')
         file_action.menu().addAction(QIcon(':/image_20'), 'Import Image', lambda: open_file_sticky('Open FITS Image',FITS_IMG_EXTS, lambda f: self.import_image.emit(f[0]), settings, IMPORT_IMG ))
         file_action.menu().addAction(QIcon(':/plot_20'), 'Calibrate Spectrum', lambda: open_file_sticky('Open raw FITS Spectrum',FITS_EXTS, lambda f: self.calibrate.emit(f[0]), settings, RAW_PROFILE, [IMPORT_IMG] ))
         file_action.menu().addAction(QIcon(':/math_20'), 'Spectra Math', lambda: self.math.emit(None) )
         file_action.menu().addAction(QIcon(':/done_20'), 'Finish Spectrum', lambda: open_file_sticky('Open FITS Spectrum',FITS_EXTS, lambda f: self.finish.emit(f[0]), settings, CALIBRATED_PROFILE, [RAW_PROFILE,IMPORT_IMG] ))
+        
+        project_action.menu().addAction(QIcon(':/project_new_20'), 'New').setEnabled(False)
+        project_action.menu().addAction(QIcon(':/new_open_20'), 'Open').setEnabled(False)
         
         self.recent_raw_model = QStandardItemModel()
         self.recent_calibrated_model = QStandardItemModel()
