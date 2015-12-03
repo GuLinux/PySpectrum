@@ -15,7 +15,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="8" column="1" colspan="2">
-    <widget class="QLineEdit" name="instruments"/>
+    <widget class="QLineEdit" name="equipment"/>
    </item>
    <item row="4" column="1" colspan="2">
     <widget class="QLineEdit" name="dec"/>
@@ -37,7 +37,7 @@
     <widget class="QLineEdit" name="ra"/>
    </item>
    <item row="7" column="1" colspan="2">
-    <widget class="QLineEdit" name="author"/>
+    <widget class="QLineEdit" name="observer"/>
    </item>
    <item row="6" column="1" colspan="2">
     <widget class="QDateTimeEdit" name="date">
@@ -86,7 +86,7 @@
    <item row="8" column="0">
     <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>Instruments</string>
+      <string>Equipment</string>
      </property>
     </widget>
    </item>
@@ -121,19 +121,19 @@
    <item row="7" column="0">
     <widget class="QLabel" name="label_7">
      <property name="text">
-      <string>Author</string>
+      <string>Observer</string>
      </property>
     </widget>
    </item>
    <item row="10" column="0">
     <widget class="QLabel" name="label_9">
      <property name="text">
-      <string>Place</string>
+      <string>Position</string>
      </property>
     </widget>
    </item>
    <item row="10" column="1" colspan="2">
-    <widget class="QLineEdit" name="location"/>
+    <widget class="QLineEdit" name="position"/>
    </item>
    <item row="0" column="1">
     <widget class="QComboBox" name="name">
@@ -152,9 +152,9 @@
   <tabstop>ra</tabstop>
   <tabstop>dec</tabstop>
   <tabstop>date</tabstop>
-  <tabstop>author</tabstop>
-  <tabstop>instruments</tabstop>
-  <tabstop>location</tabstop>
+  <tabstop>observer</tabstop>
+  <tabstop>equipment</tabstop>
+  <tabstop>position</tabstop>
  </tabstops>
  <resources/>
  <connections>

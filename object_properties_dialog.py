@@ -12,10 +12,11 @@ Simbad.add_votable_fields('sptype')
 class ObjectPropertiesDialog(QDialog):
     properties_changed = pyqtSignal(dict)
 
-    def __init__(self):
+    def __init__(self, settings):
         super(ObjectPropertiesDialog, self).__init__()
         self.ui = Ui_ObjectPropertiesDialog()
         self.ui.setupUi(self)
+        self.settings = settings
         enable_simbad_button = lambda: self.ui.simbad.setEnabled(len(self.ui.name.currentText()))
         self.ui.name.editTextChanged.connect(lambda txt: enable_simbad_button())
         self.ui.name.lineEdit().returnPressed.connect(self.simbad_query)
@@ -24,7 +25,11 @@ class ObjectPropertiesDialog(QDialog):
         enable_simbad_button()
         # TODO: default values from file
         self.ui.date.setDateTime(QDateTime.currentDateTime())
+        self.ui.observer.setText(settings.value('observer'))
+        self.ui.equipment.setText(settings.value('equipment'))
+        self.ui.position.setText(settings.value('position'))
         
+    
     def simbad_query(self):
         result = Simbad.query_object(self.ui.name.currentText())
         if not result:
@@ -43,6 +48,9 @@ class ObjectPropertiesDialog(QDialog):
         self.ui.type.setText(row['OTYPE_V'].decode())
         
     def emit_properties(self):
+        self.settings.setValue('observer', self.ui.observer.text())
+        self.settings.setValue('equipment', self.ui.equipment.text())
+        self.settings.setValue('position', self.ui.position.text())
         coords = SkyCoord(ra=self.ui.ra.text(), dec=self.ui.dec.text(), unit=(u.hourangle, u.deg))
         self.properties_changed.emit({
             'name': self.ui.name.currentText(),
@@ -51,9 +59,9 @@ class ObjectPropertiesDialog(QDialog):
             'type': self.ui.type.text(),
             'sptype': self.ui.sptype.text(),
             'date': self.ui.date.dateTime(),
-            'observer': self.ui.author.text(),
-            'instruments': self.ui.instruments.text(),
-            'position': self.ui.location.text(),
+            'observer': self.ui.observer.text(),
+            'equipment': self.ui.equipment.text(),
+            'position': self.ui.position.text(),
             })
         
     def keyPressEvent(self, evt):

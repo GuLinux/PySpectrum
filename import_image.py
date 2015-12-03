@@ -36,7 +36,7 @@ class ImportImage(QWidget):
         self.toolbar.addAction(QIcon(':/select_20'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
         self.toolbar.addSeparator()
-        self.object_properties_dialog = ObjectPropertiesDialog()
+        self.object_properties_dialog = ObjectPropertiesDialog(settings)
         self.object_properties_dialog.properties_changed.connect(self.object_properties_changed)
         self.toolbar.addAction("Object properties", self.object_properties_dialog.show)
         self.max_spatial_delta = self.max_spatial_delta_angle = self.degrees = 0
@@ -174,7 +174,7 @@ class ImportImage(QWidget):
             hdu.header['OBJTYPE'] = self.object_properties['type']
             hdu.header['SPTYPE'] = self.object_properties['sptype']
             hdu.header['OBSERVER'] = self.object_properties['observer']
-            hdu.header['INSTRUMENT'] = self.object_properties['instruments'] #TODO: rename to equipment
+            hdu.header['EQUIPMENT'] = self.object_properties['equipment']
             hdu.header['POSITION'] = self.object_properties['position']
         hdu.writeto(save_file[0], clobber=True)
     
