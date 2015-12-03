@@ -1,5 +1,5 @@
 from pyui.finish_spectrum import Ui_FinishSpectrum
-from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction, QInputDialog
+from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QFileDialog, QMenu, QAction, QInputDialog, QVBoxLayout, QLineEdit, QTextEdit, QSpinBox, QLabel
 from qmathplotwidget import QMathPlotWidget
 from fits_spectrum import FitsSpectrum, Spectrum
 from qtcommons import *
@@ -14,58 +14,10 @@ from matplotlib import gridspec
 import matplotlib as plt
 import numpy as np
 import math
-from view_object_properties import ViewObjectProperties
+from view_object_properties import ViewObjectProperties, ObjectProperties
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
-
-import sys
-import os
-import traceback
-import optparse
-import time
-import logging
-
-
-#credits: http://www.noah.org/wiki/Wavelength_to_RGB_in_Python
-def wavelength_to_rgb(wavelength, flux, gamma=0.8):
-
-    '''This converts a given wavelength of light to an 
-    approximate RGB color value. The wavelength must be given
-    in nanometers in the range from 380 nm through 750 nm
-    (789 THz through 400 THz).
-
-    Based on code by Dan Bruton
-    http://www.physics.sfasu.edu/astro/color/spectra.html
-    '''
-    w=wavelength
-    if w >= 380 and w < 440:
-        R = -(w - 440.) / (440. - 380.)
-        G = 0.0
-        B = 1.0
-    elif w >= 440 and w < 490:
-        R = 0.0
-        G = (w - 440.) / (490. - 440.)
-        B = 1.0
-    elif w >= 490 and w < 510:
-        R = 0.0
-        G = 1.0
-        B = -(w - 510.) / (510. - 490.)
-    elif w >= 510 and w < 580:
-        R = (w - 510.) / (580. - 510.)
-        G = 1.0
-        B = 0.0
-    elif w >= 580 and w < 645:
-        R = 1.0
-        G = -(w - 645.) / (645. - 580.)
-        B = 0.0
-    elif w >= 645 and w <= 780:
-        R = 1.0
-        G = 0.0
-        B = 0.0
-    else:
-        R = 0.0
-        G = 0.0
-        B = 0.0
-    return [R, G, B, flux]
+from moveable_label import MoveableLabel
+from lambda2color import *
 
 class FinishSpectrum(QWidget):
     def __init__(self, fits_file, settings, database):
@@ -73,6 +25,7 @@ class FinishSpectrum(QWidget):
         self.settings = settings
         self.ui = Ui_FinishSpectrum()
         self.ui.setupUi(self)
+        self.profile_line = None
         self.fits_spectrum = FitsSpectrum(fits_file)
         self.fits_spectrum.spectrum.normalize_to_max()
         self.spectrum = self.fits_spectrum.spectrum
@@ -103,7 +56,7 @@ class FinishSpectrum(QWidget):
         self.lines_dialog.lines.connect(self.add_lines)
         save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file('Save plot...', 'FITS file (.fit)', self.save, self.settings.value('last_save_finished_dir')))
         
-        self.draw()
+        self.add_info(fits_file)
         
         self.lines = []
         hdu_spectral_lines = [h for h in fits_file if h.name == FitsSpectrum.SPECTRAL_LINES]
@@ -146,9 +99,10 @@ class FinishSpectrum(QWidget):
         
     
     def draw(self):
-        self.profile_plot.clear()
-
-        self.profile_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes)
+#        self.profile_plot.clear()
+        if self.profile_line:
+            self.profile_line.remove()
+        self.profile_line = self.profile_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes, color='blue')[0]
 
         self.synthetize.axes.set_axis_bgcolor('black')
         #colors = [FinishSpectrum.synthetize(w, self.spectrum.fluxes[i]) for i,w in enumerate(self.spectrum.wavelengths)]
@@ -188,3 +142,46 @@ class FinishSpectrum(QWidget):
         filename = filename[0]
         self.settings.setValue('last_save_finished_dir', os.path.dirname(filename))
         self.fits_spectrum.save(filename, spectral_lines = self.lines)
+        
+        
+    def add_info(self, fits_file):
+        properties = ObjectProperties(fits_file)
+        info_text = "Object Name: {}, type: {}, spectral class: {}\nCoordinates: {}\nDate: {}\nObserver: {}\nEquipment: {}\nPosition: {}".format(
+                properties.name,
+                properties.type,
+                properties.sptype,
+                properties.printable_coordinates(),
+                properties.date.toString(),
+                properties.observer,
+                properties.equipment,
+                properties.position
+            )
+        self.title_widget = MoveableLabel(text=properties.name, on_dblclick=lambda: self.edit_label(self.title_widget), x=self.spectrum.wavelengths[len(self.spectrum.wavelengths)/2-100], y=0.95, fontsize=25, color='black', axes=self.profile_plot.axes)
+        self.info_widget = MoveableLabel(text=info_text, on_dblclick=lambda: self.edit_label(self.info_widget, type='textbox'), x=self.spectrum.wavelengths[len(self.spectrum.wavelengths)/4*3], y=0.80, fontsize=14, color='black', axes=self.profile_plot.axes)
+
+    def edit_label(self, label, type='lineedit'):
+        dialog = QDialog()
+        dialog.setWindowTitle("Edit Label")
+        dialog.setLayout(QVBoxLayout())
+        font_size = QSpinBox()
+        font_size.setValue(label.get_fontsize())
+        dialog.layout().addWidget(QLabel("Font Size"))
+        dialog.layout().addWidget(font_size)
+        text_edit = None
+        if type == 'lineedit':
+            text_edit = QLineEdit(label.get_text())
+        else:
+            text_edit = QTextEdit()
+            text_edit.setPlainText(label.get_text())
+            
+        dialog.layout().addWidget(QLabel("Text"))
+        dialog.layout().addWidget(text_edit)
+        button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        button_box.accepted.connect(dialog.accept)
+        button_box.rejected.connect(dialog.reject)
+        dialog.layout().addWidget(button_box)
+        if QDialog.Accepted != dialog.exec():
+            return
+        label.set_text(text_edit.text() if type=='lineedit' else text_edit.toPlainText())
+        label.set_fontsize(font_size.value())
+        label.axes.figure.canvas.draw()
