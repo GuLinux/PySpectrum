@@ -7,23 +7,39 @@
     <x>0</x>
     <y>0</y>
     <width>356</width>
-    <height>137</height>
+    <height>139</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Rotate Image...</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0" colspan="2">
+   <item row="1" column="0">
     <widget class="QDoubleSpinBox" name="rotate_spinbox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="decimals">
       <number>3</number>
+     </property>
+     <property name="minimum">
+      <double>-165.000000000000000</double>
      </property>
      <property name="maximum">
       <double>360.000000000000000</double>
      </property>
      <property name="singleStep">
       <double>0.001000000000000</double>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="rotate_auto">
+     <property name="text">
+      <string>Auto</string>
      </property>
     </widget>
    </item>
@@ -40,7 +56,21 @@
      </property>
     </spacer>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Enter degrees for image rotation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="rotate_mirror">
+     <property name="text">
+      <string>Mirror</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="3">
     <widget class="QDialogButtonBox" name="bb">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -50,14 +80,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Enter degrees for image rotation</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0">
+   <item row="3" column="0" colspan="3">
     <widget class="QSlider" name="degrees_slider">
      <property name="maximum">
       <number>360000</number>

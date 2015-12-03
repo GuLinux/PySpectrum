@@ -40,9 +40,9 @@ class ImportImage(QWidget):
         self.object_properties_dialog.properties_changed.connect(self.object_properties_changed)
         self.toolbar.addAction("Object properties", self.object_properties_dialog.show)
         self.max_spatial_delta = self.max_spatial_delta_angle = self.degrees = 0
+        self.__init_rotate_dialog__()
         self.rotate(0)
         self.object_properties = None
-        self.__init_rotate_dialog__()
         
     def object_properties_changed(self, properties):
         self.object_properties = properties
@@ -66,6 +66,7 @@ class ImportImage(QWidget):
     def __init_rotate_dialog__(self):
         self.rotate_dialog = QDialog()
         ui = Ui_RotateImageDialog()
+        self.rotate_dialog_ui = ui
         ui.setupUi(self.rotate_dialog)
         apply_rotation = lambda: self.rotate(ui.rotate_spinbox.value())
         ui.rotate_spinbox.editingFinished.connect(apply_rotation)
@@ -75,8 +76,36 @@ class ImportImage(QWidget):
         ui.degrees_slider.sliderReleased.connect(apply_rotation)
         ui.bb.button(QDialogButtonBox.Apply).clicked.connect(apply_rotation)
         ui.bb.button(QDialogButtonBox.Close).clicked.connect(lambda: self.rotate_dialog.accept())
+        ui.rotate_auto.clicked.connect(self.autorotate)
+        ui.rotate_mirror.clicked.connect(self.rotate_mirror)
+        
+    def rotate_mirror(self):
+        self.rotate(self.degrees + (180. if self.degrees <= 180 else -180) )
+    
+    def autorotate(self):
+        def get_angle(data, range):
+            sum_max=(0,0)
+            for deg in range:
+                sum_x = scipy.ndimage.interpolation.rotate(data, deg, reshape=True, order=2, mode='constant').sum(1)
+                delta = sum_x.max() - sum_x.min()
+                if delta > sum_max[1]:
+                    sum_max = (deg, delta)
+            return sum_max[0]
+        
+        ratio = max(self.data.shape[0]/100, self.data.shape[1]/100)
+        small = scipy.ndimage.interpolation.zoom(self.data, 1./ratio)
+        angle = get_angle(small, np.arange(0, 180, step=0.1))
+        angle = get_angle(small, np.arange(angle-3., angle+3., step=0.001))
+        angle = get_angle(scipy.ndimage.interpolation.zoom(self.data, 3./ratio), np.arange(angle-1., angle+1., step=0.001))
+        angle = get_angle(self.data, np.arange(angle-0.01, angle+0.01, step=0.001))
+        angle = round(angle, 3)
+        self.rotate(angle if angle >= 0 else angle-180.)
+            
         
     def rotate(self, degrees):
+        self.rotate_dialog_ui.degrees_slider.setValue(degrees*1000.)
+        self.rotate_dialog_ui.rotate_spinbox.setValue(degrees)
+        
         if self.degrees == degrees: return
         self.degrees = degrees
         self.rotated = scipy.ndimage.interpolation.rotate(self.data, self.degrees, reshape=True, order=5, mode='constant')
@@ -90,9 +119,10 @@ class ImportImage(QWidget):
         self.max_spatial_delta = max(delta, self.max_spatial_delta)
         self.max_spatial_delta_angle = degrees if self.max_spatial_delta == delta else self.max_spatial_delta_angle
         
-        self.ui.delta_label.setText("Delta: {:.3f}, max: {:.3f} at {:.3f} deg".format(delta, self.max_spatial_delta, self.max_spatial_delta_angle))
+        self.ui.delta_label.setText("Current rotation degrees: {:.3f}, optimal rotation angle so far: {:.3f} deg".format(self.degrees, self.max_spatial_delta_angle))
         self.draw_plot(self.spectrum_plot.axes, self.spectrum_profile())
         self.draw_plot(self.spatial_plot.axes, self.spatial_profile())
+        
         
         
     def draw_plot(self, axes, data):
