@@ -34,7 +34,7 @@ class ReferenceLine:
         self.on_remove = on_remove
         self.edit_dialog = QDialog()
         self.line = self.axes.axvline(wavelength, color=color)
-        self.label = MoveableLabel(axes=axes, on_dblclick = self.edit_dialog.show, x=wavelength + 50, y=0.5, text=name, fontsize=fontsize)
+        self.label = MoveableLabel(axes=axes, on_dblclick = lambda m: self.edit_dialog.show(), x=wavelength + 50, y=0.5, text=name, fontsize=fontsize)
         self.axes.figure.canvas.draw()
         self.press = None
         self.edit_dialog_ui = Ui_LineEdit()
