@@ -1,6 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
-    <qresource prefix="/">
+    <qresource>
         <file>add_16.png</file>
+        <file>bullet_list_20.png</file>
         <file>close_20.png</file>
         <file>done_20.png</file>
         <file>image_20.png</file>

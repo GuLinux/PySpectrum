@@ -27,7 +27,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.settings = QSettings("GuLinux", "PySpectrum")
         self.homepage = HomePage(self.settings, self.database)
         self.ui.stackedWidget.addWidget(self.homepage)
-        self.windows_menu = QtCommons.addToolbarPopup(self.ui.toolBar, 'Windows')
+        self.windows_menu = QtCommons.addToolbarPopup(self.ui.toolBar, 'Windows', icon_file=':/bullet_list_20')
         self.actionClose = self.ui.toolBar.addAction(QIcon(':/close_20'), "Close")
         self.actionClose.setEnabled(False)
         self.actionClose.triggered.connect(self.close_widget)
