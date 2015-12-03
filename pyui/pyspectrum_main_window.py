@@ -35,8 +35,6 @@ class Ui_PySpectrumMainWindow(object):
         self.toolBar.setObjectName("toolBar")
         PySpectrumMainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
         self.actionOpen_Image = QtWidgets.QAction(PySpectrumMainWindow)
-        icon = QtGui.QIcon.fromTheme("viewimage")
-        self.actionOpen_Image.setIcon(icon)
         self.actionOpen_Image.setObjectName("actionOpen_Image")
         self.actionCalibrate_FITS = QtWidgets.QAction(PySpectrumMainWindow)
         icon = QtGui.QIcon.fromTheme("document-open")

@@ -1,4 +1,4 @@
 {
   "name": "PySpectrum"
-, "files": [ { "directory": ".","filters": ["*.py", "Makefile"], "recursive": 1 } ]
+, "files": [ { "directory": ".","filters": ["*.py", "Makefile", "README.md", "*.qrc", "*.ui"], "recursive": 1 } ]
 }

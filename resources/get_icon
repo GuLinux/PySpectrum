@@ -1,0 +1,12 @@
+#!/bin/bash
+id="$1"
+name="$2"
+size="${3-20}"
+curl "https://www.iconfinder.com/icons/$id/download/png/$size" -o "${name}_${size}.png"
+cat >resources.qrc <<EOF
+<!DOCTYPE RCC><RCC version="1.0">
+    <qresource>
+$( for file in *.png; do echo "        <file>$file</file>"; done )
+    </qresource>
+</RCC>
+EOF

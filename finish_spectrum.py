@@ -67,10 +67,10 @@ class FinishSpectrum(QWidget):
             self.add_label(text=label['text'], coords=label['coords'], type=label['type'], fontsize=label['fontsize'])
         
         self.toolbar.addSeparator()
-        self.toolbar.addAction("Export Image...", lambda: QtCommons.save_file_sticky('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.save_image(f[0]), self.settings, EXPORT_IMAGES_DIR, [CALIBRATED_PROFILE_DIR]))
+        self.toolbar.addAction(QIcon(':/image_20'), "Export Image...", lambda: QtCommons.save_file_sticky('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.save_image(f[0]), self.settings, EXPORT_IMAGES_DIR, [CALIBRATED_PROFILE_DIR]))
         self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, self.profile_plot.axes)
         self.lines_dialog.lines.connect(self.add_lines)
-        save_action = self.toolbar.addAction(QIcon.fromTheme('document-save'), 'Save', lambda: QtCommons.save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, CALIBRATED_PROFILE_DIR))
+        save_action = self.toolbar.addAction(QIcon(':/save_20'), 'Save', lambda: QtCommons.save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, CALIBRATED_PROFILE_DIR))
         for line in self.fits_spectrum.lines_labels():
             self.lines.append(ReferenceLine(line['text'], line['wavelength'], self.profile_plot.axes, lambda line: self.lines.remove(line), show_wavelength=line['display_wavelength'], fontsize=line['fontsize'], position=line['position']))
                 

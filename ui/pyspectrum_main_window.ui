@@ -45,10 +45,6 @@
    </attribute>
   </widget>
   <action name="actionOpen_Image">
-   <property name="icon">
-    <iconset theme="viewimage">
-     <normaloff>.</normaloff>.</iconset>
-   </property>
    <property name="text">
     <string>&amp;Open Image</string>
    </property>

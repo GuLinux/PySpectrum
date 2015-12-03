@@ -57,7 +57,7 @@ class QtCommons:
         dialog.finished.connect(lambda: dialog.deleteLater())
         dialog.show()
         
-    def addToolbarPopup(toolbar, text = None, icon_name = None, actions = [], popup_mode = QToolButton.InstantPopup, toolbutton_style=Qt.ToolButtonTextBesideIcon):
+    def addToolbarPopup(toolbar, text = None, icon_name = None, icon_file = None, actions = [], popup_mode = QToolButton.InstantPopup, toolbutton_style=Qt.ToolButtonTextBesideIcon):
         button = QToolButton()
         button.setToolButtonStyle(toolbutton_style)
         button.setDefaultAction(QAction(button))
@@ -68,6 +68,8 @@ class QtCommons:
         button.setMenu(QMenu())
         if icon_name:
             button.defaultAction().setIcon(QIcon.fromTheme(icon_name))
+        if icon_file:
+            button.defaultAction().setIcon(QIcon(icon_file))
         for action in actions:
             button.menu().addAction(action)
         toolbar.addWidget(button)

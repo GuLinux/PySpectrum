@@ -52,3 +52,5 @@ Licensed under GPLv3 (see COPYING file)
 * Sample spectra:
     + [Spectrophotometric Atlas of Standard Stellar Spectra (Pickles 1985)](http://vizier.u-strasbg.fr/viz-bin/VizieR-4)
     + [The MILES Library](http://miles.iac.es/pages/stellar-libraries/the-catalogue.php)
+* Icons:
+    + [Google Material Design](https://www.iconfinder.com/iconsets/google-material-design-icons)
