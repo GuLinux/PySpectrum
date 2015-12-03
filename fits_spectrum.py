@@ -84,7 +84,10 @@ class FitsSpectrum:
         axes.figure.canvas.draw()
         
     def __add_table(self, name, columns):
-        pass
+        tbhdu = fits.BinTableHDU.from_columns(fits.ColDefs(columns))
+        tbhdu.name = name
+        for hdu in [h for h in self.fits_file if h.name == name]: self.fits_file.remove(hdu)
+        self.fits_file.append(tbhdu)
             
     def save(self, filename, calibration_points = [], spectral_lines = [], labels = []):
         header = self.fits_file[0].header
@@ -101,31 +104,20 @@ class FitsSpectrum:
             show_lambdas = fits.Column(name='show_lambda', format='L', array=[line.show_lambda for line in spectral_lines])
             x_pos = fits.Column(name='x_pos', format='D', array=[line.position()[0] for line in spectral_lines])
             y_pos = fits.Column(name='y_pos', format='D', array=[line.position()[1] for line in spectral_lines])
-            cols = fits.ColDefs([texts, wavelengths, font_sizes, show_lambdas, x_pos, y_pos])
-            tbhdu = fits.BinTableHDU.from_columns(cols)
-            tbhdu.name = FitsSpectrum.SPECTRAL_LINES
-            for hdu in [h for h in self.fits_file if h.name == FitsSpectrum.SPECTRAL_LINES]: self.fits_file.remove(hdu)
-            self.fits_file.append(tbhdu)
+            self.__add_table(FitsSpectrum.SPECTRAL_LINES, [texts, wavelengths, font_sizes, show_lambdas, x_pos, y_pos])
             
         if len(calibration_points) > 0:
             pixels = fits.Column(name='x_axis', format='K', array=[point['x'] for point in calibration_points])
             wavelengths = fits.Column(name='wavelength', format='D', array=[point['wavelength'] for point in calibration_points])
-            cols = fits.ColDefs([pixels, wavelengths])
-            tbhdu = fits.BinTableHDU.from_columns(cols)
-            tbhdu.name = FitsSpectrum.CALIBRATION_DATA
-            for hdu in [h for h in self.fits_file if h.name == FitsSpectrum.CALIBRATION_DATA]: self.fits_file.remove(hdu)
-            self.fits_file.append(tbhdu)
+            self.__add_table(FitsSpectrum.CALIBRATION_DATA, [pixels, wavelengths])
+
         if len(labels) > 0:
             texts = fits.Column(name='text', format='500A', array=[line[1].get_text().encode() for line in labels])
             x = fits.Column(name='x', format='D', array=[line[1].position()[0] for line in labels])
             y = fits.Column(name='y', format='D', array=[line[1].position()[1] for line in labels])
             font_sizes = fits.Column(name='font_size', format='D', array=[line[1].get_size() for line in labels])
             types = fits.Column(name='type', format='15A', array=[line[0] for line in labels])
-            cols = fits.ColDefs([texts, x, y, font_sizes, types])
-            tbhdu = fits.BinTableHDU.from_columns(cols)
-            tbhdu.name = FitsSpectrum.LABELS
-            for hdu in [h for h in self.fits_file if h.name == FitsSpectrum.LABELS]: self.fits_file.remove(hdu)
-            self.fits_file.append(tbhdu)
+            self.__add_table(FitsSpectrum.LABELS, [texts, x, y, font_sizes, types])
             
         self.fits_file[0].data = self.spectrum.fluxes
         self.fits_file.writeto(filename, clobber=True)
