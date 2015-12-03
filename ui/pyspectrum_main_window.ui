@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>-1</number>
       </property>
      </widget>
     </item>
@@ -45,36 +45,6 @@
     <bool>false</bool>
    </attribute>
   </widget>
-  <action name="actionOpen_Image">
-   <property name="text">
-    <string>&amp;Open Image</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+I</string>
-   </property>
-  </action>
-  <action name="actionCalibrate_FITS">
-   <property name="icon">
-    <iconset>
-     <normaloff>.</normaloff>.</iconset>
-   </property>
-   <property name="text">
-    <string>&amp;Calibrate FITS</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+S</string>
-   </property>
-  </action>
-  <action name="actionPlots_Math">
-   <property name="text">
-    <string>Plots Math</string>
-   </property>
-  </action>
-  <action name="actionFinish_Spectrum">
-   <property name="text">
-    <string>Finish Spectrum</string>
-   </property>
-  </action>
  </widget>
  <resources/>
  <connections/>

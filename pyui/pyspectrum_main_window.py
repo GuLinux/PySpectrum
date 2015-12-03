@@ -28,30 +28,13 @@ class Ui_PySpectrumMainWindow(object):
         self.toolBar.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
         self.toolBar.setObjectName("toolBar")
         PySpectrumMainWindow.addToolBar(QtCore.Qt.TopToolBarArea, self.toolBar)
-        self.actionOpen_Image = QtWidgets.QAction(PySpectrumMainWindow)
-        self.actionOpen_Image.setObjectName("actionOpen_Image")
-        self.actionCalibrate_FITS = QtWidgets.QAction(PySpectrumMainWindow)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("."), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.actionCalibrate_FITS.setIcon(icon)
-        self.actionCalibrate_FITS.setObjectName("actionCalibrate_FITS")
-        self.actionPlots_Math = QtWidgets.QAction(PySpectrumMainWindow)
-        self.actionPlots_Math.setObjectName("actionPlots_Math")
-        self.actionFinish_Spectrum = QtWidgets.QAction(PySpectrumMainWindow)
-        self.actionFinish_Spectrum.setObjectName("actionFinish_Spectrum")
 
         self.retranslateUi(PySpectrumMainWindow)
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(-1)
         QtCore.QMetaObject.connectSlotsByName(PySpectrumMainWindow)
 
     def retranslateUi(self, PySpectrumMainWindow):
         _translate = QtCore.QCoreApplication.translate
         PySpectrumMainWindow.setWindowTitle(_translate("PySpectrumMainWindow", "PySpectrum"))
         self.toolBar.setWindowTitle(_translate("PySpectrumMainWindow", "Main Toolbar"))
-        self.actionOpen_Image.setText(_translate("PySpectrumMainWindow", "&Open Image"))
-        self.actionOpen_Image.setShortcut(_translate("PySpectrumMainWindow", "Ctrl+I"))
-        self.actionCalibrate_FITS.setText(_translate("PySpectrumMainWindow", "&Calibrate FITS"))
-        self.actionCalibrate_FITS.setShortcut(_translate("PySpectrumMainWindow", "Ctrl+S"))
-        self.actionPlots_Math.setText(_translate("PySpectrumMainWindow", "Plots Math"))
-        self.actionFinish_Spectrum.setText(_translate("PySpectrumMainWindow", "Finish Spectrum"))
 

@@ -25,26 +25,25 @@ class PySpectrumMainWindow(QMainWindow):
         self.database = sqlite3.connect('data/pyspectrum.db')
         self.ui.setupUi(self)
         self.settings = QSettings("GuLinux", "PySpectrum")
-        self.homepage = HomePage()
+        self.homepage = HomePage(self.settings)
         self.ui.stackedWidget.addWidget(self.homepage)
-        QtCommons.addToolbarPopup(self.ui.toolBar, 'File', actions=[self.ui.actionOpen_Image,self.ui.actionCalibrate_FITS,self.ui.actionPlots_Math,self.ui.actionFinish_Spectrum])
         self.windows_menu = QtCommons.addToolbarPopup(self.ui.toolBar, 'Windows')
         self.actionClose = self.ui.toolBar.addAction(QIcon(':/close_20'), "Close")
-        self.ui.actionOpen_Image.setIcon(QIcon(':/image_20'))
-        self.ui.actionCalibrate_FITS.setIcon(QIcon(':/plot_20'))
-        self.ui.actionPlots_Math.setIcon(QIcon(':/math_20'))
-        self.ui.actionFinish_Spectrum.setIcon(QIcon(':/done_20'))
         self.actionClose.setEnabled(False)
         self.actionClose.triggered.connect(self.close_widget)
-        self.ui.actionOpen_Image.triggered.connect(lambda: QtCommons.open_file_sticky('Open FITS Image',FITS_IMG_EXTS, self.open_image, self.settings, IMPORT_IMG_DIR ))
-        self.ui.actionCalibrate_FITS.triggered.connect(lambda: QtCommons.open_file_sticky('Open raw FITS Spectrum',FITS_EXTS, self.calibrate, self.settings, RAW_PROFILE_DIR, [IMPORT_IMG_DIR] ))
-        self.ui.actionPlots_Math.triggered.connect(self.plots_math)
-        self.ui.actionFinish_Spectrum.triggered.connect(lambda: QtCommons.open_file_sticky('Open FITS Spectrum',FITS_EXTS, self.finish_spectrum, self.settings, CALIBRATED_PROFILE_DIR, [RAW_PROFILE_DIR,IMPORT_IMG_DIR] ))
+        
+        self.homepage.import_image.connect(self.open_image)
+        self.homepage.calibrate.connect(self.calibrate)
+        self.homepage.math.connect(self.plots_math)
+        self.homepage.finish.connect(self.finish_spectrum)
+
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
         self.restoreGeometry(self.settings.value('window_geometry', QByteArray()))
         self.widgets = [(self.homepage, "Home")]
-        
+        self.current_changed(self.ui.stackedWidget.indexOf(self.homepage))
+        self.__rebuild_windows_menu()
+
     def closeEvent(self, ev):
         self.settings.setValue('window_geometry', self.saveGeometry())
         QMainWindow.closeEvent(self, ev)
@@ -60,23 +59,26 @@ class PySpectrumMainWindow(QMainWindow):
         if self.current_widget_toolbar:
             self.removeToolBar(self.current_widget_toolbar)
         self.current_widget_toolbar = self.ui.stackedWidget.currentWidget().toolbar
-        self.addToolBar(self.current_widget_toolbar)
+        self.insertToolBar(self.ui.toolBar, self.current_widget_toolbar)
+        self.current_widget_toolbar.setVisible(True)
         
     def open_image(self, file):
-        fits_file = self.open_fits(file[0], "open_image")
-        self.__add_widget(ImportImage(fits_file, self.settings), 'Import Image - {}'.format(os.path.basename(file[0])))
+        fits_file = self.open_fits(file, "open_image")
+        self.__add_widget(ImportImage(fits_file, self.settings), 'Import Image - {}'.format(os.path.basename(file)))
     
     def calibrate(self, file):
-        fits_file = self.open_fits(file[0], 'open_spectrum')
-        self.__add_widget(CalibrateSpectrum(fits_file, self.settings, self.database), 'Calibrate - {}'.format(os.path.basename(file[0])))
+        fits_file = self.open_fits(file, 'open_spectrum')
+        self.__add_widget(CalibrateSpectrum(fits_file, self.settings, self.database), 'Calibrate - {}'.format(os.path.basename(file)))
 
-    def plots_math(self):
-        self.__add_widget(PlotsMath(self.settings, self.database), 'Math')
+    def plots_math(self, file):
+        pm = PlotsMath(self.settings, self.database)
+        self.__add_widget(pm, 'Math')
+        if file:
+            pm.open_fits(file)
 
-        
     def finish_spectrum(self, file):
-        fits_file = self.open_fits(file[0], 'open_spectrum')
-        self.__add_widget(FinishSpectrum(fits_file, self.settings, self.database), 'Finish - {}'.format(os.path.basename(file[0])))
+        fits_file = self.open_fits(file, 'open_spectrum')
+        self.__add_widget(FinishSpectrum(fits_file, self.settings, self.database), 'Finish - {}'.format(os.path.basename(file)))
 
     def open_fits(self, filename, type):
         file = os.path.realpath(filename)
@@ -96,5 +98,5 @@ class PySpectrumMainWindow(QMainWindow):
             
         self.windows_menu.menu().clear()
         for w in self.widgets:
-            add_action(self, w[1], w[0])    
+            add_action(self, w[1], w[0])
         
