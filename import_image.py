@@ -13,6 +13,7 @@ import numpy as np
 from astropy.io import fits
 from object_properties_dialog import ObjectPropertiesDialog
 from object_properties import ObjectProperties
+from stack_images_dialog import StackImagesDialog
 
 class ImportImage(QWidget):
     def __init__(self, fits_file, settings):
@@ -39,18 +40,20 @@ class ImportImage(QWidget):
         
         self.image_view = self.image_plot.axes_image
         
+        self.stack_images_dialog = StackImagesDialog(self.fits_file)
         self.toolbar = QToolBar('Image Toolbar')
         self.toolbar.addAction(QIcon(':/rotate_20'), "Rotate", lambda: self.rotate_dialog.show())
         self.toolbar.addAction(QIcon(':/save_20'), "Save", lambda: save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, RAW_PROFILE ))
         self.toolbar.addAction(QIcon(':/select_all_20'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
+        self.toolbar.addAction('Stack', self.stack_images_dialog.show)
         self.toolbar.addSeparator()
         self.object_properties = ObjectProperties(self.fits_file)
         self.object_properties_dialog = ObjectPropertiesDialog(settings, self.object_properties)
         self.toolbar.addAction("Object properties", self.object_properties_dialog.show)
-        self.max_spatial_delta = self.max_spatial_delta_angle = self.degrees = 0
+        self.max_spatial_delta = self.max_spatial_delta_angle = 0
         self.__init_rotate_dialog__()
-        self.rotate(self.fits_file[0].header.get('pyspec_rotated_by', 0))
+        self.rotate(self.degrees(), force=True)
         
         
     def background_span_selected(self, min, max):
@@ -83,7 +86,7 @@ class ImportImage(QWidget):
         ui.rotate_mirror.clicked.connect(self.rotate_mirror)
         
     def rotate_mirror(self):
-        self.rotate(self.degrees + (180. if self.degrees <= 180 else -180) )
+        self.rotate(self.degrees() + (180. if self.degrees() <= 180 else -180) )
     
     def autorotate(self):
         def get_angle(data, range):
@@ -125,13 +128,13 @@ class ImportImage(QWidget):
         self.rotate_dialog.raise_()
             
         
-    def rotate(self, degrees):
+    def rotate(self, degrees, force = False):
         self.rotate_dialog_ui.degrees_slider.setValue(degrees*1000.)
         self.rotate_dialog_ui.rotate_spinbox.setValue(degrees)
         
-        if self.degrees == degrees: return
-        self.degrees = degrees
-        self.rotated = scipy.ndimage.interpolation.rotate(self.data, self.degrees, reshape=True, order=5, mode='constant')
+        if self.degrees() == degrees and not force: return
+        self.fits_file[0].header.set('pyspec_rotated_by', value = degrees, comment='Image rotation angle, degrees')
+        self.rotated = scipy.ndimage.interpolation.rotate(self.data, degrees, reshape=True, order=5, mode='constant')
         self.image_view.set_data(self.rotated)
         self.image_view.axes.relim() 
         self.image_view.axes.autoscale_view() 
@@ -142,11 +145,12 @@ class ImportImage(QWidget):
         self.max_spatial_delta = max(delta, self.max_spatial_delta)
         self.max_spatial_delta_angle = degrees if self.max_spatial_delta == delta else self.max_spatial_delta_angle
         
-        self.ui.delta_label.setText("Current rotation degrees: {:.3f}, optimal rotation angle so far: {:.3f} deg".format(self.degrees, self.max_spatial_delta_angle))
+        self.ui.delta_label.setText("Current rotation degrees: {:.3f}, optimal rotation angle so far: {:.3f} deg".format(degrees, self.max_spatial_delta_angle))
         self.draw_plot(self.spectrum_plot.axes, self.spectrum_profile())
         self.draw_plot(self.spatial_plot.axes, self.spatial_profile())
         
-        
+    def degrees(self):
+        return self.fits_file[0].header.get('pyspec_rotated_by', 0)
         
     def draw_plot(self, axes, data):
         axes.clear()
@@ -168,6 +172,5 @@ class ImportImage(QWidget):
         hdu = self.fits_file[0]
         hdu.data = data
         hdu.header['ORIGIN'] = 'PySpectrum'
-        hdu.header['pyspec_rotated_by'] = self.degrees
         self.fits_file.writeto(save_file[0], clobber=True)
     
