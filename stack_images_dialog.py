@@ -8,6 +8,8 @@ from astropy.io import fits
 import scipy.ndimage.interpolation
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import os
+from scipy.stats import pearsonr
+from scipy.interpolate import UnivariateSpline
 
 class StackImagesDialog(QDialog):
     def __init__(self, fits_file, degrees, settings):
@@ -52,15 +54,21 @@ class StackImagesDialog(QDialog):
         spatial = data.sum(1)
         profile = data.sum(0)
         item.setData({'file': fits_file.filename(), 'fits': fits_file, 'data': data, 'spatial': spatial, 'profile': profile})
-        self.files_model.appendRow(item)
+        roots = UnivariateSpline(range(0, len(profile)), profile, s=0.5, k=3).roots()
+        offset = QStandardItem('N/A') # TODO
+        print(roots)
+        quality = QStandardItem("{}".format(roots[1]-roots[0]) )
+        self.files_model.appendRow([item, quality, offset])
         if self.files_model.rowCount() == 1:
             self.__set_ref(0)
         else:
-            # Calculate offset and quality
+            # Calculate offset
             pass
         
     def __set_ref(self, index):
         self.reference = self.files_model.item(index).data()
+        self.start_index = len(self.reference)/4
+        self.end = len(self.reference)/4*3
         
     def closeEvent(self, ev):
         self.settings.setValue('stack_images_dialog', self.saveGeometry())
