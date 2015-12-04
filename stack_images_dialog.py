@@ -10,6 +10,7 @@ from qmathplotwidget import QMathPlotWidget, QImPlotWidget
 import os
 from scipy.stats import pearsonr
 from scipy.interpolate import UnivariateSpline
+import numpy as np
 
 class StackImagesDialog(QDialog):
     def __init__(self, fits_file, degrees, settings):
@@ -54,10 +55,10 @@ class StackImagesDialog(QDialog):
         spatial = data.sum(1)
         profile = data.sum(0)
         item.setData({'file': fits_file.filename(), 'fits': fits_file, 'data': data, 'spatial': spatial, 'profile': profile})
-        roots = UnivariateSpline(range(0, len(profile)), profile, s=0.5, k=3).roots()
+        roots = UnivariateSpline(range(0, len(spatial)), spatial-np.max(spatial)/2, s=0.2, k=3).roots()
         offset = QStandardItem('N/A') # TODO
         print(roots)
-        quality = QStandardItem("{}".format(roots[1]-roots[0]) )
+        quality = QStandardItem("{}".format(roots[1]-roots[-1]) )
         self.files_model.appendRow([item, quality, offset])
         if self.files_model.rowCount() == 1:
             self.__set_ref(0)
