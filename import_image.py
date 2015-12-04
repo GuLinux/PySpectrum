@@ -164,8 +164,8 @@ class ImportImage(QWidget):
         return self.rotated[self.spectrum_span_selection[0]:self.spectrum_span_selection[1]+1,:].sum(0) if hasattr(self, 'spectrum_span_selection') else self.rotated.sum(0)
         
     def show_stack_images_dialog(self):
-        dialog = StackImagesDialog(self.fits_file, self.degrees())
-        dialog.exec()
+        self.stack_images_dialog = StackImagesDialog(self.fits_file, self.degrees(), self.settings)
+        self.stack_images_dialog.show()
         
     def save(self, save_file):
         data = self.spectrum_profile()

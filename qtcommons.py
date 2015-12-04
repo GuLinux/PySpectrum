@@ -12,23 +12,30 @@ class QtCommons:
         parent.layout().addWidget(child)
         return child
     
-    def open_file(title, file_types, on_ok, dir=''):
+    def open_files(title, file_types, on_ok, dir='', parent=None):
         def setup_dialog(dialog):
             dialog.setFileMode(QFileDialog.ExistingFiles)
             dialog.setAcceptMode(QFileDialog.AcceptOpen)
+            dialog.filesSelected.connect(on_ok)
+        QtCommons.__open_dialog__(title, file_types, dir, setup_dialog, parent)
+        
+    def open_file(title, file_types, on_ok, dir='', parent=None):
+        def setup_dialog(dialog):
+            dialog.setFileMode(QFileDialog.ExistingFile)
+            dialog.setAcceptMode(QFileDialog.AcceptOpen)
             dialog.fileSelected.connect(lambda file:on_ok((file,dialog.selectedNameFilter)))
-        QtCommons.__open_dialog__(title, file_types, dir, setup_dialog)
+        QtCommons.__open_dialog__(title, file_types, dir, setup_dialog, parent)
 
-    def save_file(title, file_types, on_ok, dir=''):
+    def save_file(title, file_types, on_ok, dir='', parent=None):
         def setup_dialog(dialog):
             dialog.setFileMode(QFileDialog.AnyFile)
             dialog.setDefaultSuffix('fit')
             dialog.setAcceptMode(QFileDialog.AcceptSave)
             dialog.fileSelected.connect(lambda file:on_ok((file,dialog.selectedNameFilter)))
-        QtCommons.__open_dialog__(title, file_types, dir, setup_dialog)
+        QtCommons.__open_dialog__(title, file_types, dir, setup_dialog, parent)
         
-    def __open_dialog__(title, file_types, dir, setup_dialog):
-        dialog = QFileDialog()
+    def __open_dialog__(title, file_types, dir, setup_dialog, parent=None):
+        dialog = QFileDialog(parent)
         dialog.setNameFilter(file_types)
         dialog.setDirectory(dir)
         dialog.setWindowTitle(title)

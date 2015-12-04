@@ -65,10 +65,14 @@ def saved_directory(key_name, other_keys, default_path, settings):
             return settings.value(key, type=str)
     return default_path if default_path else QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation)
 
-def save_file_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None):
+def save_file_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None, parent=None):
     directory = saved_directory(key_name, other_keys, default_path, settings)
-    QtCommons.save_file(title, file_types, lambda f: save_path(settings, key_name, f, on_ok), directory)
+    QtCommons.save_file(title, file_types, lambda f: save_path(settings, key_name, f, on_ok), directory, parent)
         
-def open_file_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None):
+def open_file_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None, parent=None):
     directory = saved_directory(key_name, other_keys, default_path, settings)
-    QtCommons.open_file(title, file_types, lambda f: save_path(settings, key_name, f, on_ok), directory)
+    QtCommons.open_file(title, file_types, lambda f: save_path(settings, key_name, f, on_ok), directory, parent)
+    
+def open_files_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None, parent=None):
+    directory = saved_directory(key_name, other_keys, default_path, settings)
+    QtCommons.open_files(title, file_types, lambda f: save_path(settings, key_name, f, on_ok), directory, parent)
