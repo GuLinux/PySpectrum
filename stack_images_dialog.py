@@ -58,7 +58,7 @@ class StackImagesDialog(QDialog):
         roots = UnivariateSpline(range(0, len(spatial)), spatial-np.max(spatial)/2, s=0.2, k=3).roots()
         offset = QStandardItem('N/A') # TODO
         print(roots)
-        quality = QStandardItem("{}".format(roots[1]-roots[-1]) )
+        quality = QStandardItem("{}".format(1/(roots[-1]-roots[0])) )
         self.files_model.appendRow([item, quality, offset])
         if self.files_model.rowCount() == 1:
             self.__set_ref(0)
