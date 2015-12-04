@@ -14,7 +14,8 @@ from matplotlib import gridspec
 import matplotlib as plt
 import numpy as np
 import math
-from object_properties import ViewObjectProperties, ObjectProperties
+from object_properties import ObjectProperties
+from object_properties_dialog import ObjectPropertiesDialog
 from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from moveable_label import MoveableLabel
 from lambda2color import *
@@ -54,20 +55,16 @@ class FinishSpectrum(QWidget):
         lines_menu.menu().addAction('Lines Database', lambda: self.lines_dialog.show())
         lines_menu.menu().addAction('Custom line', self.add_custom_line)
         labels_action = QtCommons.addToolbarPopup(self.toolbar, "Labels..")
-        try: 
-            self.object_properties = ObjectProperties(fits_file)
-        except KeyError:
-            self.object_properties = None
-            pass
+        self.object_properties = ObjectProperties(fits_file)
         labels_action.menu().addAction('Title', self.add_title)
         if self.object_properties:
             labels_action.menu().addAction('Information from FITS file', self.add_fits_information_label)
         labels_action.menu().addAction('Custom', self.add_label)
         
-        if self.object_properties:
-            self.object_properties_dialog = ViewObjectProperties.dialog(fits_file)
-            self.toolbar.addSeparator()
-            self.toolbar.addAction("Properties", self.object_properties_dialog.show)
+
+        self.object_properties_dialog = ObjectPropertiesDialog(settings, self.object_properties)
+        self.toolbar.addAction("Object properties", self.object_properties_dialog.show)
+
         self.labels, self.lines = [], []
         for label in self.fits_spectrum.labels():
             self.add_label(text=label['text'], coords=label['coords'], type=label['type'], fontsize=label['fontsize'])
