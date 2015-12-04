@@ -33,7 +33,7 @@ class ObjectProperties:
         self.type=header.get('OBJTYPE')
         self.sptype=header.get('SPTYPE')
         self.observer=header.get('OBSERVER')
-        self.equipment = header.get('INSTRUMENT')
+        self.equipment = header.get('EQUIPMENT')
         self.position=header.get('POSITION')
         self.coordinates = SkyCoord(ra, dec, unit=u.deg)
         

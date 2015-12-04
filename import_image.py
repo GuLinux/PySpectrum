@@ -50,7 +50,7 @@ class ImportImage(QWidget):
         self.toolbar.addAction("Object properties", self.object_properties_dialog.show)
         self.max_spatial_delta = self.max_spatial_delta_angle = self.degrees = 0
         self.__init_rotate_dialog__()
-        self.rotate(0)
+        self.rotate(self.fits_file[0].header.get('pyspec_rotated_by', 0))
         
         
     def background_span_selected(self, min, max):
