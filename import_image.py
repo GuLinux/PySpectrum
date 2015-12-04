@@ -40,13 +40,12 @@ class ImportImage(QWidget):
         
         self.image_view = self.image_plot.axes_image
         
-        self.stack_images_dialog = StackImagesDialog(self.fits_file)
         self.toolbar = QToolBar('Image Toolbar')
         self.toolbar.addAction(QIcon(':/rotate_20'), "Rotate", lambda: self.rotate_dialog.show())
         self.toolbar.addAction(QIcon(':/save_20'), "Save", lambda: save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, RAW_PROFILE ))
         self.toolbar.addAction(QIcon(':/select_all_20'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
-        self.toolbar.addAction('Stack', self.stack_images_dialog.show)
+        self.toolbar.addAction('Stack', self.show_stack_images_dialog)
         self.toolbar.addSeparator()
         self.object_properties = ObjectProperties(self.fits_file)
         self.object_properties_dialog = ObjectPropertiesDialog(settings, self.object_properties)
@@ -163,6 +162,10 @@ class ImportImage(QWidget):
     
     def spectrum_profile(self):
         return self.rotated[self.spectrum_span_selection[0]:self.spectrum_span_selection[1]+1,:].sum(0) if hasattr(self, 'spectrum_span_selection') else self.rotated.sum(0)
+        
+    def show_stack_images_dialog(self):
+        dialog = StackImagesDialog(self.fits_file, self.degrees())
+        dialog.exec()
         
     def save(self, save_file):
         data = self.spectrum_profile()
