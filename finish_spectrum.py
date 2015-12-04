@@ -28,6 +28,12 @@ class FinishSpectrum(QWidget):
         self.ui.setupUi(self)
         self.profile_line = None
         self.fits_spectrum = FitsSpectrum(fits_file)
+        try:
+            fits_file.index_of('ORIGINAL_DATA')
+        except KeyError:
+            hdu = fits.ImageHDU(data = fits_file[0].data, header = fits_file[0].header, name='ORIGINAL_DATA')
+            fits_file.append(hdu)
+
         self.fits_spectrum.spectrum.normalize_to_max()
         self.spectrum = self.fits_spectrum.spectrum
         self.spectrum_plot = QtCommons.nestWidget(self.ui.plot, QMathPlotWidget())

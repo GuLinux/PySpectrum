@@ -70,3 +70,4 @@ class ObjectPropertiesDialog(QDialog):
       if evt.key() == Qt.Key_Enter or evt.key() == Qt.Key_Return:
         return
         QDialog.keyPressEvent(self.evt)
+        
