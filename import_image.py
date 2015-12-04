@@ -54,6 +54,9 @@ class ImportImage(QWidget):
         self.__init_rotate_dialog__()
         self.rotate(self.degrees(), force=True)
         
+    def __init_data(self):
+        pass
+        
         
     def background_span_selected(self, min, max):
         self.background_span_selection = (min, max)
@@ -166,6 +169,7 @@ class ImportImage(QWidget):
     def show_stack_images_dialog(self):
         self.stack_images_dialog = StackImagesDialog(self.fits_file, self.degrees(), self.settings)
         self.stack_images_dialog.show()
+        self.stack_images_dialog.accepted.connect(lambda: self.fits_file.writeto('/tmp/median.fit', clobber=True))
         
     def save(self, save_file):
         data = self.spectrum_profile()
