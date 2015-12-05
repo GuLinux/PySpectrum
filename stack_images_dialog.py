@@ -129,7 +129,7 @@ class MedianStacker:
         self.matrices = matrices
         
     def final_shape(self):
-        offsets = ([x['offset']['x'] for x in self.matrices], [y['offset']['y'] for y in self.matrices])
+        offsets = ( [y['offset']['y'] for y in self.matrices], [x['offset']['x'] for x in self.matrices] )
         offsets = (min(offsets[0]), max(offsets[0]), min(offsets[1]), max(offsets[1]))
         shape = self.matrices[0]['data'].shape
         return {'shape': (shape[0] - offsets[0] + offsets[1], shape[1] - offsets[2] + offsets[3]), 'zero': (-offsets[0],-offsets[2]) }

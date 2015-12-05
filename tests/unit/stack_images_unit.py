@@ -20,11 +20,11 @@ class TestSpectrum(unittest.TestCase):
         self.assertEqual(stacker.final_shape()['shape'], (2,3))
         self.assertEqual(stacker.final_shape()['zero'], (0,0))
         stacker = MedianStacker(self.two_matrices_data)
-        self.assertEqual(stacker.final_shape()['shape'], (4,6))
-        self.assertEqual(stacker.final_shape()['zero'], (0,3))
+        self.assertEqual(stacker.final_shape()['shape'], (5,5))
+        self.assertEqual(stacker.final_shape()['zero'], (3,0))
         stacker = MedianStacker(self.three_matrices_data)
-        self.assertEqual(stacker.final_shape()['shape'], (8,13))
-        self.assertEqual(stacker.final_shape()['zero'], (4,3))
+        self.assertEqual(stacker.final_shape()['shape'], (12,9))
+        self.assertEqual(stacker.final_shape()['zero'], (3,4))
         
     @unittest.skip("rework indexes first")
     def test_data_reposition(self):
