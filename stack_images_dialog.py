@@ -114,6 +114,38 @@ class StackImagesDialog(QDialog):
         QDialog.closeEvent(self, ev)
         
     def stack(self):
-        #for item in [i for i in in self.__files_data() if self.reference['file'] != i['file']]:
+        dataset = self.__files_data()
+        offsets = ([x['offset']['x'] for x in dataset], [y['offset']['y'] for y in dataset])
+        shape = dataset[0]['data'].shape
+        offsets = (min(offsets[0]), max(offsets[0]), min(offsets[1]), max(offsets[1]))
+        print(offsets)
+        #base_indexes = (0-offsets[0[, shape[0])
+        #for data in datasets:
+        #    print('{}, {}'.format(data['offset']['x'], data['offset']['y']))
         self.fits_file[0].data = np.median([i['data'] for i in self.__files_data()], axis=0)
+        
+class MedianStacker:
+    def __init__(self, matrices):
+        self.matrices = matrices
+        
+    def final_shape(self):
+        offsets = ([x['offset']['x'] for x in self.matrices], [y['offset']['y'] for y in self.matrices])
+        offsets = (min(offsets[0]), max(offsets[0]), min(offsets[1]), max(offsets[1]))
+        shape = self.matrices[0]['data'].shape
+        return {'shape': (shape[0] - offsets[0] + offsets[1], shape[1] - offsets[2] + offsets[3]), 'zero': (-offsets[0],-offsets[2]) }
+    
+    def data_reposition(self, data, shape_offset):
+        shape = shape_offset['shape']
+        ret = np.zeros(shape[0]*shape[1]).reshape(shape)
+        print(data['offset'])
+        print(shape_offset['zero'])
+        rows_offset = data['offset']['y'] + shape_offset['zero'][0]
+        cols_offset = data['offset']['x'] + shape_offset['zero'][1]
+        print("{}, {}".format(rows_offset, cols_offset))
+        rows = [rows_offset, data['data'].shape[0] + rows_offset]
+        cols = [cols_offset, data['data'].shape[1] + cols_offset]
+        print("{}, {}".format(rows, cols))
+        ret[rows[0]:rows[1], cols[0]:cols[1]] = data['data']
+        return ret
+        
             

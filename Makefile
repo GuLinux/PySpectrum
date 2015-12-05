@@ -48,7 +48,7 @@ run: all
 	
 .PHONY: unit_tests
 unit_tests: all
-	python3 -m unittest tests/unit/fits_spectrum_unit.py
+	python -m unittest discover -s tests/unit/ -p "*.py"
 
 .PHONY: tests
 tests: unit_tests
