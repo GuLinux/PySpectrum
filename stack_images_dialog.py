@@ -64,16 +64,28 @@ class StackImagesDialog(QDialog):
         data = scipy.ndimage.interpolation.rotate(data, self.degrees, reshape=True, order=5, mode='constant')
         spatial = data.sum(1)
         profile = data.sum(0)
-        item.setData({'file': fits_file.filename(), 'fits': fits_file, 'data': data, 'spatial': spatial, 'profile': profile})
         roots = UnivariateSpline(range(0, len(spatial)), spatial-np.max(spatial)/2, s=0.2, k=3).roots()
+        quality = roots[1]-roots[0]
+        item.setData({'file': fits_file.filename(), 'fits': fits_file, 'data': data, 'spatial': spatial, 'profile': profile, 'quality': quality})
+        
         offset = QStandardItem('N/A') # TODO
 
-        quality = QStandardItem("{}".format(4/(roots[-1]-roots[0])) )
-        self.files_model.appendRow([item, quality, offset])
+        quality_item = QStandardItem("")
+        self.files_model.appendRow([item, quality_item, offset])
         if self.files_model.rowCount() == 1:
             self.__set_ref(0)
         else:
             self.align(item.data())
+        self.__update_qualities()
+        
+    def __update_qualities(self):
+        qualities = [d['quality'] for d in self.__files_data()]
+        self.qualities = (min(qualities), max(qualities))
+        for index in range(0, self.files_model.rowCount()):
+            self.files_model.item(index, 1).setText("{}%".format(self.__quality_percent(self.files_model.item(index).data()['quality'])))
+        
+    def __quality_percent(self, quality):
+        return 100. - (100. * (quality-self.qualities[0]) / (self.qualities[1]-self.qualities[0]))
         
     def align(self, data):
         if data['file'] == self.reference['file']:
@@ -95,7 +107,7 @@ class StackImagesDialog(QDialog):
         return [self.files_model.item(i).data() for i in range(0, self.files_model.rowCount())]
         
     def __remove_selected_rows(self):
-        for row in [r.row() for r in self.ui.files.selectionModel().selectedRows()]:
+        for row in sorted([r.row() for r in self.ui.files.selectionModel().selectedRows()], reverse=True):
             self.files_model.removeRows(row, 1)
         if self.files_model.rowCount() == 0:
             return
@@ -115,14 +127,8 @@ class StackImagesDialog(QDialog):
         
     def stack(self):
         dataset = self.__files_data()
-        offsets = ([x['offset']['x'] for x in dataset], [y['offset']['y'] for y in dataset])
-        shape = dataset[0]['data'].shape
-        offsets = (min(offsets[0]), max(offsets[0]), min(offsets[1]), max(offsets[1]))
-        print(offsets)
-        #base_indexes = (0-offsets[0[, shape[0])
-        #for data in datasets:
-        #    print('{}, {}'.format(data['offset']['x'], data['offset']['y']))
-        self.fits_file[0].data = np.median([i['data'] for i in self.__files_data()], axis=0)
+        median = MedianStacker(dataset).median()
+        self.fits_file[0].data = median
         
 class MedianStacker:
     def __init__(self, matrices):
