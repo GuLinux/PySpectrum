@@ -26,7 +26,6 @@ class TestSpectrum(unittest.TestCase):
         self.assertEqual(stacker.final_shape()['shape'], (12,9))
         self.assertEqual(stacker.final_shape()['zero'], (3,4))
         
-    @unittest.skip("rework indexes first")
     def test_data_reposition(self):
         stacker = MedianStacker([])
         input = self.three_matrices_data[0]
@@ -44,9 +43,15 @@ class TestSpectrum(unittest.TestCase):
         input = self.three_matrices_data[1]
         data = input['data']
         expected = np.zeros(4*6).reshape(4,6)
-        expected[2:5,0:3]=data
-        print(expected)
-        assert_array_equal(stacker.data_reposition(input, {'zero': (0,3), 'shape': (4,6)}), expected)
+        expected[0:2,2:5]=data
+        assert_array_equal(stacker.data_reposition(input, {'zero': (3,0), 'shape': (4,6)}), expected)
+        
+        input = self.three_matrices_data[2]
+        data = input['data']
+        expected = np.zeros(12*9).reshape(12,9)
+        expected[10:12,0:3]=data
+        actual = stacker.data_reposition(input, {'zero': (3,4), 'shape': (12,9)})
+        assert_array_equal(actual, expected)
         
         
 

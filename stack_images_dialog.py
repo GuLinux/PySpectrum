@@ -137,14 +137,11 @@ class MedianStacker:
     def data_reposition(self, data, shape_offset):
         shape = shape_offset['shape']
         ret = np.zeros(shape[0]*shape[1]).reshape(shape)
-        print(data['offset'])
-        print(shape_offset['zero'])
         rows_offset = data['offset']['y'] + shape_offset['zero'][0]
         cols_offset = data['offset']['x'] + shape_offset['zero'][1]
-        print("{}, {}".format(rows_offset, cols_offset))
+        #print("{}, {}".format(rows_offset, cols_offset))
         rows = [rows_offset, data['data'].shape[0] + rows_offset]
         cols = [cols_offset, data['data'].shape[1] + cols_offset]
-        print("{}, {}".format(rows, cols))
         ret[rows[0]:rows[1], cols[0]:cols[1]] = data['data']
         return ret
         
