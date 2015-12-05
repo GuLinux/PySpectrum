@@ -53,7 +53,20 @@ class TestSpectrum(unittest.TestCase):
         actual = stacker.data_reposition(input, {'zero': (3,4), 'shape': (12,9)})
         assert_array_equal(actual, expected)
         
+    def test_median_single(self):
+        stacker = MedianStacker(self.single_matrix_data)
+        assert_array_equal(stacker.median(), self.single_matrix_data[0]['data'])
         
+    def test_median(self):
+        stacker = MedianStacker([self.two_matrices_data[0], self.two_matrices_data[0], self.two_matrices_data[1]])
+        expected = np.zeros(25).reshape(5,5)
+        expected[3:5,0:3] = np.arange(1,7).reshape(2,3)
+        assert_array_equal(stacker.median(), expected)
+        
+        stacker = MedianStacker([self.two_matrices_data[0], self.two_matrices_data[1], self.two_matrices_data[1]])
+        expected = np.zeros(25).reshape(5,5)
+        expected[0:2,2:5] = np.arange(3,9).reshape(2,3)
+        assert_array_equal(stacker.median(), expected)
 
 if __name__ == '__main__':
     unittest.main()

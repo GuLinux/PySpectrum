@@ -139,10 +139,14 @@ class MedianStacker:
         ret = np.zeros(shape[0]*shape[1]).reshape(shape)
         rows_offset = data['offset']['y'] + shape_offset['zero'][0]
         cols_offset = data['offset']['x'] + shape_offset['zero'][1]
-        #print("{}, {}".format(rows_offset, cols_offset))
+
         rows = [rows_offset, data['data'].shape[0] + rows_offset]
         cols = [cols_offset, data['data'].shape[1] + cols_offset]
         ret[rows[0]:rows[1], cols[0]:cols[1]] = data['data']
         return ret
         
+    def median(self):
+        final_shape = self.final_shape()
+        data = np.array([self.data_reposition(d, final_shape) for d in self.matrices])
+        return np.median(data, axis=0)
             
