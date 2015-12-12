@@ -9,6 +9,7 @@ from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from reference_catalogues import ReferenceCatalogues
 
 class HomePage(QWidget):
+    stack_images = pyqtSignal(str)
     import_image = pyqtSignal(str)
     calibrate = pyqtSignal(str)
     math = pyqtSignal(str)
@@ -27,6 +28,7 @@ class HomePage(QWidget):
         self.ui.welcome_label.setText(self.ui.welcome_label.text().format(welcome_text))
         file_action = QtCommons.addToolbarPopup(self.toolbar, 'File', icon_file=':/file_20')
         project_action = QtCommons.addToolbarPopup(self.toolbar, 'Project', icon_file=':/project_20')
+        file_action.menu().addAction(QIcon(':/stack_20'), 'Stack Images', lambda: open_file_sticky('Open Reference FITS Image',FITS_IMG_EXTS, lambda f: self.stack_images.emit(f[0]), settings, IMPORT_IMG ))
         file_action.menu().addAction(QIcon(':/image_20'), 'Import Image', lambda: open_file_sticky('Open FITS Image',FITS_IMG_EXTS, lambda f: self.import_image.emit(f[0]), settings, IMPORT_IMG ))
         file_action.menu().addAction(QIcon(':/plot_20'), 'Calibrate Spectrum', lambda: open_file_sticky('Open raw FITS Spectrum',FITS_EXTS, lambda f: self.calibrate.emit(f[0]), settings, RAW_PROFILE, [IMPORT_IMG] ))
         file_action.menu().addAction(QIcon(':/math_20'), 'Spectra Math', lambda: self.math.emit(None) )

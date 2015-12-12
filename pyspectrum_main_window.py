@@ -15,6 +15,7 @@ from matplotlib import rc
 from PyQt5.QtWidgets import QApplication
 import resources
 from project_dialog import ProjectDialog
+from stack_images import StackImages
 from homepage import HomePage
 
 class PySpectrumMainWindow(QMainWindow):
@@ -38,6 +39,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.homepage.math.connect(self.plots_math)
         self.homepage.finish.connect(self.finish_spectrum)
         self.homepage.new_project.connect(self.__new_project)
+        self.homepage.stack_images.connect(self.__stack_images)
 
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
@@ -72,6 +74,11 @@ class PySpectrumMainWindow(QMainWindow):
     def open_image(self, file):
         fits_file = self.open_fits(file, "open_image")
         self.__add_widget(ImportImage(fits_file, self.settings), 'Import Image - {}'.format(os.path.basename(file)))
+        
+    def __stack_images(self, file):
+        fits_file = self.open_fits(file, "open_image")
+        self.__add_widget(StackImages(fits_file, self.settings), 'Stack Images')
+        
     
     def calibrate(self, file):
         fits_file = self.open_fits(file, 'open_spectrum')

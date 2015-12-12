@@ -11,7 +11,6 @@ import numpy as np
 from astropy.io import fits
 from object_properties_dialog import ObjectPropertiesDialog
 from object_properties import ObjectProperties
-from stack_images_dialog import StackImagesDialog
 from rotate_image_dialog import RotateImageDialog
 
 class ImportImage(QWidget):
@@ -45,7 +44,7 @@ class ImportImage(QWidget):
         self.toolbar.addAction(QIcon(':/save_20'), "Save", lambda: save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, RAW_PROFILE ))
         self.toolbar.addAction(QIcon(':/select_all_20'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
-        self.toolbar.addAction('Stack', self.show_stack_images_dialog)
+        #self.toolbar.addAction('Stack', self.show_stack_images_dialog)
         self.toolbar.addSeparator()
         self.object_properties = ObjectProperties(self.fits_file)
         self.object_properties_dialog = ObjectPropertiesDialog(settings, self.object_properties)
@@ -84,12 +83,7 @@ class ImportImage(QWidget):
     
     def spectrum_profile(self):
         return self.rotate_dialog.data_rotated[self.spectrum_span_selection[0]:self.spectrum_span_selection[1]+1,:].sum(0) if hasattr(self, 'spectrum_span_selection') else self.rotate_dialog.data_rotated.sum(0)
-        
-    def show_stack_images_dialog(self):
-        self.stack_images_dialog = StackImagesDialog(self.fits_file, self.rotate_dialog.degrees(), self.settings)
-        self.stack_images_dialog.show()
-        self.stack_images_dialog.accepted.connect(lambda: self.fits_file.writeto('/tmp/median.fit', clobber=True))
-        
+                
     def save(self, save_file):
         data = self.spectrum_profile()
         data -= np.amin(data)

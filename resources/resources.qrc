@@ -16,5 +16,6 @@
         <file>rotate_20.png</file>
         <file>save_20.png</file>
         <file>select_all_20.png</file>
+        <file>stack_20.png</file>
     </qresource>
 </RCC>

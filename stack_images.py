@@ -1,4 +1,4 @@
-from pyui.stack_images_dialog import Ui_StackImagesDialog
+from pyui.stack_images import Ui_StackImages
 from PyQt5.QtWidgets import QDialog, QAction, QLineEdit, QFileDialog, QProgressDialog, QApplication, QToolBar
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QStandardPaths, QByteArray
@@ -12,26 +12,25 @@ from scipy.stats import pearsonr
 from scipy.interpolate import UnivariateSpline
 import numpy as np
 
-class StackImagesDialog(QDialog):
-    def __init__(self, fits_file, degrees, settings):
-        QDialog.__init__(self)
+class StackImages(QWidget):
+    def __init__(self, fits_file, settings):
+        QWidget.__init__(self)
         self.fits_file = fits_file
-        self.ui = Ui_StackImagesDialog()
+        self.ui = Ui_StackImages()
         self.ui.setupUi(self)
         self.settings = settings
-        self.restoreGeometry(self.settings.value('stack_images_dialog', QByteArray()))
-        self.degrees = degrees
+        self.degrees = 0. # TODO 
         self.files_model = QStandardItemModel()
         self.ui.files.setModel(self.files_model)
         self.__add_file(fits_file)
         self.plot = QtCommons.nestWidget(self.ui.plot, QImPlotWidget(self.reference['data'], cmap='gray'))
-        self.toolbar = QtCommons.nestWidget(self.ui.toolbar_wrapper, QToolBar())
+        self.toolbar = QToolBar()
         self.add = self.toolbar.addAction('Add', lambda: open_files_sticky('Open FITS Images',FITS_IMG_EXTS, self.__open, settings, IMPORT_IMG, parent=self ))
         self.remove = self.toolbar.addAction('Remove', self.__remove_selected_rows)
         self.reference_action = self.toolbar.addAction('Reference', lambda: self.__set_ref(self.ui.files.selectionModel().selectedRows()[0].row() ) )
         self.ui.files.selectionModel().selectionChanged.connect(lambda sel, unsel: self.__selection_changed() )
         self.ui.files.clicked.connect(self.__draw_image)
-        self.accepted.connect(self.stack)
+        #self.accepted.connect(self.stack)
         self.__selection_changed()
         
     def __selection_changed(self):
@@ -122,10 +121,6 @@ class StackImagesDialog(QDialog):
         self.reference_indexes = { 'h': indexes(self.reference['profile']), 'v': indexes(self.reference['spatial']) }
         for data in self.__files_data() :
             self.align(data)
-        
-    def closeEvent(self, ev):
-        self.settings.setValue('stack_images_dialog', self.saveGeometry())
-        QDialog.closeEvent(self, ev)
         
     def stack(self):
         dataset = self.__files_data()
