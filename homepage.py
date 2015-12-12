@@ -15,6 +15,7 @@ class HomePage(QWidget):
     math = pyqtSignal(str)
     finish = pyqtSignal(str)
     new_project = pyqtSignal()
+    open_project = pyqtSignal(str)
 
     def __init__(self, settings, database):
         QWidget.__init__(self)
@@ -39,8 +40,10 @@ class HomePage(QWidget):
         
         self.recent_raw_model = QStandardItemModel()
         self.recent_calibrated_model = QStandardItemModel()
+        self.recent_projects_model = QStandardItemModel()
         self.ui.recent_raw_list.setModel(self.recent_raw_model)
         self.ui.recent_calibrated_list.setModel(self.recent_calibrated_model)
+        self.ui.recent_projects.setModel(self.recent_projects_model)
         LastFilesList.instance().files_changed.connect(self.__populate_lists)
         selected_path = lambda model, view: model.item(view.selectionModel().selectedRows()[0].row()).data()
         button_enable = lambda view, button: view.selectionModel().selectionChanged.connect(lambda sel, desel: button.setEnabled(len(sel.indexes() )) )
@@ -48,9 +51,11 @@ class HomePage(QWidget):
         button_enable(self.ui.recent_raw_list, self.ui.calibrate)
         button_enable(self.ui.recent_calibrated_list, self.ui.math)
         button_enable(self.ui.recent_calibrated_list, self.ui.finish)
+        button_enable(self.ui.recent_projects, self.ui.open_recent_project)
         self.ui.calibrate.clicked.connect(lambda: self.calibrate.emit(selected_path(self.recent_raw_model, self.ui.recent_raw_list)))
         self.ui.math.clicked.connect(lambda: self.math.emit(selected_path(self.recent_calibrated_model, self.ui.recent_calibrated_list)))
         self.ui.finish.clicked.connect(lambda: self.finish.emit(selected_path(self.recent_calibrated_model, self.ui.recent_calibrated_list)))
+        self.ui.open_recent_project.clicked.connect(lambda: self.open_project.emit(selected_path(self.recent_projects_model, self.ui.recent_projects)))
         
         self.reference_catalogues = ReferenceCatalogues(database)
         
@@ -58,7 +63,7 @@ class HomePage(QWidget):
         self.__populate_lists()
 
     def __populate_lists(self):
-        for key, model in [(RAW_PROFILE, self.recent_raw_model), (CALIBRATED_PROFILE, self.recent_calibrated_model)]:
+        for key, model in [(RAW_PROFILE, self.recent_raw_model), (CALIBRATED_PROFILE, self.recent_calibrated_model), (PROJECTS, self.recent_projects_model)]:
             model.clear()
             for name, dir, path in LastFilesList.instance().last_files(key):
                 model.setHorizontalHeaderLabels(["File", "Directory"])

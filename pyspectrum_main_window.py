@@ -17,6 +17,7 @@ import resources
 from project_dialog import ProjectDialog
 from stack_images import StackImages
 from homepage import HomePage
+from project_widget import ProjectWidget
 
 class PySpectrumMainWindow(QMainWindow):
     def __init__(self):
@@ -118,4 +119,6 @@ class PySpectrumMainWindow(QMainWindow):
         
     def __new_project(self):
         dialog = ProjectDialog(self.settings)
-        dialog.exec()
+        if dialog.exec() == QDialog.Accepted:
+            LastFilesList.instance().add_file(PROJECTS, dialog.project.path)
+            self.__add_widget(ProjectWidget(dialog.project), dialog.project.get_name())

@@ -212,6 +212,34 @@
          <number>0</number>
         </property>
         <item>
+         <widget class="QPushButton" name="new_project">
+          <property name="text">
+           <string>New</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/project_new_20.png</normaloff>:/project_new_20.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="open_project">
+          <property name="text">
+           <string>Open</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/folder_open_20.png</normaloff>:/folder_open_20.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -225,12 +253,16 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="open_project">
+         <widget class="QPushButton" name="open_recent_project">
           <property name="enabled">
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Open</string>
+           <string>Load</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/new_open_20.png</normaloff>:/new_open_20.png</iconset>
           </property>
           <property name="flat">
            <bool>true</bool>
@@ -242,8 +274,11 @@
       <item>
        <widget class="QTableView" name="recent_projects">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
        </widget>
       </item>
      </layout>

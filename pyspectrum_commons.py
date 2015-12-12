@@ -12,6 +12,7 @@ EXPORT_IMAGES = "export_image"
 CALIBRATED_PROFILE = "calibrated_profile"
 REFERENCE = "reference_spectrum"
 MATH_OPERATION = "math_operation"
+PROJECTS = "projects"
 
 from PyQt5.QtWidgets import QInputDialog
 
