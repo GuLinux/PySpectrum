@@ -49,6 +49,7 @@ class ImportImage(QWidget):
         self.object_properties = ObjectProperties(self.fits_file)
         self.object_properties_dialog = ObjectPropertiesDialog(settings, self.object_properties)
         self.toolbar.addAction("Object properties", self.object_properties_dialog.show)
+        self.rotated()
         
     def rotated(self):
         self.image_view.set_data(self.rotate_dialog.data_rotated)

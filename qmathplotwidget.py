@@ -70,16 +70,17 @@ class QMathPlotWidgetBase(FigureCanvas):
         self.add_element(self.axes.axvspan(min,max, **kwargs) if type == 'v' else self.axes.axhspan(min, max, **kwargs), name)
 
     def add_span_selector(self, name, callback, axes = None, **kwargs):
-        def on_selected(self, name, callback, min, max):
-            self.elements[name].set_active(False)
-            self.rm_element(name)
-            callback(min, max)
         axes = axes if axes else self.axes
-        self.add_element(SpanSelector(axes, lambda min, max: on_selected(self, name, callback, min, max), **kwargs), name)
+        self.add_element(SpanSelector(axes, lambda min, max: self.__on_selected(name, callback, min, max), **kwargs), name)
         
     def add_rectangle_selector(self, name, callback, axes = None, **kwargs):
         axes = axes if axes else self.axes
-        self.add_element(RectangleSelector(axes, callback, **kwargs), name)
+        self.add_element(RectangleSelector(axes, lambda eclick, erelease: self.__on_selected(name, callback, eclick, erelease), **kwargs), name)
+        
+    def __on_selected(self, name, callback, *args):
+        self.elements[name].set_active(False)
+        self.rm_element(name)
+        callback(*args)
 
 class QMathPlotWidget(QMathPlotWidgetBase):
     def __init__(self, **kwargs):

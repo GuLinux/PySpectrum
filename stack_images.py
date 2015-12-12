@@ -11,6 +11,8 @@ import os
 from scipy.stats import pearsonr
 from scipy.interpolate import UnivariateSpline
 import numpy as np
+from matplotlib.patches import Rectangle
+from rotate_image_dialog import RotateImageDialog
 
 class StackImages(QWidget):
     def __init__(self, fits_file, settings):
@@ -21,15 +23,19 @@ class StackImages(QWidget):
         self.settings = settings
         self.degrees = 0. # TODO 
         self.files_model = QStandardItemModel()
+        self.files_model.setHorizontalHeaderLabels(['File', 'Quality', 'Align'])
         self.ui.files.setModel(self.files_model)
-        self.__add_file(fits_file)
-        self.plot = QtCommons.nestWidget(self.ui.plot, QImPlotWidget(self.reference['data'], cmap='gray'))
+        self.__add_file_to_model(fits_file)
+        self.plot = QtCommons.nestWidget(self.ui.plot, QImPlotWidget(self.__files_data()[0]['data'], cmap='gray'))
+        self.__set_ref(0)
         self.toolbar = QToolBar()
         self.add = self.toolbar.addAction('Add', lambda: open_files_sticky('Open FITS Images',FITS_IMG_EXTS, self.__open, settings, IMPORT_IMG, parent=self ))
         self.remove = self.toolbar.addAction('Remove', self.__remove_selected_rows)
         self.reference_action = self.toolbar.addAction('Reference', lambda: self.__set_ref(self.ui.files.selectionModel().selectedRows()[0].row() ) )
+        self.toolbar.addAction('Select alignment region', lambda: self.plot.add_rectangle_selector('select_align', self.__alignment_region_selected))
+        self.toolbar.addAction('Rotate', lambda: self.rotate_dialog.show() )
         self.ui.files.selectionModel().selectionChanged.connect(lambda sel, unsel: self.__selection_changed() )
-        self.ui.files.clicked.connect(self.__draw_image)
+        self.ui.files.clicked.connect(lambda index: self.__draw_image(index.row()))
         #self.accepted.connect(self.stack)
         self.__selection_changed()
         
@@ -40,7 +46,7 @@ class StackImages(QWidget):
         
     def __draw_image(self,index):
         image_view = self.plot.axes_image
-        image_view.set_data(self.files_model.item(index.row()).data()['data'])
+        image_view.set_data(self.files_model.item(index).data()['data'])
         image_view.figure.canvas.draw()
         
     def __open(self, files):
@@ -57,7 +63,7 @@ class StackImages(QWidget):
     def __row_index(self, data):
         return [i for i, d in enumerate(self.__files_data()) if d['file'] == data['file']][0]
     
-    def __add_file(self, fits_file):
+    def __add_file_to_model(self, fits_file):
         item = QStandardItem(os.path.basename(fits_file.filename()))
         data = fits_file[0].data
         data = scipy.ndimage.interpolation.rotate(data, self.degrees, reshape=True, order=5, mode='constant')
@@ -71,6 +77,10 @@ class StackImages(QWidget):
 
         quality_item = QStandardItem("")
         self.files_model.appendRow([item, quality_item, offset])
+        return item
+    
+    def __add_file(self, fits_file):
+        item = self.__add_file_to_model(fits_file)
         if self.files_model.rowCount() == 1:
             self.__set_ref(0)
         else:
@@ -91,7 +101,7 @@ class StackImages(QWidget):
             self.__update_offset(data, (0, 0))
             return
         print("{} shape: {}".format(data['file'], data['data'].shape))
-        offset_range = lambda n: range(1-n, n-1)
+        offset_range = lambda n: range(1-int(n), int(n)-1)
         offsets = lambda name, indexes: [ (pearsonr(self.reference[name][indexes[0]:indexes[1]], data[name][indexes[0]-offset:indexes[1]-offset] )[0], offset) for offset in offset_range(indexes[0]) ]
         x_offset = sorted(offsets('profile', self.reference_indexes['h']), key=lambda x: x[0])[-1]
         y_offset = sorted(offsets('spatial', self.reference_indexes['v']), key=lambda y: y[0])[-1]
@@ -116,11 +126,36 @@ class StackImages(QWidget):
             
     def __set_ref(self, index):
         self.reference = self.files_model.item(index).data()
+        self.rotate_dialog = RotateImageDialog(self.fits_file, 0)
+        self.rotate_dialog.rotated.connect(self.__rotated)
         print("*ref: {} shape: {}".format(self.reference['file'], self.reference['data'].shape))
         indexes = lambda data: (int(len(data)/4), int(len(data)/4*3))
-        self.reference_indexes = { 'h': indexes(self.reference['profile']), 'v': indexes(self.reference['spatial']) }
+        self.__set_reference_indexes(indexes(self.reference['profile']), indexes(self.reference['spatial']) )
+        #self.reference_indexes = { 'h': indexes(self.reference['profile']), 'v': indexes(self.reference['spatial']) }
         for data in self.__files_data() :
             self.align(data)
+            
+    def __rotated(self):
+        self.degrees = self.rotate_dialog.degrees()
+        for index in range(0, self.files_model.rowCount()):
+            self.files_model.removeRow(index)
+        self.__add_file(self.fits_file)
+        self.__draw_image(0)
+            
+    def __alignment_region_selected(self, eclick, erelease):
+        self.__set_reference_indexes((eclick.xdata, erelease.xdata), (eclick.ydata, erelease.ydata))
+        
+    def __set_reference_indexes(self, x, y):
+        self.reference_indexes = { 'h': x, 'v': y }
+        self.__draw_reference_rect()
+        
+    def __draw_reference_rect(self):
+        self.plot.rm_element('reference_indexes')
+        x, y = self.reference_indexes['h'], self.reference_indexes['v']
+        rect = Rectangle((x[0], y[0]), x[1]-x[0], y[1]-y[0], fill=True, alpha=0.3, color='green')
+        self.plot.figure.axes[0].add_artist(rect)
+        self.plot.add_element(rect, 'reference_indexes')
+        self.plot.figure.canvas.draw()
         
     def stack(self):
         dataset = self.__files_data()
