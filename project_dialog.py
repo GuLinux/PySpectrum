@@ -14,8 +14,14 @@ class ProjectDialog(QDialog):
         pick_path_action = QAction(QIcon(':/folder_open_20'), None, self.ui.path)
         pick_path_action.triggered.connect(self.__pick_path)
         self.ui.path.addAction(pick_path_action, QLineEdit.TrailingPosition)
-        self.project = Project()
-        self.ui.path.textChanged.connect(lambda t: self.project.set_path(t))
+        self.project = project if project else Project()
+        self.ui.path.textChanged.connect(self.project.set_path)
+        self.ui.name.textChanged.connect(self.project.set_name)
+        self.ui.observer.textChanged.connect(self.project.set_observer)
+        self.ui.position.textChanged.connect(self.project.set_position)
+        self.ui.equipment.textChanged.connect(self.project.set_equipment)
+        self.ui.date.dateChanged.connect(self.project.set_date)
+        self.accepted.connect(self.project.save)
         
         
     def __pick_path(self):

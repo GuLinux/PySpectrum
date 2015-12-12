@@ -7,13 +7,23 @@
     <x>0</x>
     <y>0</y>
     <width>361</width>
-    <height>225</height>
+    <height>260</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Project</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="7" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
@@ -34,37 +44,41 @@
    <item row="1" column="1">
     <widget class="QLineEdit" name="path"/>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Observer</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item row="4" column="1">
+    <widget class="QDateEdit" name="date">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
     <widget class="QLineEdit" name="observer"/>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Date</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QDateEdit" name="date"/>
+   <item row="5" column="1">
+    <widget class="QLineEdit" name="equipment"/>
    </item>
-   <item row="4" column="0">
+   <item row="5" column="0">
     <widget class="QLabel" name="label_5">
      <property name="text">
       <string>Equipment</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="1">
-    <widget class="QLineEdit" name="equipment"/>
-   </item>
-   <item row="5" column="1">
+   <item row="6" column="1">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -77,18 +91,26 @@
      </property>
     </spacer>
    </item>
-   <item row="6" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_6">
+     <property name="text">
+      <string>Position</string>
      </property>
     </widget>
    </item>
+   <item row="2" column="1">
+    <widget class="QLineEdit" name="position"/>
+   </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>name</tabstop>
+  <tabstop>path</tabstop>
+  <tabstop>position</tabstop>
+  <tabstop>observer</tabstop>
+  <tabstop>date</tabstop>
+  <tabstop>equipment</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
