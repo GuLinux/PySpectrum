@@ -162,3 +162,4 @@ class Ui_HomePage(object):
         self.open_recent_project.setText(_translate("HomePage", "Load"))
         self.download_catalogs.setText(_translate("HomePage", "Download Catalogs..."))
 
+import resources_rc

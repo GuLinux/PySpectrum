@@ -127,3 +127,4 @@ class Ui_CalibrateSpectrum(object):
         self.set_dispersion.setText(_translate("CalibrateSpectrum", "Set dispersion"))
         self.add_calibration_point.setText(_translate("CalibrateSpectrum", "Add calibration point"))
 
+import resources_rc

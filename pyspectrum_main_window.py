@@ -13,7 +13,7 @@ from pyspectrum_commons import *
 import sqlite3
 from matplotlib import rc
 from PyQt5.QtWidgets import QApplication
-import resources
+import resources_rc
 from project_dialog import ProjectDialog
 from stack_images import StackImages
 from homepage import HomePage
