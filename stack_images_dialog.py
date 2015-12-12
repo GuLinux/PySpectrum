@@ -91,6 +91,7 @@ class StackImagesDialog(QDialog):
         if data['file'] == self.reference['file']:
             self.__update_offset(data, (0, 0))
             return
+        print("{} shape: {}".format(data['file'], data['data'].shape))
         offset_range = lambda n: range(1-n, n-1)
         offsets = lambda name, indexes: [ (pearsonr(self.reference[name][indexes[0]:indexes[1]], data[name][indexes[0]-offset:indexes[1]-offset] )[0], offset) for offset in offset_range(indexes[0]) ]
         x_offset = sorted(offsets('profile', self.reference_indexes['h']), key=lambda x: x[0])[-1]
@@ -116,6 +117,7 @@ class StackImagesDialog(QDialog):
             
     def __set_ref(self, index):
         self.reference = self.files_model.item(index).data()
+        print("*ref: {} shape: {}".format(self.reference['file'], self.reference['data'].shape))
         indexes = lambda data: (int(len(data)/4), int(len(data)/4*3))
         self.reference_indexes = { 'h': indexes(self.reference['profile']), 'v': indexes(self.reference['spatial']) }
         for data in self.__files_data() :
