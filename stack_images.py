@@ -1,5 +1,5 @@
 from pyui.stack_images import Ui_StackImages
-from PyQt5.QtWidgets import QDialog, QAction, QLineEdit, QFileDialog, QProgressDialog, QApplication, QToolBar
+from PyQt5.QtWidgets import QDialog, QAction, QLineEdit, QProgressDialog, QApplication, QToolBar
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QStandardPaths, QByteArray
 from pyspectrum_commons import *

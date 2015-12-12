@@ -1,7 +1,7 @@
 from pyui.homepage import Ui_HomePage
 from PyQt5.QtWidgets import QApplication
 from pyspectrum_commons import *
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QDialog, QVBoxLayout, QCheckBox, QLabel, QDialogButtonBox, QProgressDialog
+from PyQt5.QtWidgets import QMainWindow, QDialog, QVBoxLayout, QCheckBox, QLabel, QDialogButtonBox, QProgressDialog
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from qtcommons import QtCommons
 from PyQt5.QtWidgets import QWidget, QToolBar
@@ -56,7 +56,9 @@ class HomePage(QWidget):
         self.ui.math.clicked.connect(lambda: self.math.emit(selected_path(self.recent_calibrated_model, self.ui.recent_calibrated_list)))
         self.ui.finish.clicked.connect(lambda: self.finish.emit(selected_path(self.recent_calibrated_model, self.ui.recent_calibrated_list)))
         self.ui.open_recent_project.clicked.connect(lambda: self.open_project.emit(selected_path(self.recent_projects_model, self.ui.recent_projects)))
-        
+        self.ui.new_project.clicked.connect(self.new_project.emit)
+        ## TODO: open the file or the directory?
+        self.ui.open_project.clicked.connect(lambda: open_file_sticky('Open Spectrum Project',"Projects (*.json)", lambda f: self.open_project.emit(os.path.dirname(f[0])), settings, PROJECTS ))
         self.reference_catalogues = ReferenceCatalogues(database)
         
         self.ui.download_catalogs.clicked.connect(self.download_catalogs)
