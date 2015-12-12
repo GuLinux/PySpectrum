@@ -15,6 +15,13 @@ class ProjectDialog(QDialog):
         pick_path_action.triggered.connect(self.__pick_path)
         self.ui.path.addAction(pick_path_action, QLineEdit.TrailingPosition)
         self.project = project if project else Project()
+        self.ui.path.setText(self.project.path)
+        self.ui.name.setText(self.project.name)
+        self.ui.observer.setText(self.project.observer)
+        self.ui.position.setText(self.project.position)
+        self.ui.equipment.setText(self.project.equipment)
+        self.ui.date.setDate(self.project.date)
+        
         self.ui.path.textChanged.connect(self.project.set_path)
         self.ui.name.textChanged.connect(self.project.set_name)
         self.ui.observer.textChanged.connect(self.project.set_observer)

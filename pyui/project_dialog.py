@@ -63,6 +63,11 @@ class Ui_ProjectDialog(object):
         self.buttonBox.accepted.connect(ProjectDialog.accept)
         self.buttonBox.rejected.connect(ProjectDialog.reject)
         QtCore.QMetaObject.connectSlotsByName(ProjectDialog)
+        ProjectDialog.setTabOrder(self.name, self.path)
+        ProjectDialog.setTabOrder(self.path, self.position)
+        ProjectDialog.setTabOrder(self.position, self.observer)
+        ProjectDialog.setTabOrder(self.observer, self.date)
+        ProjectDialog.setTabOrder(self.date, self.equipment)
 
     def retranslateUi(self, ProjectDialog):
         _translate = QtCore.QCoreApplication.translate
