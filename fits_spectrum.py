@@ -8,6 +8,7 @@ class Spectrum:
         self.fluxes = fluxes
         print("lambdas: {}, first_wavelength: {}, dispersion: {}".format(wavelengths, first_wavelength, dispersion))
         self.wavelengths = wavelengths if len(wavelengths) > 0 else self.__calculate_wavelengths(dispersion, first_wavelength)
+        print(self.wavelengths)
 
     def dispersion(self):
         return (self.wavelengths[-1]-self.wavelengths[0])/(len(self.wavelengths)-1)

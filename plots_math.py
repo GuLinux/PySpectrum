@@ -41,8 +41,8 @@ class PlotsMath(QWidget):
         self.ui.operands_listview.setModel(self.operands_model)
         remove_btn = QtCommons.addToolbarPopup(self.toolbar, text='Remove...')
         remove_btn.menu().addAction(self.ui.actionSelectPointsToRemove)
-        remove_btn.menu().addAction("Before point", lambda: spectrum_trim_dialog(self.spectrum, 'before', self.plot.axes, lambda: self.draw()))
-        remove_btn.menu().addAction("After point", lambda: spectrum_trim_dialog(self.spectrum, 'after', self.plot.axes, lambda: self.draw()))
+        remove_btn.menu().addAction("Before point", lambda: spectrum_trim_dialog(self.spectrum, 'before', self.plot.axes, lambda: self.draw(), self))
+        remove_btn.menu().addAction("After point", lambda: spectrum_trim_dialog(self.spectrum, 'after', self.plot.axes, lambda: self.draw(), self))
         self.ui.clear_operands.clicked.connect(self.operands_model.clear)
         self.ui.remove_operand.clicked.connect(lambda: self.operands_model.removeRows(self.ui.operands_listview.selectionModel().selectedRows()[0].row(), 1))
             

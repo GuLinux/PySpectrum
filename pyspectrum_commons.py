@@ -1,6 +1,8 @@
 from qtcommons import *
 from PyQt5.QtCore import Qt, QObject, pyqtSignal
-
+from PyQt5.QtWidgets import QDialog, QAction, QDoubleSpinBox
+from PyQt5.QtGui import QIcon
+from spectrum_trim_dialog import SpectrumTrimDialog
 FITS_EXTS = "FITS Images (*.fit *.fits *.tfits *.fit.gz *.fits.gz *.tfits.gz)"
 FITS_IMG_EXTS = "FITS Images (*.fit *.fits *.fit.gz *.fits.gz)"
 
@@ -39,17 +41,11 @@ class LastFilesList(QObject):
     def instance():
         return LastFilesList.__instance
 
-def spectrum_trim_dialog(spectrum, direction, axes, redraw):
-    point = QInputDialog.getInt(None, 'Trim curve', 'Enter wavelength for trimming', spectrum.wavelengths[0] if direction == 'before' else spectrum.wavelengths[-1], spectrum.wavelengths[0], spectrum.wavelengths[-1])
-    if not point[1]:
-        return
-    if direction == 'before':
-        spectrum.cut(start=spectrum.wavelength_index(point[0]))
-    else:
-        spectrum.cut(end=spectrum.wavelength_index(point[0]))
-        
-    spectrum.normalize_to_max()
-    redraw()
+def spectrum_trim_dialog(spectrum, direction, axes, redraw, parent):
+    dialog = SpectrumTrimDialog(spectrum, direction, axes, redraw, parent)
+    dialog.setAttribute( Qt.WA_DeleteOnClose , False)
+    dialog.show()
+
     
 def save_path(settings, key_name, file_obj, on_ok):
     settings.setValue("{}_last_directory".format(key_name), os.path.dirname(file_obj[0]))
