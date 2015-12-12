@@ -122,8 +122,8 @@ class FinishSpectrum(QWidget):
 
         self.profile_plot.axes.set_xlabel('wavelength (Å)')
         self.profile_plot.axes.set_ylabel('relative flux')
-        self.profile_plot.axes.xaxis.set_major_locator(MultipleLocator(200))
-        self.profile_plot.axes.xaxis.set_minor_locator(MultipleLocator(20))
+        #self.profile_plot.axes.xaxis.set_major_locator(MultipleLocator(200))
+        #self.profile_plot.axes.xaxis.set_minor_locator(MultipleLocator(20))
         self.spectrum_plot.figure.canvas.draw()
         self.gs.tight_layout(self.spectrum_plot.figure)
         

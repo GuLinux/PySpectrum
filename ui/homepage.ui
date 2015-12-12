@@ -104,6 +104,10 @@
        <property name="text">
         <string>Calibrate</string>
        </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/plot_20.png</normaloff>:/plot_20.png</iconset>
+       </property>
       </widget>
      </item>
     </layout>
@@ -131,6 +135,10 @@
        <property name="text">
         <string>Math</string>
        </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/math_20.png</normaloff>:/math_20.png</iconset>
+       </property>
       </widget>
      </item>
      <item>
@@ -140,6 +148,10 @@
        </property>
        <property name="text">
         <string>Finish</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/done_20.png</normaloff>:/done_20.png</iconset>
        </property>
       </widget>
      </item>
@@ -181,6 +193,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

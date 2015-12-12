@@ -6,6 +6,7 @@ import traceback
 class Spectrum:
     def __init__(self, fluxes, wavelengths = [], first_wavelength = 0, dispersion = 1):
         self.fluxes = fluxes
+        print("lambdas: {}, first_wavelength: {}, dispersion: {}".format(wavelengths, first_wavelength, dispersion))
         self.wavelengths = wavelengths if len(wavelengths) > 0 else self.__calculate_wavelengths(dispersion, first_wavelength)
 
     def dispersion(self):
@@ -66,9 +67,9 @@ class FitsSpectrum:
             return
         
         header = self.fits_file[0].header
-        dispersion = self.fits_file[0].header.get('CDELT1', 1)
-        x_start = self.fits_file[0].header.get('CRVAL1', 0)
-        fluxes = self.fits_file[0].data[0] if self.fits_file[0].header.get('NAXIS2', 0) == 1 else self.fits_file[0].data
+        dispersion = header.get('CDELT1', 1)
+        x_start = header.get('CRVAL1', 0)
+        fluxes = self.fits_file[0].data[0] if header.get('NAXIS2', 0) == 1 else self.fits_file[0].data
         self.spectrum = Spectrum(fluxes, first_wavelength = x_start, dispersion = dispersion)
 
     def data(self):
