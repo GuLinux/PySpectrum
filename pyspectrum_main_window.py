@@ -18,6 +18,7 @@ from project_dialog import ProjectDialog
 from stack_images import StackImages
 from homepage import HomePage
 from project_widget import ProjectWidget
+from project import Project
 
 class PySpectrumMainWindow(QMainWindow):
     def __init__(self):
@@ -41,6 +42,7 @@ class PySpectrumMainWindow(QMainWindow):
         self.homepage.finish.connect(self.finish_spectrum)
         self.homepage.new_project.connect(self.__new_project)
         self.homepage.stack_images.connect(self.__stack_images)
+        self.homepage.open_project.connect(self.__open_project)
 
         self.ui.stackedWidget.currentChanged.connect(self.current_changed)
         self.current_widget_toolbar = None
@@ -120,5 +122,10 @@ class PySpectrumMainWindow(QMainWindow):
     def __new_project(self):
         dialog = ProjectDialog(self.settings)
         if dialog.exec() == QDialog.Accepted:
-            LastFilesList.instance().add_file(PROJECTS, dialog.project.path)
-            self.__add_widget(ProjectWidget(dialog.project), dialog.project.get_name())
+            self.__open_project(dialog.project.path)
+            
+    def __open_project(self, path):
+        project = Project(path)
+        LastFilesList.instance().add_file(PROJECTS, project.path)
+        self.__add_widget(ProjectWidget(project), project.get_name())
+        
