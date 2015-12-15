@@ -11,6 +11,8 @@ from astropy.io import fits
 from collections import deque
 from pyspectrum_commons import *
 from reference_spectra_dialog import ReferenceSpectraDialog
+from project import Project
+
 class PlotsMath(QWidget):
     
     F_X = Qt.UserRole + 1
@@ -27,9 +29,17 @@ class PlotsMath(QWidget):
         self.reference_dialog.fits_picked.connect(self.open_fits)
         self.toolbar = QToolBar('Instrument Response Toolbar')
         open_btn = QtCommons.addToolbarPopup(self.toolbar, text="Open...", icon_file=':/new_open_20')
-        open_btn.menu().addAction('FITS file', lambda: open_file_sticky('Open FITS Spectrum',FITS_EXTS, lambda f: self.open_fits(f[0]), self.settings, CALIBRATED_PROFILE, [RAW_PROFILE]))
+        open_file_action = open_btn.menu().addAction('FITS file')
         open_btn.menu().addAction('Reference library', self.reference_dialog.show)
-        self.save_result = self.toolbar.addAction(QIcon(':/save_20'), 'Save', lambda: save_file_sticky('Save Operation Result...', 'FITS file (.fit)', self.save, self.settings, MATH_OPERATION, [CALIBRATED_PROFILE]))
+        if project:
+            save_result = QtCommons.addToolbarPopup(self.toolbar, text='Save', icon_file=':/save_20')
+            save_result.menu().addAction('As File', lambda: QtCommons.save_file('Save Operation Result...', FITS_EXTS, lambda f: self.save(f[0]), project.path))
+            save_result.menu().addAction('As Instrument Response', self.save_project_instrument_response)
+            open_file_action.triggered.connect(lambda: QtCommons.open_file('Open FITS Spectrum',FITS_EXTS, lambda f: self.open_fits(f[0]), project.path))
+        else:
+            open_file_action.triggered.connect(lambda: open_file_sticky('Open FITS Spectrum',FITS_EXTS, lambda f: self.open_fits(f[0]), self.settings, CALIBRATED_PROFILE, [RAW_PROFILE]))
+            self.toolbar.addAction(QIcon(':/save_20'), 'Save', lambda: save_file_sticky('Save Operation Result...', 'FITS file (.fit)', lambda f: self.savef([0]), self.settings, MATH_OPERATION, [CALIBRATED_PROFILE]))
+            
         self.toolbar.addAction('Set operand', self.set_operand)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.ui.actionZoom)
@@ -163,13 +173,18 @@ class PlotsMath(QWidget):
         except IndexError:
             QMessageBox.warning(None, "Error", "Datasets are not compatible. Maybe you need to calibrate better, or use a different reference file")
 
+    def save_project_instrument_response(self):
+        name = QInputDialog.getText(self, 'Enter Name', 'Enter new instrument response name for saving')
+        if name[1]:
+            self.project.add_file(Project.INSTRUMENT_RESPONSES, lambda f: self.save(f), bare_name=name[0])
+
     def save(self, filename):
         hdu = fits.PrimaryHDU(self.spectrum.fluxes)
         fits_file = fits.HDUList([hdu])
         hdu.header['CRPIX1'] = 1
         hdu.header['CRVAL1'] = self.spectrum.wavelengths[0]
         hdu.header['CDELT1'] = self.spectrum.dispersion()
-        hdu.writeto(filename[0], clobber=True)
+        hdu.writeto(filename, clobber=True)
 
     def reset_zoom(self):
         self.plot.reset_zoom(self.spectrum.wavelengths, self.spectrum.fluxes.min(), self.spectrum.fluxes.max())
