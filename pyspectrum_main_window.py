@@ -127,5 +127,5 @@ class PySpectrumMainWindow(QMainWindow):
     def __open_project(self, path):
         project = Project(path)
         LastFilesList.instance().add_file(PROJECTS, project.path)
-        self.__add_widget(ProjectWidget(project), project.get_name())
+        self.__add_widget(ProjectWidget(project, self.settings), project.get_name())
         

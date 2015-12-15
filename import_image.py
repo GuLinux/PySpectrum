@@ -14,6 +14,12 @@ from object_properties import ObjectProperties
 from rotate_image_dialog import RotateImageDialog
 
 class ImportImage(QWidget):
+    def icon():
+        return QIcon(':/image_20')
+    ACTION_TEXT = 'Import Image'
+    def pick(on_ok, settings):
+        open_file_sticky('Open FITS Image',FITS_IMG_EXTS, on_ok, settings, IMPORT_IMG )
+    
     def __init__(self, fits_file, settings):
         super(ImportImage, self).__init__()
         self.settings = settings

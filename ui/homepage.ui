@@ -71,6 +71,20 @@
          <number>0</number>
         </property>
         <item>
+         <widget class="QPushButton" name="import_image">
+          <property name="text">
+           <string>Import</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/image_20.png</normaloff>:/image_20.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
