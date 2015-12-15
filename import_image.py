@@ -12,6 +12,7 @@ from astropy.io import fits
 from object_properties_dialog import ObjectPropertiesDialog
 from object_properties import ObjectProperties
 from rotate_image_dialog import RotateImageDialog
+from project import Project
 
 class ImportImage(QWidget):
     def icon():
@@ -24,6 +25,7 @@ class ImportImage(QWidget):
         super(ImportImage, self).__init__()
         self.settings = settings
         self.fits_file = fits_file
+        self.project = project
         try:
             image_hdu_index = fits_file.index_of('IMAGE')
         except KeyError:
@@ -47,7 +49,7 @@ class ImportImage(QWidget):
         
         self.toolbar = QToolBar('Image Toolbar')
         self.toolbar.addAction(QIcon(':/rotate_20'), "Rotate", lambda: self.rotate_dialog.show())
-        self.toolbar.addAction(QIcon(':/save_20'), "Save", lambda: save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, RAW_PROFILE ))
+        self.toolbar.addAction(QIcon(':/save_20'), "Save", self.save_profile)
         self.toolbar.addAction(QIcon(':/select_all_20'), "Select spectrum data", lambda: self.spatial_plot.add_span_selector('select_spectrum', self.spectrum_span_selected,direction='horizontal'))
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
         #self.toolbar.addAction('Stack', self.show_stack_images_dialog)
@@ -92,6 +94,7 @@ class ImportImage(QWidget):
         return self.rotate_dialog.data_rotated[self.spectrum_span_selection[0]:self.spectrum_span_selection[1]+1,:].sum(0) if hasattr(self, 'spectrum_span_selection') else self.rotate_dialog.data_rotated.sum(0)
                 
     def save(self, save_file):
+        print(save_file)
         data = self.spectrum_profile()
         data -= np.amin(data)
         data /= np.amax(data)
@@ -100,4 +103,12 @@ class ImportImage(QWidget):
         hdu.data = data
         hdu.header['ORIGIN'] = 'PySpectrum'
         self.fits_file.writeto(save_file[0], clobber=True)
+        
+    def save_profile(self):
+        if not self.project:
+            save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, RAW_PROFILE )
+            return
+        file_name = QInputDialog.getText(self, 'Save Spectrum', 'Enter raw spectrum name for project')
+        if file_name[1]:
+            self.save(self.project.file_path(Project.RAW_PROFILE, "{}.fit".format(file_name[0])))
     

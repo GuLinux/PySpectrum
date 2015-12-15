@@ -3,12 +3,19 @@ import os
 from PyQt5.QtCore import QDate, Qt
 
 class Project:
+    RAW_PROFILE = 'raw_profile'
+    
     def __init__(self, path='', file=None):
         self.data = {}
         self.set_path(path)
         if self.path:
             with open(self.__projectfile()) as data_file:
                 self.data = json.load(data_file)
+            for _type in [Project.RAW_PROFILE]:
+                try:
+                    os.makedirs(self.directory_path(_type))
+                except FileExistsError:
+                    pass
         
     def set_path(self, path):
         self.path = path
@@ -68,3 +75,9 @@ class Project:
     
     def __to_JSON(self):
         return json.dumps(self.data, sort_keys=False, indent=4)
+    
+    def file_path(self, _type, name):
+        return os.path.join(self.directory_path(_type), name)
+    
+    def directory_path(self, _type):
+        return os.path.join(self.path, _type)
