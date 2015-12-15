@@ -86,7 +86,7 @@ def open_files_sticky(title, file_types, on_ok, settings, key_name, other_keys=[
 
 
     
-def Notification(text, title=None, parent=None, type='info', timeout=None):
+def Notification(text, title=None, type='info', timeout=None):
                                         # or BypassWindowManagerHint /FramelessWindowHint
     print(Instances.MainWindow)
     popup = QWidget(Instances.MainWindow, Qt.Window | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
