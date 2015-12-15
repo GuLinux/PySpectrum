@@ -22,12 +22,13 @@ from lambda2color import *
 from concurrent.futures import ThreadPoolExecutor
 
 class FinishSpectrum(QWidget):
-    def __init__(self, fits_file, settings, database):
+    def __init__(self, fits_file, settings, database, project=None):
         super(FinishSpectrum, self).__init__()
         self.settings = settings
         self.ui = Ui_FinishSpectrum()
         self.ui.setupUi(self)
         self.profile_line = None
+        self.project = project
         self.fits_spectrum = FitsSpectrum(fits_file)
         try:
             fits_file.index_of('ORIGINAL_DATA')
@@ -55,7 +56,7 @@ class FinishSpectrum(QWidget):
         lines_menu.menu().addAction('Lines Database', lambda: self.lines_dialog.show())
         lines_menu.menu().addAction('Custom line', self.add_custom_line)
         labels_action = QtCommons.addToolbarPopup(self.toolbar, "Labels..")
-        self.object_properties = ObjectProperties(fits_file)
+        self.object_properties = ObjectProperties(fits_file, project=project)
         labels_action.menu().addAction('Title', self.add_title)
         if self.object_properties:
             labels_action.menu().addAction('Information from FITS file', self.add_fits_information_label)

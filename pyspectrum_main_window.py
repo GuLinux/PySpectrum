@@ -87,15 +87,15 @@ class PySpectrumMainWindow(QMainWindow):
         fits_file = self.open_fits(file, 'open_spectrum')
         self.__add_widget(CalibrateSpectrum(fits_file, self.settings, self.database, project=project), 'Calibrate - {}'.format(os.path.basename(file)))
 
-    def plots_math(self, file):
-        pm = PlotsMath(self.settings, self.database)
+    def plots_math(self, file, project=None):
+        pm = PlotsMath(self.settings, self.database, project=project)
         self.__add_widget(pm, 'Math')
         if file:
             pm.open_fits(file)
 
-    def finish_spectrum(self, file):
+    def finish_spectrum(self, file, project=None):
         fits_file = self.open_fits(file, 'open_spectrum')
-        self.__add_widget(FinishSpectrum(fits_file, self.settings, self.database), 'Finish - {}'.format(os.path.basename(file)))
+        self.__add_widget(FinishSpectrum(fits_file, self.settings, self.database, project=project), 'Finish - {}'.format(os.path.basename(file)))
 
     def open_fits(self, filename, type):
         file = os.path.realpath(filename)
@@ -130,6 +130,8 @@ class PySpectrumMainWindow(QMainWindow):
         project_widget = ProjectWidget(project, self.settings)
         project_widget.import_image.connect(lambda file: self.open_image(file, project=project))
         project_widget.calibrate.connect(lambda file: self.calibrate(file, project=project))
+        project_widget.math.connect(lambda file: self.plots_math(file, project=project))
+        project_widget.finish.connect(lambda file: self.finish_spectrum(file, project=project))
         self.__add_widget(project_widget, project.get_name())
         
         

@@ -23,6 +23,7 @@ class ProjectJSONDecoder(json.JSONDecoder):
 class Project(QObject):
     RAW_PROFILE = 'raw_profiles'
     CALIBRATED_PROFILE = 'calibrated_profiles'
+    FINISHED_PROFILES = 'finished_profiles'
     
     filesChanged = pyqtSignal()
     
@@ -76,7 +77,7 @@ class Project(QObject):
         return self.__get_files(Project.CALIBRATED_PROFILE)
     
     def get_finished_profiles(self):
-        return self.data.get('finished_profiles', set()) #TODO
+        return self.__get_files(Project.FINISHED_PROFILES)
     
     def get_instrument_responses(self):
         return self.data.get('instrument_responses', set()) #TODO

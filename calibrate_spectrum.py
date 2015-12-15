@@ -171,7 +171,6 @@ class CalibrateSpectrum(QWidget):
 
     def calculate_calibration(self, dispersion = None):
         points_number = self.calibration_model.rowCount()
-        print(points_number)
         self.ui.set_dispersion.setEnabled(points_number == 1)
         self.ui.dispersion.setEnabled(points_number == 1)
         

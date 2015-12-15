@@ -16,11 +16,12 @@ class PlotsMath(QWidget):
     F_X = Qt.UserRole + 1
     FITS_SPECTRUM = Qt.UserRole + 2
     
-    def __init__(self, settings, database):
+    def __init__(self, settings, database, project=None):
         super(PlotsMath, self).__init__()
         self.ui = Ui_PlotsMath()
         self.ui.setupUi(self)
         self.settings = settings
+        self.project=project
         self.plot = QtCommons.nestWidget(self.ui.plot, QMathPlotWidget())
         self.reference_dialog = ReferenceSpectraDialog(database)
         self.reference_dialog.fits_picked.connect(self.open_fits)

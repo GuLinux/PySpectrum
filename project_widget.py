@@ -25,13 +25,19 @@ class ProjectWidget(QWidget):
         self.ui.import_image.clicked.connect(import_image)
         self.raw_spectra_model = QStandardItemModel()
         self.calibrated_spectra_model = QStandardItemModel()
-        def connect_signals(model, widget, buttons):
+
+        def button_action(button, signal, widget, model):
+            button.clicked.connect(lambda: signal.emit(model.item(widget.selectionModel().selectedRows()[0].row()).data() ) )
+            widget.selectionModel().selectionChanged.connect(lambda sel, unsel: button.setEnabled(len(sel.indexes())>0))
+            
+        for model, widget in [(self.raw_spectra_model, self.ui.raw_spectra), (self.calibrated_spectra_model, self.ui.calibrated_spectra)]:
             widget.setModel(model)
-            for button in buttons:
-                button[0].clicked.connect(lambda: button[1].emit(model.item(widget.selectionModel().selectedRows()[0].row()).data() ))
-                widget.selectionModel().selectionChanged.connect(lambda sel, unsel: button[0].setEnabled(len(sel.indexes())>0))
-        connect_signals(self.raw_spectra_model, self.ui.raw_spectra, [(self.ui.calibrate, self.calibrate)])
-        connect_signals(self.calibrated_spectra_model, self.ui.calibrated_spectra, [(self.ui.math, self.math), (self.ui.finish, self.finish)])
+            
+        button_action(self.ui.calibrate, self.calibrate, self.ui.raw_spectra, self.raw_spectra_model)
+        button_action(self.ui.math, self.math, self.ui.calibrated_spectra, self.calibrated_spectra_model)
+        button_action(self.ui.finish, self.finish, self.ui.calibrated_spectra, self.calibrated_spectra_model)
+        
+
             
         self.refresh()
         
