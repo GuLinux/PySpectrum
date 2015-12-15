@@ -7,8 +7,9 @@ import time
 
 class RotateImageDialog(QDialog):
     rotated = pyqtSignal()
+    ROTATION_HEADER = 'pyspec_rotated_by'
     
-    def __init__(self, fits_file, image_hdu_index = 0):
+    def __init__(self, fits_file, image_hdu_index = 0, project = None):
         QDialog.__init__(self)
         self.image_hdu_index = image_hdu_index
         self.fits_file = fits_file
@@ -27,7 +28,7 @@ class RotateImageDialog(QDialog):
         self.ui.bb.button(QDialogButtonBox.Close).clicked.connect(lambda: self.accept())
         self.ui.rotate_auto.clicked.connect(self.autorotate)
         self.ui.rotate_mirror.clicked.connect(self.rotate_mirror)
-        self.rotate(self.degrees(), force=True)
+        self.rotate(project.rotation_degrees() if project and project.rotation_degrees() else self.degrees(), force=True)
         
     def rotate_mirror(self):
         self.rotate(self.degrees() + (180. if self.degrees() <= 180 else -180) )
@@ -82,7 +83,7 @@ class RotateImageDialog(QDialog):
         self.ui.rotate_spinbox.setValue(degrees)
         
         if self.degrees() == degrees and not force: return
-        self.fits_file[0].header.set('pyspec_rotated_by', value = degrees, comment='Image rotation angle, degrees')
+        self.fits_file[0].header.set(RotateImageDialog.ROTATION_HEADER, value = degrees, comment='Image rotation angle, degrees')
         self.data_rotated = scipy.ndimage.interpolation.rotate(self.data, degrees, reshape=True, order=5, mode='constant')
         
         spatial = self.data_rotated.sum(1)
@@ -96,4 +97,4 @@ class RotateImageDialog(QDialog):
         
         
     def degrees(self):
-        return self.fits_file[0].header.get('pyspec_rotated_by', 0)
+        return self.fits_file[0].header.get(RotateImageDialog.ROTATION_HEADER, 0)

@@ -38,7 +38,7 @@ class ImportImage(QWidget):
         self.ui = Ui_ImportImage()
         self.ui.setupUi(self)
         
-        self.rotate_dialog = RotateImageDialog(self.fits_file, image_hdu_index)
+        self.rotate_dialog = RotateImageDialog(self.fits_file, image_hdu_index, project=project)
         self.rotate_dialog.rotated.connect(self.rotated)
         
         self.image_plot = QtCommons.nestWidget(self.ui.image_widget, QImPlotWidget(self.rotate_dialog.data_rotated, cmap='gray'))
