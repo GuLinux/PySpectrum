@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>356</width>
-    <height>139</height>
+    <height>161</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
       </sizepolicy>
      </property>
      <property name="decimals">
-      <number>3</number>
+      <number>5</number>
      </property>
      <property name="minimum">
       <double>-165.000000000000000</double>

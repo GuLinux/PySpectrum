@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_RotateImageDialog(object):
     def setupUi(self, RotateImageDialog):
         RotateImageDialog.setObjectName("RotateImageDialog")
-        RotateImageDialog.resize(356, 139)
+        RotateImageDialog.resize(356, 161)
         self.gridLayout = QtWidgets.QGridLayout(RotateImageDialog)
         self.gridLayout.setObjectName("gridLayout")
         self.rotate_spinbox = QtWidgets.QDoubleSpinBox(RotateImageDialog)
@@ -20,7 +20,7 @@ class Ui_RotateImageDialog(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.rotate_spinbox.sizePolicy().hasHeightForWidth())
         self.rotate_spinbox.setSizePolicy(sizePolicy)
-        self.rotate_spinbox.setDecimals(3)
+        self.rotate_spinbox.setDecimals(5)
         self.rotate_spinbox.setMinimum(-165.0)
         self.rotate_spinbox.setMaximum(360.0)
         self.rotate_spinbox.setSingleStep(0.001)

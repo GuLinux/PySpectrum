@@ -78,7 +78,7 @@ class ImportImage(QWidget):
     def spectrum_span_selected(self, min, max):
         self.spectrum_span_selection = (min, max)
         self.spatial_plot.add_span('spectrum_window', min, max, 'v', facecolor='g', alpha=0.5)
-        self.image_plot.add_span('spectrum_window', min, max, 'h', facecolor='y', alpha=0.5, clip_on=True)
+        self.image_plot.add_span('spectrum_window', min, max, 'h', facecolor='y', alpha=0.25, clip_on=True)
         self.draw_plot(self.spectrum_plot.axes, self.spectrum_profile())
         
     def draw_plot(self, axes, data):

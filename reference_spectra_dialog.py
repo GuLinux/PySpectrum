@@ -81,6 +81,9 @@ class ReferenceSpectraDialog(QDialog):
     def __close_reference(self, axes):
         self.close_action.setEnabled(False)
         if self.current_line:
-            self.current_line.remove()
-            self.current_line = None
-            axes.figure.canvas.draw()
+            try: # TODO: verify
+                self.current_line.remove()
+                self.current_line = None
+                axes.figure.canvas.draw()
+            except:
+                pass
