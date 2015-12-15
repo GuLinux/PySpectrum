@@ -105,6 +105,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="calibrate">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Calibrate</string>
           </property>
@@ -120,13 +123,22 @@
        </layout>
       </item>
       <item row="1" column="0">
-       <widget class="QListView" name="raw_spectra">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QTableView" name="raw_spectra">
+        <property name="autoScroll">
+         <bool>false</bool>
         </property>
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
        </widget>
       </item>
      </layout>
@@ -164,6 +176,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="math">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Math</string>
           </property>
@@ -178,6 +193,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="finish">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Finish</string>
           </property>
@@ -193,13 +211,19 @@
        </layout>
       </item>
       <item row="1" column="0">
-       <widget class="QListView" name="calibrated_spectra">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QTableView" name="calibrated_spectra">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
         </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
        </widget>
       </item>
      </layout>
@@ -237,6 +261,9 @@
         </item>
         <item>
          <widget class="QPushButton" name="open_finished">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="text">
            <string>Open</string>
           </property>
@@ -252,13 +279,19 @@
        </layout>
       </item>
       <item row="1" column="0">
-       <widget class="QListView" name="finished_spectra">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QTableView" name="finished_spectra">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
         </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
        </widget>
       </item>
      </layout>

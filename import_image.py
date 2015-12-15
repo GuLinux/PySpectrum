@@ -102,16 +102,15 @@ class ImportImage(QWidget):
         hdu = self.fits_file[0]
         hdu.data = data
         hdu.header['ORIGIN'] = 'PySpectrum'
-        self.fits_file.writeto(save_file[0], clobber=True)
+        self.fits_file.writeto(save_file, clobber=True)
         
     def save_profile(self):
         if not self.project:
-            save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, RAW_PROFILE )
+            save_file_sticky('Save plot...', 'FITS file (.fit)', lambda f: self.save(f[0]), self.settings, RAW_PROFILE )
             return
         if not self.object_properties.name:
             QMessageBox.information(self, 'Save FITS', 'Please set file information (name, date, etc) using the Object Properties button before saving')
             return
-        file_path = self.project.add_file(Project.RAW_PROFILE, object_properties = self.object_properties)
-        print(file_path)
-        self.save(file_path)
+        file_path = self.project.add_file(Project.RAW_PROFILE, object_properties = self.object_properties, on_added=self.save)
+        #self.save(file_path)
     

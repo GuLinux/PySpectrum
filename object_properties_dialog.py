@@ -36,9 +36,13 @@ class ObjectPropertiesDialog(QDialog):
         
     
     def simbad_query(self):
-        result = Simbad.query_object(self.ui.name.currentText())
-        if not result:
-            QMessageBox.warning(self, 'Not Found', 'Identifier {} not recognized by Simbad'.format(self.ui.name.currentText()))
+        try:
+            result = Simbad.query_object(self.ui.name.currentText())
+            if not result:
+                QMessageBox.warning(self, 'Not Found', 'Identifier {} not recognized by Simbad'.format(self.ui.name.currentText()))
+                return
+        except Exception as e:
+            QMessageBox.critical(self, 'Query Error', 'Error running Simbad query: {}'.format(e))
             return
         row = result[0] # todo: handle more than one results
         main_id = row['MAIN_ID'].decode()

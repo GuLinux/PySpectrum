@@ -85,11 +85,14 @@ class HomePage(QWidget):
         for key, model in [(RAW_PROFILE, self.recent_raw_model), (CALIBRATED_PROFILE, self.recent_calibrated_model), (PROJECTS, self.recent_projects_model)]:
             model.clear()
             for name, dir, path in LastFilesList.instance().last_files(key):
-                model.setHorizontalHeaderLabels([get_names[key][0], "Directory"])
-                print("{}: {}-{}-{}".format(key, name, dir, path))
-                item = QStandardItem(get_names[key][1](name, path))
-                item.setData(path)
-                model.appendRow([item, QStandardItem(dir)])
+                try:
+                    model.setHorizontalHeaderLabels([get_names[key][0], "Directory"])
+                    print("{}: {}-{}-{}".format(key, name, dir, path))
+                    item = QStandardItem(get_names[key][1](name, path))
+                    item.setData(path)
+                    model.appendRow([item, QStandardItem(dir)])
+                except:
+                    pass
     
     def download_catalogs(self):
         dialog = QDialog()

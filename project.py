@@ -2,9 +2,23 @@ import json
 import os
 from PyQt5.QtCore import QDate, QObject, Qt, pyqtSignal, QDateTime
 
+class ProjectJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, QDateTime):
+            return {'datetime': obj.toString(Qt.ISODate)}
+        return json.JSONEncoder.default(self, obj)
+
+class ProjectJSONDecoder(json.JSONDecoder):
+    def __init__(self):
+        json.JSONDecoder.__init__(self, object_hook=self.decode_obj)
+
+    def decode_obj(self, obj):
+        if 'datetime' in obj and len(obj.keys()) == 1:
+            return QDateTime.fromString(obj['datetime'], Qt.ISODate)
+        return obj
+
 class Project(QObject):
     RAW_PROFILE = 'raw_profiles'
-    
     
     filesChanged = pyqtSignal()
     
@@ -14,7 +28,7 @@ class Project(QObject):
         self.set_path(path)
         if self.path:
             with open(self.__projectfile()) as data_file:
-                self.data = json.load(data_file)
+                self.data = json.load(data_file, cls=ProjectJSONDecoder)
             for _type in [Project.RAW_PROFILE]:
                 try:
                     os.makedirs(self.directory_path(_type))
@@ -66,7 +80,7 @@ class Project(QObject):
     def __get_files(self, _type):
         files = self.data.get(_type, None)
         if not files:
-            self.data[_type] = set()
+            self.data[_type] = []
         return self.data[_type]
     
     
@@ -84,7 +98,7 @@ class Project(QObject):
         return os.path.join(self.path, 'project.json')
     
     def __to_JSON(self):
-        return json.dumps(self.data, sort_keys=False, indent=4)
+        return json.dumps(self.data, sort_keys=False, indent=4, cls=ProjectJSONEncoder)
     
     def file_path(self, _type, object_properties = None, name = None, bare_name = None):
         if not name:
@@ -94,9 +108,14 @@ class Project(QObject):
                 name = "{}_{}.fit.gz".format(object_properties.name, object_properties.date.toString(Qt.ISODate))
         return os.path.join(self.directory_path(_type), name)
     
-    def add_file(self, _type, object_properties = None, name = None, bare_name = None):
+    def add_file(self, _type, on_added, object_properties = None, name = None, bare_name = None):
         file_path = self.file_path(_type, name=name, bare_name = bare_name, object_properties = object_properties)
-        self.__get_files(_type).add((QDateTime.currentDateTime(), file_path))
+        files = [f for f in self.__get_files(_type) if f[1] != file_path]
+        files.append((QDateTime.currentDateTime(), file_path))
+        
+        self.data[_type] = sorted(files, key=lambda o: o[0], reverse=True)
+        self.save()
+        on_added(file_path)
         self.filesChanged.emit()
         return file_path
     
