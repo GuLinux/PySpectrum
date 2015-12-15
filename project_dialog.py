@@ -32,8 +32,8 @@ class ProjectDialog(QDialog):
         
         
     def __pick_path(self):
-        path = QFileDialog.getExistingDirectory(self, 'Pick Project Directory', saved_directory('project_path', [], QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation), self.settings), QFileDialog.ShowDirsOnly)
-        save_path(self.settings, 'project_path', (path, 'dir'), lambda f: self.ui.path.setText(f[0]))
+        path = QFileDialog.getExistingDirectory(self, 'Pick Project Directory', saved_directory(PROJECTS, [], QStandardPaths.writableLocation(QStandardPaths.DocumentsLocation), self.settings), QFileDialog.ShowDirsOnly)
+        self.ui.path.setText(path)
         
     def keyPressEvent(self, evt):
       if evt.key() == Qt.Key_Enter or evt.key() == Qt.Key_Return:

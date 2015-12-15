@@ -5,6 +5,7 @@ from PyQt5.QtGui import QIcon
 from spectrum_trim_dialog import SpectrumTrimDialog
 FITS_EXTS = "FITS Images (*.fit *.fits *.tfits *.fit.gz *.fits.gz *.tfits.gz)"
 FITS_IMG_EXTS = "FITS Images (*.fit *.fits *.fit.gz *.fits.gz)"
+PROJECT_FILES = "Project Files (*.json)"
 
 IMPORT_IMG = "import_image"
 RAW_PROFILE = "raw_profile"
@@ -69,6 +70,10 @@ def save_file_sticky(title, file_types, on_ok, settings, key_name, other_keys=[]
 def open_file_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None, parent=None):
     directory = saved_directory(key_name, other_keys, default_path, settings)
     QtCommons.open_file(title, file_types, lambda f: save_path(settings, key_name, f, on_ok), directory, parent)
+        
+def open_directory_sticky(title, on_ok, settings, key_name, other_keys=[], default_path=None, parent=None):
+    directory = saved_directory(key_name, other_keys, default_path, settings)
+    QtCommons.open_dir(title, lambda f: save_path(settings, key_name, f, on_ok), dir=directory, parent=parent)
     
 def open_files_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None, parent=None):
     directory = saved_directory(key_name, other_keys, default_path, settings)

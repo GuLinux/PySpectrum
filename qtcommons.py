@@ -26,6 +26,15 @@ class QtCommons:
             dialog.fileSelected.connect(lambda file:on_ok((file,dialog.selectedNameFilter)))
         QtCommons.__open_dialog__(title, file_types, dir, setup_dialog, parent)
 
+    def open_dir(title, on_ok, dir='', parent=None):
+        def setup_dialog(dialog):
+            dialog.setFileMode(QFileDialog.Directory)
+            dialog.setOption(QFileDialog.ShowDirsOnly)
+            dialog.setAcceptMode(QFileDialog.AcceptOpen)
+            dialog.fileSelected.connect(lambda f: on_ok((f, )))
+        QtCommons.__open_dialog__(title, None, dir, setup_dialog, parent)
+            
+
     def save_file(title, file_types, on_ok, dir='', parent=None):
         def setup_dialog(dialog):
             dialog.setFileMode(QFileDialog.AnyFile)
@@ -36,7 +45,7 @@ class QtCommons:
         
     def __open_dialog__(title, file_types, dir, setup_dialog, parent=None):
         dialog = QFileDialog(parent)
-        dialog.setNameFilter(file_types)
+        if file_types: dialog.setNameFilter(file_types)
         dialog.setDirectory(dir)
         dialog.setWindowTitle(title)
         setup_dialog(dialog)

@@ -1,12 +1,13 @@
 from pyui.homepage import Ui_HomePage
 from PyQt5.QtWidgets import QApplication
 from pyspectrum_commons import *
-from PyQt5.QtWidgets import QMainWindow, QDialog, QVBoxLayout, QCheckBox, QLabel, QDialogButtonBox, QProgressDialog
+from PyQt5.QtWidgets import QMainWindow, QDialog, QVBoxLayout, QCheckBox, QLabel, QDialogButtonBox, QProgressDialog, QMessageBox
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from qtcommons import QtCommons
 from PyQt5.QtWidgets import QWidget, QToolBar
 from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from reference_catalogues import ReferenceCatalogues
+from project import Project
 
 class HomePage(QWidget):
     stack_images = pyqtSignal(str)
@@ -36,7 +37,10 @@ class HomePage(QWidget):
         file_action.menu().addAction(QIcon(':/done_20'), 'Finish Spectrum', lambda: open_file_sticky('Open FITS Spectrum',FITS_EXTS, lambda f: self.finish.emit(f[0]), settings, CALIBRATED_PROFILE, [RAW_PROFILE,IMPORT_IMG] ))
         
         project_action.menu().addAction(QIcon(':/project_new_20'), 'New', lambda: self.new_project.emit())
-        project_action.menu().addAction(QIcon(':/new_open_20'), 'Open').setEnabled(False)
+        
+        pick_project = lambda: open_directory_sticky('Open Project', self.__project_picked, settings, PROJECTS)
+        self.ui.pick_project.clicked.connect(pick_project)
+        project_action.menu().addAction(QIcon(':/new_open_20'), 'Open...', pick_project)
         
         self.recent_raw_model = QStandardItemModel()
         self.recent_calibrated_model = QStandardItemModel()
@@ -57,12 +61,17 @@ class HomePage(QWidget):
         self.ui.finish.clicked.connect(lambda: self.finish.emit(selected_path(self.recent_calibrated_model, self.ui.recent_calibrated_list)))
         self.ui.open_recent_project.clicked.connect(lambda: self.open_project.emit(selected_path(self.recent_projects_model, self.ui.recent_projects)))
         self.ui.new_project.clicked.connect(self.new_project.emit)
-        ## TODO: open the file or the directory?
-        self.ui.open_project.clicked.connect(lambda: open_file_sticky('Open Spectrum Project',"Projects (*.json)", lambda f: self.open_project.emit(os.path.dirname(f[0])), settings, PROJECTS ))
         self.reference_catalogues = ReferenceCatalogues(database)
         
         self.ui.download_catalogs.clicked.connect(self.download_catalogs)
         self.__populate_lists()
+
+    def __project_picked(self, file):
+        try:
+            project = Project(file[0])
+            self.open_project.emit(project.path)
+        except FileNotFoundError:
+            QMessageBox.warning(self, 'Project not found', 'Missing or invalid project specified')
 
     def __populate_lists(self):
         for key, model in [(RAW_PROFILE, self.recent_raw_model), (CALIBRATED_PROFILE, self.recent_calibrated_model), (PROJECTS, self.recent_projects_model)]:
