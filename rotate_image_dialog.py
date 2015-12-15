@@ -15,6 +15,8 @@ class RotateImageDialog(QDialog):
         self.fits_file = fits_file
         self.max_spatial_delta = self.max_spatial_delta_angle = 0
         self.data=fits_file[image_hdu_index].data.astype(float)
+        self.background = np.median(self.data)
+        #self.background = np.median([d for d in np.array(self.data).flatten() if d <= self.background])
         self.data_rotated = self.data
         self.ui = Ui_RotateImageDialog()
         self.ui.setupUi(self)
@@ -84,7 +86,7 @@ class RotateImageDialog(QDialog):
         
         if self.degrees() == degrees and not force: return
         self.fits_file[0].header.set(FitsSpectrum.ROTATION, value = degrees, comment='Image rotation angle, degrees')
-        self.data_rotated = scipy.ndimage.interpolation.rotate(self.data, degrees, reshape=True, order=5, mode='constant')
+        self.data_rotated = scipy.ndimage.interpolation.rotate(self.data, degrees, reshape=True, order=5, mode='constant', cval = self.background)
         
         spatial = self.data_rotated.sum(1)
         delta = spatial.max() - spatial.min()
