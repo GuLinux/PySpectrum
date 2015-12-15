@@ -77,11 +77,17 @@ class HomePage(QWidget):
             QMessageBox.warning(self, 'Project not found', 'Missing or invalid project specified')
 
     def __populate_lists(self):
+        get_names = {
+            RAW_PROFILE: ('File', lambda n, p: n),
+            CALIBRATED_PROFILE: ('File', lambda n, p: n ),
+            PROJECTS: ('Name', lambda n, p: Project(p).get_name() )
+            }
         for key, model in [(RAW_PROFILE, self.recent_raw_model), (CALIBRATED_PROFILE, self.recent_calibrated_model), (PROJECTS, self.recent_projects_model)]:
             model.clear()
             for name, dir, path in LastFilesList.instance().last_files(key):
-                model.setHorizontalHeaderLabels(["File", "Directory"])
-                item = QStandardItem(name)
+                model.setHorizontalHeaderLabels([get_names[key][0], "Directory"])
+                print("{}: {}-{}-{}".format(key, name, dir, path))
+                item = QStandardItem(get_names[key][1](name, path))
                 item.setData(path)
                 model.appendRow([item, QStandardItem(dir)])
     

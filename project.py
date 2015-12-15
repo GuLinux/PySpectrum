@@ -1,11 +1,15 @@
 import json
 import os
-from PyQt5.QtCore import QDate, Qt
+from PyQt5.QtCore import QDate, QObject, Qt, pyqtSignal, QDateTime
 
-class Project:
-    RAW_PROFILE = 'raw_profile'
+class Project(QObject):
+    RAW_PROFILE = 'raw_profiles'
+    
+    
+    filesChanged = pyqtSignal()
     
     def __init__(self, path='', file=None):
+        QObject.__init__(self)
         self.data = {}
         self.set_path(path)
         if self.path:
@@ -48,16 +52,22 @@ class Project:
         return self.data.get('equipment', '')
         
     def get_raw_profiles(self):
-        return self.data.get('raw_profiles', [])
+        return self.__get_files(Project.RAW_PROFILE)
     
     def get_calibrated_profiles(self):
-        return self.data.get('calibrated_profiles', [])
+        return self.data.get('calibrated_profiles', set()) #TODO
     
     def get_finished_profiles(self):
-        return self.data.get('finished_profiles', [])
+        return self.data.get('finished_profiles', set()) #TODO
     
     def get_instrument_responses(self):
-        return self.data.get('instrument_responses', [])
+        return self.data.get('instrument_responses', set()) #TODO
+    
+    def __get_files(self, _type):
+        files = self.data.get(_type, None)
+        if not files:
+            self.data[_type] = set()
+        return self.data[_type]
     
     
     def rotation_angle(self):
@@ -76,8 +86,19 @@ class Project:
     def __to_JSON(self):
         return json.dumps(self.data, sort_keys=False, indent=4)
     
-    def file_path(self, _type, name):
+    def file_path(self, _type, object_properties = None, name = None, bare_name = None):
+        if not name:
+            if bare_name:
+                name = "{}.fit.gz".format(bare_name)
+            if object_properties:
+                name = "{}_{}.fit.gz".format(object_properties.name, object_properties.date.toString(Qt.ISODate))
         return os.path.join(self.directory_path(_type), name)
+    
+    def add_file(self, _type, object_properties = None, name = None, bare_name = None):
+        file_path = self.file_path(_type, name=name, bare_name = bare_name, object_properties = object_properties)
+        self.__get_files(_type).add((QDateTime.currentDateTime(), file_path))
+        self.filesChanged.emit()
+        return file_path
     
     def directory_path(self, _type):
         return os.path.join(self.path, _type)

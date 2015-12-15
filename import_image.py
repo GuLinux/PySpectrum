@@ -1,5 +1,5 @@
 from pyui.import_image import Ui_ImportImage
-from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QProgressDialog
+from PyQt5.QtWidgets import QWidget, QToolBar, QDialog, QDialogButtonBox, QProgressDialog, QMessageBox
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt, QCoreApplication
 from qmathplotwidget import QMathPlotWidget, QImPlotWidget
@@ -108,7 +108,10 @@ class ImportImage(QWidget):
         if not self.project:
             save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, RAW_PROFILE )
             return
-        file_name = QInputDialog.getText(self, 'Save Spectrum', 'Enter raw spectrum name for project')
-        if file_name[1]:
-            self.save(self.project.file_path(Project.RAW_PROFILE, "{}.fit".format(file_name[0])))
+        if not self.object_properties.name:
+            QMessageBox.information(self, 'Save FITS', 'Please set file information (name, date, etc) using the Object Properties button before saving')
+            return
+        file_path = self.project.add_file(Project.RAW_PROFILE, object_properties = self.object_properties)
+        print(file_path)
+        self.save(file_path)
     
