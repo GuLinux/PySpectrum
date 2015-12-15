@@ -1,10 +1,16 @@
 from pyui.project_widget import Ui_ProjectWidget
 from project import Project
 from PyQt5.QtWidgets import QWidget, QToolBar
+from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from pyspectrum_commons import *
 from import_image import ImportImage
 
 class ProjectWidget(QWidget):
+    import_image = pyqtSignal(str)
+    calibrate = pyqtSignal(str)
+    math = pyqtSignal(str)
+    finish = pyqtSignal(str)
+    
     def __init__(self, project, settings):
         QWidget.__init__(self)
         self.ui = Ui_ProjectWidget()

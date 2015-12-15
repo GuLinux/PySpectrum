@@ -74,9 +74,9 @@ class PySpectrumMainWindow(QMainWindow):
         self.insertToolBar(self.ui.toolBar, self.current_widget_toolbar)
         self.current_widget_toolbar.setVisible(True)
         
-    def open_image(self, file):
+    def open_image(self, file, project=None):
         fits_file = self.open_fits(file, "open_image")
-        self.__add_widget(ImportImage(fits_file, self.settings), 'Import Image - {}'.format(os.path.basename(file)))
+        self.__add_widget(ImportImage(fits_file, self.settings, project=project), 'Import Image - {}'.format(os.path.basename(file)))
         
     def __stack_images(self, file):
         fits_file = self.open_fits(file, "open_image")
@@ -127,5 +127,8 @@ class PySpectrumMainWindow(QMainWindow):
     def __open_project(self, path):
         project = Project(path)
         LastFilesList.instance().add_file(PROJECTS, project.path)
-        self.__add_widget(ProjectWidget(project, self.settings), project.get_name())
+        project_widget = ProjectWidget(project, self.settings), project.get_name()
+        project_widget.import_image.connect(lambda file: self.open_image(file, project=project))
+        self.__add_widget(project_widget)
+        
         

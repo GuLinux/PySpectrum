@@ -20,7 +20,7 @@ class ImportImage(QWidget):
     def pick(on_ok, settings):
         open_file_sticky('Open FITS Image',FITS_IMG_EXTS, on_ok, settings, IMPORT_IMG )
     
-    def __init__(self, fits_file, settings):
+    def __init__(self, fits_file, settings, project = None):
         super(ImportImage, self).__init__()
         self.settings = settings
         self.fits_file = fits_file
