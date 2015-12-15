@@ -19,6 +19,7 @@ class ProjectJSONDecoder(json.JSONDecoder):
 
 class Project(QObject):
     RAW_PROFILE = 'raw_profiles'
+    CALIBRATED_PROFILE = 'calibrated_profiles'
     
     filesChanged = pyqtSignal()
     
@@ -29,7 +30,7 @@ class Project(QObject):
         if self.path:
             with open(self.__projectfile()) as data_file:
                 self.data = json.load(data_file, cls=ProjectJSONDecoder)
-            for _type in [Project.RAW_PROFILE]:
+            for _type in [Project.RAW_PROFILE, Project.CALIBRATED_PROFILE]:
                 try:
                     os.makedirs(self.directory_path(_type))
                 except FileExistsError:
@@ -69,7 +70,7 @@ class Project(QObject):
         return self.__get_files(Project.RAW_PROFILE)
     
     def get_calibrated_profiles(self):
-        return self.data.get('calibrated_profiles', set()) #TODO
+        return self.__get_files(Project.CALIBRATED_PROFILE)
     
     def get_finished_profiles(self):
         return self.data.get('finished_profiles', set()) #TODO
