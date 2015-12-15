@@ -24,7 +24,14 @@ class ProjectWidget(QWidget):
         self.toolbar.addAction(ImportImage.icon(), ImportImage.ACTION_TEXT, import_image)
         self.ui.import_image.clicked.connect(import_image)
         self.raw_spectra_model = QStandardItemModel()
-        self.ui.raw_spectra.setModel(self.raw_spectra_model)
+        for model, widget, buttons in [
+            (self.raw_spectra_model, self.ui.raw_spectra, [(self.ui.calibrate, self.calibrate)])
+            ]:
+            widget.setModel(model)
+            for button in buttons:
+                button[0].clicked.connect(lambda: button[1].emit(model.item(widget.selectionModel().selectedRows()[0].row()).data() ))
+                widget.selectionModel().selectionChanged.connect(lambda sel, unsel: button[0].setEnabled(len(sel.indexes())>0))
+            
         self.refresh()
         
     def refresh(self):

@@ -66,8 +66,9 @@ class SelectPlottedPoints(QDialog):
         self.plot.figure.canvas.draw()
 
 class CalibrateSpectrum(QWidget):
-    def __init__(self, fits_file, settings, database):
+    def __init__(self, fits_file, settings, database, project=None):
         super(CalibrateSpectrum, self).__init__()
+        self.project=project
         self.settings = settings
         self.fits_spectrum = FitsSpectrum(fits_file)
         self.fits_spectrum.spectrum.normalize_to_max()

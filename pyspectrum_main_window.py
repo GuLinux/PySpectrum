@@ -83,9 +83,9 @@ class PySpectrumMainWindow(QMainWindow):
         self.__add_widget(StackImages(fits_file, self.settings), 'Stack Images')
         
     
-    def calibrate(self, file):
+    def calibrate(self, file, project=None):
         fits_file = self.open_fits(file, 'open_spectrum')
-        self.__add_widget(CalibrateSpectrum(fits_file, self.settings, self.database), 'Calibrate - {}'.format(os.path.basename(file)))
+        self.__add_widget(CalibrateSpectrum(fits_file, self.settings, self.database, project=project), 'Calibrate - {}'.format(os.path.basename(file)))
 
     def plots_math(self, file):
         pm = PlotsMath(self.settings, self.database)
@@ -129,6 +129,7 @@ class PySpectrumMainWindow(QMainWindow):
         LastFilesList.instance().add_file(PROJECTS, project.path)
         project_widget = ProjectWidget(project, self.settings)
         project_widget.import_image.connect(lambda file: self.open_image(file, project=project))
+        project_widget.calibrate.connect(lambda file: self.calibrate(file, project=project))
         self.__add_widget(project_widget, project.get_name())
         
         
