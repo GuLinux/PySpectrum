@@ -88,8 +88,7 @@ def open_files_sticky(title, file_types, on_ok, settings, key_name, other_keys=[
     
 def Notification(text, title=None, type='info', timeout=None):
                                         # or BypassWindowManagerHint /FramelessWindowHint
-    print(Instances.MainWindow)
-    popup = QWidget(Instances.MainWindow, Qt.Window | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+    popup = QWidget(Instances.MainWindow, Qt.Window | Qt.BypassWindowManagerHint | Qt.WindowStaysOnTopHint)
     ui = Ui_Notification()
     ui.setupUi(popup)
     ui.text.setText(text)
@@ -101,11 +100,11 @@ def Notification(text, title=None, type='info', timeout=None):
         'error': 'background-color: rgba(255, 45, 45, 220);',
         'success': 'background-color: rgba(150, 255, 186, 220);',
         }[type])
-    popup.move(QApplication.desktop().screen().rect().center() - popup.rect().center())
     popup.setAttribute(Qt.WA_TranslucentBackground, True)
     if timeout:
         timer = QTimer(popup)
         timer.timeout.connect(popup.deleteLater)
         timer.start(timeout*1000)
     popup.show()
+    popup.move(QApplication.desktop().screen().rect().center() - popup.rect().center())
     return popup
