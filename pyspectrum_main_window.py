@@ -21,7 +21,9 @@ from project_widget import ProjectWidget
 from project import Project
 
 class PySpectrumMainWindow(QMainWindow):
+    instance = None
     def __init__(self):
+        PySpectrumMainWindow.instance = self
         font = QApplication.instance().font()
         rc('font', **{'family':'serif','serif':[font.defaultFamily()]})
         super(PySpectrumMainWindow, self).__init__()

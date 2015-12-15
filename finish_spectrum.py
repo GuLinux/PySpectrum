@@ -156,10 +156,11 @@ class FinishSpectrum(QWidget):
         
         
     def save_image(self, filename):
+        QtCommons.notification('Image {} saved in {}'.format(os.path.basename(filename), os.path.dirname(filename)), title='File Saved', type='success', timeout=5, parent=self)
         self.spectrum_plot.figure.savefig(filename, bbox_inches='tight', dpi=300)
 
     def save_finished_in_project(self):
-        self.project.add_file(Project.FINISHED_PROFILES, self.__save, self.object_properties )
+        self.project.add_file(Project.FINISHED_PROFILES, self.__save, self.object_properties, notification_parent=self )
         
     def save(self, filename):
         filename = filename[0]

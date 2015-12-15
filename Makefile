@@ -33,6 +33,8 @@ pyui/spectrum_trim_dialog.py: ui/spectrum_trim_dialog.ui
 	pyuic5 $^ -o $@
 pyui/project_widget.py: ui/project_widget.ui
 	pyuic5 $^ -o $@
+pyui/notification.py: ui/notification.ui
+	pyuic5 $^ -o $@
 
 resources_rc.py: resources/*
 	pyrcc5 resources/resources.qrc > resources_rc.py
@@ -43,7 +45,7 @@ compile_rcc: resources_rc.py
 .PHONY: compile_ui
 compile_ui: pyui/pyspectrum_main_window.py pyui/import_image.py pyui/rotate_image_dialog.py pyui/calibrate_spectrum.py pyui/line_edit.py pyui/homepage.py pyui/project_dialog.py \
 	    pyui/reference_spectra_dialog.py pyui/select_plotted_point.py pyui/plots_math.py pyui/lines_dialog.py pyui/finish_spectrum.py pyui/object_properties_dialog.py \
-	    pyui/stack_images.py pyui/spectrum_trim_dialog.py pyui/project_widget.py
+	    pyui/stack_images.py pyui/spectrum_trim_dialog.py pyui/project_widget.py pyui/notification.py
 
 .PHONY: run
 run: all

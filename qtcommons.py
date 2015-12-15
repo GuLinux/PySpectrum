@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFileDialog, QToolBar, QToolButton, QMenu, QAction
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QFileDialog, QToolBar, QToolButton, QMenu, QAction, QLabel, QApplication
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt, QStandardPaths
+from PyQt5.QtCore import Qt, QStandardPaths, QTimer
+from pyui.notification import Ui_Notification
 import os
 
 class QtCommons:
@@ -69,3 +70,26 @@ class QtCommons:
             button.menu().addAction(action)
         toolbar.addWidget(button)
         return button
+    
+    def notification(text, title=None, parent=None, type='info', timeout=None):
+                                            # or BypassWindowManagerHint
+        popup = QWidget(parent, Qt.Window | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        ui = Ui_Notification()
+        ui.setupUi(popup)
+        ui.text.setText(text)
+        ui.title.setText(title)
+        ui.close.clicked.connect(popup.deleteLater)
+        ui.widget.setStyleSheet({
+            'info': 'background-color: rgba(126, 214, 255, 220);',
+            'warning': 'background-color: rgba(255, 212, 94, 220);',
+            'error': 'background-color: rgba(255, 45, 45, 220);',
+            'success': 'background-color: rgba(150, 255, 186, 220);',
+            }[type])
+        popup.move(QApplication.desktop().screen().rect().center() - popup.rect().center())
+        popup.setAttribute(Qt.WA_TranslucentBackground, True)
+        if timeout:
+            timer = QTimer(popup)
+            timer.timeout.connect(popup.deleteLater)
+            timer.start(timeout*1000)
+        popup.show()
+        return popup

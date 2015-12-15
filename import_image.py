@@ -109,6 +109,6 @@ class ImportImage(QWidget):
         if not self.object_properties.name:
             QMessageBox.information(self, 'Save FITS', 'Please set file information (name, date, etc) using the Object Properties button before saving')
             return
-        file_path = self.project.add_file(Project.RAW_PROFILE, object_properties = self.object_properties, on_added=self.save)
+        file_path = self.project.add_file(Project.RAW_PROFILE, object_properties = self.object_properties, on_added=self.save, notification_parent=self)
         #self.save(file_path)
     
