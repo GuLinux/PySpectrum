@@ -24,6 +24,7 @@ class Project(QObject):
     RAW_PROFILE = 'raw_profiles'
     CALIBRATED_PROFILE = 'calibrated_profiles'
     FINISHED_PROFILES = 'finished_profiles'
+    EXPORTED_IMAGES = 'exported_images'
     INSTRUMENT_RESPONSES = 'instrument_responses'
     
     filesChanged = pyqtSignal()
@@ -35,7 +36,7 @@ class Project(QObject):
         if self.path:
             with open(self.__projectfile()) as data_file:
                 self.data = json.load(data_file, cls=ProjectJSONDecoder)
-            for _type in [Project.RAW_PROFILE, Project.CALIBRATED_PROFILE, Project.FINISHED_PROFILES, Project.INSTRUMENT_RESPONSES]:
+            for _type in [Project.RAW_PROFILE, Project.CALIBRATED_PROFILE, Project.FINISHED_PROFILES, Project.INSTRUMENT_RESPONSES, Project.EXPORTED_IMAGES]:
                 try:
                     os.makedirs(self.directory_path(_type))
                 except FileExistsError:

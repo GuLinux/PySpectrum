@@ -25,17 +25,19 @@ class ProjectWidget(QWidget):
         self.ui.import_image.clicked.connect(import_image)
         self.raw_spectra_model = QStandardItemModel()
         self.calibrated_spectra_model = QStandardItemModel()
+        self.finished_spectra_model = QStandardItemModel()
 
         def button_action(button, signal, widget, model):
             button.clicked.connect(lambda: signal.emit(model.item(widget.selectionModel().selectedRows()[0].row()).data() ) )
             widget.selectionModel().selectionChanged.connect(lambda sel, unsel: button.setEnabled(len(sel.indexes())>0))
             
-        for model, widget in [(self.raw_spectra_model, self.ui.raw_spectra), (self.calibrated_spectra_model, self.ui.calibrated_spectra)]:
+        for model, widget in [(self.raw_spectra_model, self.ui.raw_spectra), (self.calibrated_spectra_model, self.ui.calibrated_spectra), (self.finished_spectra_model, self.ui.finished_spectra)]:
             widget.setModel(model)
             
         button_action(self.ui.calibrate, self.calibrate, self.ui.raw_spectra, self.raw_spectra_model)
         button_action(self.ui.math, self.math, self.ui.calibrated_spectra, self.calibrated_spectra_model)
         button_action(self.ui.finish, self.finish, self.ui.calibrated_spectra, self.calibrated_spectra_model)
+        button_action(self.ui.open_finished, self.finish, self.ui.finished_spectra, self.finished_spectra_model)
         
 
             
@@ -49,7 +51,8 @@ class ProjectWidget(QWidget):
         self.ui.date.setText(self.project.get_date().toString())
         for model, items in [
             (self.raw_spectra_model, self.project.get_raw_profiles()),
-            (self.calibrated_spectra_model, self.project.get_calibrated_profiles())
+            (self.calibrated_spectra_model, self.project.get_calibrated_profiles()),
+            (self.finished_spectra_model, self.project.get_finished_profiles())
             ]:
             model.clear()
             model.setHorizontalHeaderLabels(['Object', 'Last Modified'])
