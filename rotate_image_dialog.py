@@ -1,11 +1,12 @@
 from pyui.rotate_image_dialog import Ui_RotateImageDialog
 from PyQt5.QtWidgets import QWidget, QDialog, QDialogButtonBox, QProgressDialog, QApplication
 import scipy.ndimage.interpolation
+from scipy.interpolate import UnivariateSpline
 from PyQt5.QtCore import Qt, pyqtSignal
 import numpy as np
 import time
 from fits_spectrum import *
-
+from qmathplotwidget import *
 class RotateImageDialog(QDialog):
     rotated = pyqtSignal()
     
@@ -91,7 +92,13 @@ class RotateImageDialog(QDialog):
         spatial = self.data_rotated.sum(1)
         delta = spatial.max() - spatial.min()
         self.max_spatial_delta = max(delta, self.max_spatial_delta)
-        
+        spatial_range = range(0, len(spatial))
+        scaled_spatial = spatial-np.min(spatial)
+        spline = UnivariateSpline(spatial_range, (scaled_spatial -np.max(scaled_spatial)/2), s=0)
+        roots = spline.roots()
+        if len(roots) == 2:
+            print(roots[1]-roots[0])
+        print("roots: {}".format(roots))
         self.max_spatial_delta_angle = degrees if self.max_spatial_delta == delta else self.max_spatial_delta_angle
         self.ui.rotation_info.setText("Current rotation degrees: {:.3f}, optimal rotation angle so far: {:.3f} deg".format(degrees, self.max_spatial_delta_angle))
         
