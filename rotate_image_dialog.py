@@ -80,6 +80,17 @@ class RotateImageDialog(QDialog):
         self.rotate(angle if angle >= 0 else angle+180.)
         self.raise_()
             
+            
+    def __fwhm(self, data):
+        spatial = data.sum(1)
+        spatial = spatial-np.min(spatial)
+        spatial_range = range(0, len(spatial))
+        spline = UnivariateSpline(spatial_range, (spatial -np.max(spatial)/2), s=0.1, k=3)
+        roots = spline.roots()
+        if len(roots) != 2:
+            return np.inf
+        return roots[1]-roots[0]
+
         
     def rotate(self, degrees, force = False):
         self.ui.degrees_slider.setValue(degrees*1000.)
