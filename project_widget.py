@@ -1,8 +1,8 @@
 from pyui.project_widget import Ui_ProjectWidget
 from project import Project
-from PyQt5.QtWidgets import QWidget, QToolBar
-from PyQt5.QtCore import Qt, QObject, pyqtSignal
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import QWidget, QToolBar, QMenu
+from PyQt5.QtCore import Qt, QObject, pyqtSignal, QUrl
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QDesktopServices
 from pyspectrum_commons import *
 from import_image import ImportImage
 from astropy.io import fits
@@ -38,6 +38,10 @@ class ProjectWidget(QWidget):
         button_action(self.ui.math, self.math, self.ui.calibrated_spectra, self.calibrated_spectra_model)
         button_action(self.ui.finish, self.finish, self.ui.calibrated_spectra, self.calibrated_spectra_model)
         button_action(self.ui.open_finished, self.finish, self.ui.finished_spectra, self.finished_spectra_model)
+        open_finished_menu = QMenu()
+        self.ui.open_finished_dirs.setMenu(open_finished_menu)
+        open_finished_menu.addAction(QIcon(':/image_20'), 'Exported Images folder', lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(project.directory_path(Project.EXPORTED_IMAGES))))
+        open_finished_menu.addAction(QIcon(':/done_20'), 'Finished Spectra folder', lambda: QDesktopServices.openUrl(QUrl.fromLocalFile(project.directory_path(Project.FINISHED_PROFILES))))
         
 
             

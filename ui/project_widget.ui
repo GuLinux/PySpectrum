@@ -247,6 +247,20 @@
          <number>0</number>
         </property>
         <item>
+         <widget class="QPushButton" name="open_finished_dirs">
+          <property name="text">
+           <string>Open...</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../resources/resources.qrc">
+            <normaloff>:/new_open_20.png</normaloff>:/new_open_20.png</iconset>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -265,11 +279,11 @@
            <bool>false</bool>
           </property>
           <property name="text">
-           <string>Open</string>
+           <string>Finish</string>
           </property>
           <property name="icon">
            <iconset resource="../resources/resources.qrc">
-            <normaloff>:/new_open_20.png</normaloff>:/new_open_20.png</iconset>
+            <normaloff>:/done_20.png</normaloff>:/done_20.png</iconset>
           </property>
           <property name="flat">
            <bool>true</bool>
