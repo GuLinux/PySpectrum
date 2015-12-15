@@ -90,14 +90,12 @@ class CalibrateSpectrum(QWidget):
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
         self.reference_spectra_dialog.setup_menu(self.toolbar, self.spectrum_plot.axes, settings)
 
-        self.object_properties = ObjectProperties(self.fits_file)
+        self.object_properties = ObjectProperties(self.fits_file, project=project)
         self.object_properties_dialog = ObjectPropertiesDialog(settings, self.object_properties)
         self.toolbar.addAction("Object properties", self.object_properties_dialog.show)
 
         self.calibration_model = QStandardItemModel()
         self.calibration_model.setHorizontalHeaderLabels(["x-axis", "wavelength", "error"])
-        self.calibration_model.rowsInserted.connect(lambda: self.calculate_calibration)
-        self.calibration_model.rowsRemoved.connect(lambda: self.calculate_calibration)
         self.ui.calibration_points.setModel(self.calibration_model)
         self.ui.calibration_points.selectionModel().selectionChanged.connect(lambda selected, deselected: self.ui.remove_calibration_point.setEnabled(len(selected.indexes()) > 0)  )
         self.ui.add_calibration_point.clicked.connect(self.add_calibration_point)
@@ -150,6 +148,7 @@ class CalibrateSpectrum(QWidget):
 
     def remove_calibration_point(self):
         self.calibration_model.removeRow(self.ui.calibration_points.selectionModel().selectedIndexes()[0].row())
+        self.calculate_calibration()
     
     def add_calibration_point_data(self, x_value, wavelength):
         x_axis_item = QStandardItem("star" if x_value == 0 else "{}".format(x_value))
@@ -164,15 +163,17 @@ class CalibrateSpectrum(QWidget):
     
     def add_calibration_point(self):
         self.add_calibration_point_data(self.ui.point_x_axis.value(), 0 if self.ui.point_is_star.isChecked() else self.ui.point_wavelength.value())
-
+        self.calculate_calibration()
+        
     def calibration_points(self):
         return [{'row': row, 'x': self.calibration_model.item(row, 0).data(), 'wavelength': self.calibration_model.item(row, 1).data()} for row in range(self.calibration_model.rowCount())]
     
 
     def calculate_calibration(self, dispersion = None):
         points_number = self.calibration_model.rowCount()
-        self.ui.set_dispersion.setEnabled(points_number <= 1)
-        self.ui.dispersion.setEnabled(points_number <= 1)
+        print(points_number)
+        self.ui.set_dispersion.setEnabled(points_number == 1)
+        self.ui.dispersion.setEnabled(points_number == 1)
         
         if points_number == 0:
             self.fits_spectrum.reset()

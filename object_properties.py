@@ -4,8 +4,9 @@ from astropy.coordinates import SkyCoord
 from astropy import units as u
 
 class ObjectProperties:
-    def __init__(self, fits_file):
+    def __init__(self, fits_file, project=None):
         self.fits_file = fits_file
+        self.project = project
         self.read()
 
     def write(self):
@@ -22,19 +23,29 @@ class ObjectProperties:
         header.set('EQUIPMENT', value = self.equipment)
         header.set('POSITION', comment='Acquisition location', value = self.position)
         
+    def __def_value(self, name, value=None):
+        if not self.project:
+            return value
+        return {
+            'date': QDateTime(self.project.get_date()),
+            'observer': self.project.get_observer(),
+            'position': self.project.get_position(),
+            'equipment': self.project.get_equipment(),
+            }[name]
+        
     def read(self):
         header = self.fits_file[0].header
         self.name=header.get('OBJECT')
-        self.date=QDateTime.fromString(header.get('DATE', QDateTime.currentDateTime().toString(Qt.ISODate)), Qt.ISODate)
+        self.date=QDateTime.fromString(header.get('DATE', self.__def_value('date',QDateTime.currentDateTime().toString(Qt.ISODate))), Qt.ISODate)
         #header.get('CTYPE2') TODO: get ra/dec from type
         ra=header.get('CRVAL2', 0)
         #header.get('CTYPE3')
         dec=header.get('CRVAL3', 0)
         self.type=header.get('OBJTYPE')
         self.sptype=header.get('SPTYPE')
-        self.observer=header.get('OBSERVER')
-        self.equipment = header.get('EQUIPMENT')
-        self.position=header.get('POSITION')
+        self.observer=header.get('OBSERVER', self.__def_value('observer'))
+        self.equipment = header.get('EQUIPMENT', self.__def_value('equipment'))
+        self.position=header.get('POSITION', self.__def_value('position'))
         self.coordinates = SkyCoord(ra, dec, unit=u.deg)
         
     def ra_str(self, unit=u.hourangle):

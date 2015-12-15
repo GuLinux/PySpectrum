@@ -54,7 +54,7 @@ class ImportImage(QWidget):
         self.toolbar.addAction(QIcon.fromTheme('edit-select-invert'), "Select background data", lambda: self.spatial_plot.add_span_selector('select_background', self.background_span_selected,direction='horizontal', rectprops = dict(facecolor='blue', alpha=0.5))).setEnabled(False)
         #self.toolbar.addAction('Stack', self.show_stack_images_dialog)
         self.toolbar.addSeparator()
-        self.object_properties = ObjectProperties(self.fits_file)
+        self.object_properties = ObjectProperties(self.fits_file, project=project)
         self.object_properties_dialog = ObjectPropertiesDialog(settings, self.object_properties)
         self.toolbar.addAction("Object properties", self.object_properties_dialog.show)
         self.rotated()

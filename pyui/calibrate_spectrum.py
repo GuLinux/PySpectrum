@@ -75,6 +75,7 @@ class Ui_CalibrateSpectrum(object):
         self.x_axis_pick.setObjectName("x_axis_pick")
         self.gridLayout_2.addWidget(self.x_axis_pick, 0, 4, 1, 1)
         self.set_dispersion = QtWidgets.QPushButton(self.groupBox)
+        self.set_dispersion.setEnabled(False)
         self.set_dispersion.setObjectName("set_dispersion")
         self.gridLayout_2.addWidget(self.set_dispersion, 4, 4, 1, 1)
         self.dispersion = QtWidgets.QDoubleSpinBox(self.groupBox)
