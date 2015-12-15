@@ -94,11 +94,9 @@ class ImportImage(QWidget):
         return self.rotate_dialog.data_rotated[self.spectrum_span_selection[0]:self.spectrum_span_selection[1]+1,:].sum(0) if hasattr(self, 'spectrum_span_selection') else self.rotate_dialog.data_rotated.sum(0)
                 
     def save(self, save_file):
-        print(save_file)
         data = self.spectrum_profile()
         data -= np.amin(data)
         data /= np.amax(data)
-        print(self.fits_file.info())
         hdu = self.fits_file[0]
         hdu.data = data
         hdu.header['ORIGIN'] = 'PySpectrum'

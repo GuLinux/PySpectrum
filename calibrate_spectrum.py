@@ -19,6 +19,7 @@ from pyspectrum_commons import *
 from lines_dialog import LinesDialog
 from object_properties import ObjectProperties
 from object_properties_dialog import ObjectPropertiesDialog
+from project import Project
 
 class SelectPlottedPoints(QDialog):
     point = pyqtSignal(int)
@@ -83,7 +84,7 @@ class CalibrateSpectrum(QWidget):
         self.ui.x_axis_pick.menu().addAction("Central value from range").triggered.connect(lambda: self.pick_from_range('central'))
         self.ui.wavelength_pick.clicked.connect(lambda: self.lines_dialog.show())
         
-        save_action = self.toolbar.addAction(QIcon(':/save_20'), 'Save', lambda: save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, CALIBRATED_PROFILE, [RAW_PROFILE]))
+        save_action = self.toolbar.addAction(QIcon(':/save_20'), 'Save', self.save_spectrum)
         self.spectrum_plot = QtCommons.nestWidget(self.ui.spectrum_plot_widget, QMathPlotWidget())
         
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
@@ -95,14 +96,19 @@ class CalibrateSpectrum(QWidget):
 
         self.calibration_model = QStandardItemModel()
         self.calibration_model.setHorizontalHeaderLabels(["x-axis", "wavelength", "error"])
-        self.calibration_model.rowsInserted.connect(self.calculate_calibration)
-        self.calibration_model.rowsRemoved.connect(self.calculate_calibration)
+        self.calibration_model.rowsInserted.connect(lambda: self.calculate_calibration)
+        self.calibration_model.rowsRemoved.connect(lambda: self.calculate_calibration)
         self.ui.calibration_points.setModel(self.calibration_model)
         self.ui.calibration_points.selectionModel().selectionChanged.connect(lambda selected, deselected: self.ui.remove_calibration_point.setEnabled(len(selected.indexes()) > 0)  )
         self.ui.add_calibration_point.clicked.connect(self.add_calibration_point)
         self.ui.remove_calibration_point.setEnabled(False)
         self.ui.remove_calibration_point.clicked.connect(self.remove_calibration_point)
-        self.ui.set_dispersion.clicked.connect(self.calibrate_with_dispersion)
+        if project and project.avg_dispersion():
+            self.ui.set_dispersion.setMenu(QMenu())
+            self.ui.set_dispersion.menu().addAction('From input value', self.calculate_calibration)
+            self.ui.set_dispersion.menu().addAction('From Project', lambda: self.calculate_calibration(project.avg_dispersion()))
+        else:
+            self.ui.set_dispersion.clicked.connect(self.calculate_calibration)
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.wavelength_pick.setEnabled(not checked))
         self.ui.point_is_star.toggled.connect(lambda checked: self.ui.point_wavelength.setEnabled(not checked))
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
@@ -162,11 +168,8 @@ class CalibrateSpectrum(QWidget):
     def calibration_points(self):
         return [{'row': row, 'x': self.calibration_model.item(row, 0).data(), 'wavelength': self.calibration_model.item(row, 1).data()} for row in range(self.calibration_model.rowCount())]
     
-    def calibrate_with_dispersion(self):
-        self.fits_spectrum.dispersion = self.ui.dispersion.value()
-        self.calculate_calibration()
 
-    def calculate_calibration(self):
+    def calculate_calibration(self, dispersion = None):
         points_number = self.calibration_model.rowCount()
         self.ui.set_dispersion.setEnabled(points_number <= 1)
         self.ui.dispersion.setEnabled(points_number <= 1)
@@ -177,13 +180,18 @@ class CalibrateSpectrum(QWidget):
         else:
             self.lines_dialog.set_picker_enabled(True)
             points = sorted(self.calibration_points(), key=lambda point: point['x'])
-            self.fits_spectrum.calibrate(points, self.ui.dispersion.value() )
+            self.fits_spectrum.calibrate(points, dispersion if dispersion else self.ui.dispersion.value() )
             for row, value in [(p['row'], "{:.2f}".format( p['wavelength']-self.fits_spectrum.spectrum.wavelengths[p['x']])) for p in points]:
                 self.calibration_model.item(row, 2).setText(value)
             
         self.ui.dispersion.setValue(self.fits_spectrum.spectrum.dispersion())
         self.fits_spectrum.plot_to(self.spectrum_plot.axes)
         
+    def save_spectrum(self):
+        if not self.project:
+            save_file_sticky('Save plot...', 'FITS file (.fit)', lambda f: self.save(f[0]), self.settings, CALIBRATED_PROFILE, [RAW_PROFILE])
+            return
+        self.project.add_file(Project.CALIBRATED_PROFILE, object_properties = self.object_properties, on_added=self.save)
         
     def save(self, filename):
-        self.fits_spectrum.save(filename[0], self.calibration_points())
+        self.fits_spectrum.save(filename, self.calibration_points())

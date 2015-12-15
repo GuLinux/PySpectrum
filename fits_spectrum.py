@@ -7,9 +7,7 @@ from scipy.ndimage import interpolation
 class Spectrum:
     def __init__(self, fluxes, wavelengths = [], first_wavelength = 0, dispersion = 1):
         self.fluxes = fluxes
-        print("lambdas: {}, first_wavelength: {}, dispersion: {}".format(wavelengths, first_wavelength, dispersion))
         self.wavelengths = wavelengths if len(wavelengths) > 0 else self.__calculate_wavelengths(dispersion, first_wavelength)
-        print(self.wavelengths)
 
     def dispersion(self):
         return (self.wavelengths[-1]-self.wavelengths[0])/(len(self.wavelengths)-1)
@@ -47,6 +45,8 @@ class FitsSpectrum:
     CALIBRATION_DATA = 'CALIBRATION_DATA'
     SPECTRAL_LINES = 'SPECTRAL_LINES'
     LABELS = 'LABELS'
+    DISPERSION = 'CD1_1'
+    ROTATION = 'pyspec_rotated_by'
     
     def __init__(self, fits_file):
         self.fits_file = fits_file
@@ -101,7 +101,7 @@ class FitsSpectrum:
         header.set('CRPIX1', comment='wavelength starting element', value=1)
         header.set('CRVAL1', comment='first wavelength, Angstrom', value=self.spectrum.wavelengths[0])
         header.set('CDELT1', comment='dispersion (Angstrom/pixel)', value = self.spectrum.dispersion())
-        header.set('CD1_1', comment='dispersion (Angstrom/pixel)', value = self.spectrum.dispersion())
+        header.set(FitsSpectrum.DISPERSION, comment='dispersion (Angstrom/pixel)', value = self.spectrum.dispersion())
         header.set('CTYPE1', value = 'WAVE-WAV-PLY')
         header.set('CUNIT1', value = 'Angstrom')
         if len(spectral_lines) > 0:

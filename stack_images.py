@@ -100,7 +100,6 @@ class StackImages(QWidget):
         if data['file'] == self.reference['file']:
             self.__update_offset(data, (0, 0))
             return
-        print("{} shape: {}".format(data['file'], data['data'].shape))
         offset_range = lambda n: range(1-int(n), int(n)-1)
         offsets = lambda name, indexes: [ (pearsonr(self.reference[name][indexes[0]:indexes[1]], data[name][indexes[0]-offset:indexes[1]-offset] )[0], offset) for offset in offset_range(indexes[0]) ]
         x_offset = sorted(offsets('profile', self.reference_indexes['h']), key=lambda x: x[0])[-1]
@@ -128,7 +127,6 @@ class StackImages(QWidget):
         self.reference = self.files_model.item(index).data()
         self.rotate_dialog = RotateImageDialog(self.fits_file, 0)
         self.rotate_dialog.rotated.connect(self.__rotated)
-        print("*ref: {} shape: {}".format(self.reference['file'], self.reference['data'].shape))
         indexes = lambda data: (int(len(data)/4), int(len(data)/4*3))
         self.__set_reference_indexes(indexes(self.reference['profile']), indexes(self.reference['spatial']) )
         #self.reference_indexes = { 'h': indexes(self.reference['profile']), 'v': indexes(self.reference['spatial']) }

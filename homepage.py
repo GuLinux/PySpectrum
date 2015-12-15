@@ -87,7 +87,6 @@ class HomePage(QWidget):
             for name, dir, path in LastFilesList.instance().last_files(key):
                 try:
                     model.setHorizontalHeaderLabels([get_names[key][0], "Directory"])
-                    print("{}: {}-{}-{}".format(key, name, dir, path))
                     item = QStandardItem(get_names[key][1](name, path))
                     item.setData(path)
                     model.appendRow([item, QStandardItem(dir)])

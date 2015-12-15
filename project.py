@@ -2,7 +2,7 @@ import json
 import os
 from PyQt5.QtCore import QDate, QObject, Qt, pyqtSignal, QDateTime
 from astropy.io import fits
-from rotate_image_dialog import RotateImageDialog
+from fits_spectrum import *
 import numpy as np
 
 class ProjectJSONEncoder(json.JSONEncoder):
@@ -87,8 +87,14 @@ class Project(QObject):
         return [(f[0], self.file_path(_type, name=f[1])) for f in self.data[_type]]
     
     def rotation_degrees(self):
-        angles = [ fits.getheader(f[1])[RotateImageDialog.ROTATION_HEADER] for f in self.get_raw_profiles()]
-        return np.mean(angles) if len(angles) else 0
+        return self.__avg_from_files(FitsSpectrum.ROTATION, self.get_raw_profiles())
+    
+    def avg_dispersion(self):
+        return self.__avg_from_files(FitsSpectrum.DISPERSION, self.get_calibrated_profiles())
+    
+    def __avg_from_files(self, header, files, default = None):
+        data = [ fits.getheader(f[1])[header] for f in files]
+        return np.mean(data) if len(data) else default
     
     def rotation_angle(self):
         pass

@@ -4,10 +4,10 @@ import scipy.ndimage.interpolation
 from PyQt5.QtCore import Qt, pyqtSignal
 import numpy as np
 import time
+from fits_spectrum import *
 
 class RotateImageDialog(QDialog):
     rotated = pyqtSignal()
-    ROTATION_HEADER = 'pyspec_rotated_by'
     
     def __init__(self, fits_file, image_hdu_index = 0, project = None):
         QDialog.__init__(self)
@@ -83,7 +83,7 @@ class RotateImageDialog(QDialog):
         self.ui.rotate_spinbox.setValue(degrees)
         
         if self.degrees() == degrees and not force: return
-        self.fits_file[0].header.set(RotateImageDialog.ROTATION_HEADER, value = degrees, comment='Image rotation angle, degrees')
+        self.fits_file[0].header.set(FitsSpectrum.ROTATION, value = degrees, comment='Image rotation angle, degrees')
         self.data_rotated = scipy.ndimage.interpolation.rotate(self.data, degrees, reshape=True, order=5, mode='constant')
         
         spatial = self.data_rotated.sum(1)
@@ -97,4 +97,4 @@ class RotateImageDialog(QDialog):
         
         
     def degrees(self):
-        return self.fits_file[0].header.get(RotateImageDialog.ROTATION_HEADER, 0)
+        return self.fits_file[0].header.get(FitsSpectrum.ROTATION, 0)

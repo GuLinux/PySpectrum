@@ -24,13 +24,14 @@ class ProjectWidget(QWidget):
         self.toolbar.addAction(ImportImage.icon(), ImportImage.ACTION_TEXT, import_image)
         self.ui.import_image.clicked.connect(import_image)
         self.raw_spectra_model = QStandardItemModel()
-        for model, widget, buttons in [
-            (self.raw_spectra_model, self.ui.raw_spectra, [(self.ui.calibrate, self.calibrate)])
-            ]:
+        self.calibrated_spectra_model = QStandardItemModel()
+        def connect_signals(model, widget, buttons):
             widget.setModel(model)
             for button in buttons:
                 button[0].clicked.connect(lambda: button[1].emit(model.item(widget.selectionModel().selectedRows()[0].row()).data() ))
                 widget.selectionModel().selectionChanged.connect(lambda sel, unsel: button[0].setEnabled(len(sel.indexes())>0))
+        connect_signals(self.raw_spectra_model, self.ui.raw_spectra, [(self.ui.calibrate, self.calibrate)])
+        connect_signals(self.calibrated_spectra_model, self.ui.calibrated_spectra, [(self.ui.math, self.math), (self.ui.finish, self.finish)])
             
         self.refresh()
         
@@ -41,7 +42,8 @@ class ProjectWidget(QWidget):
         self.ui.equipment.setText(self.project.get_equipment())
         self.ui.date.setText(self.project.get_date().toString())
         for model, items in [
-            (self.raw_spectra_model, self.project.get_raw_profiles())
+            (self.raw_spectra_model, self.project.get_raw_profiles()),
+            (self.calibrated_spectra_model, self.project.get_calibrated_profiles())
             ]:
             model.clear()
             model.setHorizontalHeaderLabels(['Object', 'Last Modified'])
