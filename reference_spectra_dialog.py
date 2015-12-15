@@ -71,6 +71,8 @@ class ReferenceSpectraDialog(QDialog):
     def __open_reference(self, file, axes):
         self.__close_reference(axes)
         fits_spectrum = FitsSpectrum(fits.open(file))
+        if fits_spectrum.spectrum.dispersion() < 0.4:
+            fits_spectrum.spectrum.resample(fits_spectrum.spectrum.dispersion() /0.4)
         fits_spectrum.spectrum.normalize_to_max()
         print("dispersion: {}, first: {}, last: {}".format(fits_spectrum.spectrum.dispersion(), fits_spectrum.spectrum.wavelengths[0], fits_spectrum.spectrum.wavelengths[-1]))
         self.current_line = Line2D(fits_spectrum.spectrum.wavelengths, fits_spectrum.spectrum.fluxes, color='gray')

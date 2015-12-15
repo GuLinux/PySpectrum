@@ -2,6 +2,7 @@ from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
 import traceback
+from scipy.ndimage import interpolation
 
 class Spectrum:
     def __init__(self, fluxes, wavelengths = [], first_wavelength = 0, dispersion = 1):
@@ -37,6 +38,10 @@ class Spectrum:
     def normalize_to_max(self):
         self.fluxes -= self.fluxes.min()
         self.fluxes /= self.fluxes.max()
+        
+    def resample(self, factor):
+        self.fluxes = interpolation.zoom(self.fluxes, factor)
+        self.wavelengths = interpolation.zoom(self.wavelengths, factor)        
 
 class FitsSpectrum:
     CALIBRATION_DATA = 'CALIBRATION_DATA'
