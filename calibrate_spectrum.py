@@ -191,7 +191,7 @@ class CalibrateSpectrum(QWidget):
         if not self.project:
             save_file_sticky('Save plot...', 'FITS file (.fit)', lambda f: self.save(f[0]), self.settings, CALIBRATED_PROFILE, [RAW_PROFILE])
             return
-        self.project.add_file(Project.CALIBRATED_PROFILE, object_properties = self.object_properties, on_added=self.save, notification_parent=self)
+        self.project.add_file(Project.CALIBRATED_PROFILE, object_properties = self.object_properties, on_added=self.save)
         
     def save(self, filename):
         self.fits_spectrum.save(filename, self.calibration_points())

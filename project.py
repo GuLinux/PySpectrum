@@ -124,7 +124,7 @@ class Project(QObject):
                 name = "{}_{}.fit.gz".format(object_properties.name, object_properties.date.toString(Qt.ISODate))
         return os.path.join(self.directory_path(_type), name)
     
-    def add_file(self, _type, on_added, object_properties = None, name = None, bare_name = None, notification_parent = None):
+    def add_file(self, _type, on_added, object_properties = None, name = None, bare_name = None):
         file_path = self.file_path(_type, name=name, bare_name = bare_name, object_properties = object_properties)
         files = [f for f in self.__get_files(_type) if f[1] != file_path]
         files.append((QDateTime.currentDateTime(), os.path.basename(file_path)))
@@ -133,7 +133,7 @@ class Project(QObject):
         self.save()
         on_added(file_path)
         name = fits.getheader(file_path)['OBJECT']
-        QtCommons.notification('File {} saved in {}/{}'.format(name, self.get_name(), _type), title='File Saved', type='success', timeout=5, parent=notification_parent)
+        Notification('File {} saved in {}/{}'.format(name, self.get_name(), _type), title='File Saved', type='success', timeout=5)
         self.filesChanged.emit()
         return file_path
     

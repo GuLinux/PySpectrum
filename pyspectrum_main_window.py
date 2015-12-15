@@ -23,7 +23,7 @@ from project import Project
 class PySpectrumMainWindow(QMainWindow):
     instance = None
     def __init__(self):
-        PySpectrumMainWindow.instance = self
+        Instances.MainWindow = self
         font = QApplication.instance().font()
         rc('font', **{'family':'serif','serif':[font.defaultFamily()]})
         super(PySpectrumMainWindow, self).__init__()
@@ -56,6 +56,7 @@ class PySpectrumMainWindow(QMainWindow):
                 a.setChecked(a == action)
         self.windows_menu.menu().triggered.connect(lambda a: action_checked(self.windows_menu.menu().actions(), a))
         self.__rebuild_windows_menu()
+        Notification(text='foo', title='bla', timeout=10)
 
     def closeEvent(self, ev):
         self.settings.setValue('window_geometry', self.saveGeometry())

@@ -3,6 +3,8 @@ from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5.QtWidgets import QDialog, QAction, QDoubleSpinBox
 from PyQt5.QtGui import QIcon
 from spectrum_trim_dialog import SpectrumTrimDialog
+from pyui.notification import Ui_Notification
+
 FITS_EXTS = "FITS Images (*.fit *.fits *.tfits *.fit.gz *.fits.gz *.tfits.gz)"
 FITS_IMG_EXTS = "FITS Images (*.fit *.fits *.fit.gz *.fits.gz)"
 PROJECT_FILES = "Project Files (*.json)"
@@ -16,6 +18,9 @@ MATH_OPERATION = "math_operation"
 PROJECTS = "projects"
 
 from PyQt5.QtWidgets import QInputDialog
+
+class Instances:
+    MainWindow = None
 
 class LastFilesList(QObject):
     files_changed = pyqtSignal()
@@ -78,3 +83,29 @@ def open_directory_sticky(title, on_ok, settings, key_name, other_keys=[], defau
 def open_files_sticky(title, file_types, on_ok, settings, key_name, other_keys=[], default_path=None, parent=None):
     directory = saved_directory(key_name, other_keys, default_path, settings)
     QtCommons.open_files(title, file_types, lambda f: save_path(settings, key_name, f, on_ok), directory, parent)
+
+
+    
+def Notification(text, title=None, parent=None, type='info', timeout=None):
+                                        # or BypassWindowManagerHint /FramelessWindowHint
+    print(Instances.MainWindow)
+    popup = QWidget(Instances.MainWindow, Qt.Window | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+    ui = Ui_Notification()
+    ui.setupUi(popup)
+    ui.text.setText(text)
+    ui.title.setText(title)
+    ui.close.clicked.connect(popup.deleteLater)
+    ui.widget.setStyleSheet({
+        'info': 'background-color: rgba(126, 214, 255, 220);',
+        'warning': 'background-color: rgba(255, 212, 94, 220);',
+        'error': 'background-color: rgba(255, 45, 45, 220);',
+        'success': 'background-color: rgba(150, 255, 186, 220);',
+        }[type])
+    popup.move(QApplication.desktop().screen().rect().center() - popup.rect().center())
+    popup.setAttribute(Qt.WA_TranslucentBackground, True)
+    if timeout:
+        timer = QTimer(popup)
+        timer.timeout.connect(popup.deleteLater)
+        timer.start(timeout*1000)
+    popup.show()
+    return popup

@@ -176,7 +176,7 @@ class PlotsMath(QWidget):
     def save_project_instrument_response(self):
         name = QInputDialog.getText(self, 'Enter Name', 'Enter new instrument response name for saving')
         if name[1]:
-            self.project.add_file(Project.INSTRUMENT_RESPONSES, lambda f: self.save(f), bare_name=name[0], notification_parent=self)
+            self.project.add_file(Project.INSTRUMENT_RESPONSES, lambda f: self.save(f), bare_name=name[0])
 
     def save(self, filename):
         hdu = fits.PrimaryHDU(self.spectrum.fluxes)
