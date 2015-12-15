@@ -7,6 +7,7 @@ import numpy as np
 import time
 from fits_spectrum import *
 from qmathplotwidget import *
+from scipy.optimize import *
 class RotateImageDialog(QDialog):
     rotated = pyqtSignal()
     
@@ -37,25 +38,24 @@ class RotateImageDialog(QDialog):
         self.rotate(self.degrees() + (180. if self.degrees() <= 180 else -180) )
     
     def autorotate(self):
-        def get_angle(data, range):
+        _rotate = lambda data, d, order=3: scipy.ndimage.interpolation.rotate(data, d, reshape=True, order=order, mode='constant', cval = self.background)
+        def get_angle(data, min, max, xtol=1e-10):
             start = time.time()
-            sum_max=(0,0)
-            for deg in range:
-                sum_x = scipy.ndimage.interpolation.rotate(data, deg, reshape=True, order=2, mode='constant').sum(1)
-                delta = sum_x.max() - sum_x.min()
-                if delta > sum_max[1]:
-                    sum_max = (deg, delta)
+            get_data = lambda d: self.__fwhm(_rotate(data, d), ypos=0.25)[0]
+            result = minimize_scalar(get_data, bracket=[min,max], method='brent', options={'xtol': xtol})
+            print(result)
+            print(result.x)
             print("elapsed: {}".format(time.time() - start))
-            return sum_max[0]
+            return result.x
         
-        progress = QProgressDialog("Calculating best rotation angle", None, 0, 5, self);
+        progress = QProgressDialog("Calculating best rotation angle", None, 0, 4, self);
         progress.setWindowModality(Qt.WindowModal);
         progress.show()
         
         def show_progress(progressbar, progress, angle):
             progressbar.setValue(progress)
             QApplication.instance().processEvents()
-            print("Step {}: {}".format(progress, round(angle, 3)))
+            print("Step {}: {}".format(progress, round(angle, 5)))
             
         show_progress(progress, 0, 0)
             
@@ -64,32 +64,34 @@ class RotateImageDialog(QDialog):
         data = self.fits_file[self.image_hdu_index].data
         small = scipy.ndimage.interpolation.zoom(data, 1./ratio)
         
-        angle = get_angle(small, np.arange(0, 180, step=0.5))
+        angle = get_angle(small, 0, 180)
         show_progress(progress, 1, angle)
-        angle = get_angle(small, np.arange(angle-4., angle+4., step=0.01))
+        #angle = get_angle(small, np.arange(angle-4., angle+4., step=0.01))
+        #show_progress(progress, 2, angle)
+        angle = get_angle(scipy.ndimage.interpolation.zoom(data, 2./ratio) if 2./ratio < 1 else data, angle-2, angle+2)
         show_progress(progress, 2, angle)
-        angle = get_angle(scipy.ndimage.interpolation.zoom(data, 2./ratio) if 2./ratio < 1 else data, np.arange(angle-2, angle+2, step=0.005))
+        angle = get_angle(scipy.ndimage.interpolation.zoom(data, 3/ratio) if 3/ratio < 1 else data, angle-1, angle+1)
         show_progress(progress, 3, angle)
-        angle = get_angle(scipy.ndimage.interpolation.zoom(data, 4/ratio) if 4/ratio < 1 else data, np.arange(angle-0.5, angle+0.5, step=0.001))
+        angle = get_angle(self.data, angle-0.0002, angle+0.0002)
         show_progress(progress, 4, angle)
-        angle = get_angle(self.data, np.arange(angle-0.03, angle+0.03, step=0.0005))
-        show_progress(progress, 5, angle)
         
-        angle = round(angle, 3)
+        angle = round(angle, 5)
+        angle = angle if angle > 0 else angle + 360.
+        progress.accept()
         print("Step 5: {}".format(angle))
-        self.rotate(angle if angle >= 0 else angle+180.)
+        self.rotate(angle)
         self.raise_()
             
             
-    def __fwhm(self, data):
+    def __fwhm(self, data, ypos=0.5):
         spatial = data.sum(1)
         spatial = spatial-np.min(spatial)
         spatial_range = range(0, len(spatial))
-        spline = UnivariateSpline(spatial_range, (spatial -np.max(spatial)/2), s=0.1, k=3)
+        spline = UnivariateSpline(spatial_range, (spatial -np.max(spatial)*ypos), s=0.1, k=3)
         roots = spline.roots()
-        if len(roots) != 2:
+        if len(roots) < 2:
             return np.inf
-        return roots[1]-roots[0]
+        return roots[-1]-roots[0], roots
 
         
     def rotate(self, degrees, force = False):
@@ -99,17 +101,10 @@ class RotateImageDialog(QDialog):
         if self.degrees() == degrees and not force: return
         self.fits_file[0].header.set(FitsSpectrum.ROTATION, value = degrees, comment='Image rotation angle, degrees')
         self.data_rotated = scipy.ndimage.interpolation.rotate(self.data, degrees, reshape=True, order=5, mode='constant', cval = self.background)
-        
+        print("fwhm: {}".format(self.__fwhm(self.data_rotated)))
         spatial = self.data_rotated.sum(1)
         delta = spatial.max() - spatial.min()
         self.max_spatial_delta = max(delta, self.max_spatial_delta)
-        spatial_range = range(0, len(spatial))
-        scaled_spatial = spatial-np.min(spatial)
-        spline = UnivariateSpline(spatial_range, (scaled_spatial -np.max(scaled_spatial)/2), s=0)
-        roots = spline.roots()
-        if len(roots) == 2:
-            print(roots[1]-roots[0])
-        print("roots: {}".format(roots))
         self.max_spatial_delta_angle = degrees if self.max_spatial_delta == delta else self.max_spatial_delta_angle
         self.ui.rotation_info.setText("Current rotation degrees: {:.3f}, optimal rotation angle so far: {:.3f} deg".format(degrees, self.max_spatial_delta_angle))
         
