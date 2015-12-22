@@ -82,7 +82,7 @@ def spatial(data):
 
 
 def min_angle(data, background = 0, fmin=0, fmax=360):
-    get_data = lambda d: fwhm(rotate(data, d, background=background), ypos=0.25)[0]
+    get_data = lambda d: fwhm(rotate(data, d, background=background))[0]
     return minimize_scalar(get_data, bracket=[fmin,fmax], method='brent', options={'xtol': 1e-10})
 
 def calc_min_angle(data, background = 0):    
@@ -119,7 +119,7 @@ for file in args['sequences']:
         angle = calc_min_angle(first_image, background)
 
         first_image = rotate(first_image, angle, background=background)
-        img_fwhm = fwhm(first_image, 0.30)
+        img_fwhm = fwhm(first_image)
         roots = img_fwhm[1][0],img_fwhm[1][-1]
         distance = (roots[1]-roots[0])
         indexes = roots[0]-distance*4, roots[1]+distance*4
@@ -127,7 +127,7 @@ for file in args['sequences']:
 
         for i in range(0, total_images):
             image = rotate(sequence.image(i), angle, background = background)
-            _fwhm = fwhm(image[indexes[0]:indexes[1],:], 0.3)
+            _fwhm = fwhm(image[indexes[0]:indexes[1],:])
             images.append({'index': i, 'quality': _fwhm[0]})
             print("{}/{}: {}".format(i+1, total_images, _fwhm[0]))
             
