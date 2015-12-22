@@ -37,10 +37,11 @@ class ObjectPropertiesDialog(QDialog):
         
     
     def simbad_query(self):
+        search_name = self.ui.name.currentText()
         try:
-            result = Simbad.query_object(self.ui.name.currentText())
+            result = Simbad.query_object(search_name)
             if not result:
-                QMessageBox.warning(self, 'Not Found', 'Identifier {} not recognized by Simbad'.format(self.ui.name.currentText()))
+                QMessageBox.warning(self, 'Not Found', 'Identifier {} not recognized by Simbad'.format(search_name))
                 return
         except Exception as e:
             QMessageBox.critical(self, 'Query Error', 'Error running Simbad query: {}'.format(e))
@@ -50,9 +51,13 @@ class ObjectPropertiesDialog(QDialog):
         names = [(name[0].decode(), re.sub('\s{2,}', ' ', re.sub('^\*+', '', name[0].decode())).replace('NAME ', '').strip()) for name in Simbad.query_objectids(main_id)]
         names = [(n[0],n[1].title()) if n[0][0:4]=='NAME' else n for n in names]
         self.ui.name.clear()
-        self.ui.names.setText(', '.join([n[1] for n in names]))
-        self.ui.name.addItems([name[1] for name in names])
+        plain_names = [n[1] for n in names]
+        self.ui.names.setText(', '.join(plain_names))
+        self.ui.name.addItems(plain_names)
         self.ui.name.setCurrentText([name[1] for name in names if main_id == name[0]][0])
+        searched_name = [n for n in plain_names if n.lower() == search_name.lower()]
+        if len(searched_name):
+            self.ui.name.setCurrentText(searched_name[0])
         self.ui.ra.setText(row['RA'])
         self.ui.dec.setText(row['DEC'])
         self.ui.sptype.setText(row['SP_TYPE'].decode())

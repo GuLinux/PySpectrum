@@ -89,7 +89,7 @@ class Project(QObject):
     def __get_files(self, _type):
         if not _type in self.data:
             self.data[_type] = []
-        return [(f[0], self.file_path(_type, name=f[1])) for f in self.data[_type]]
+        return [(f[0], self.file_path(_type, name=f[1])) for f in self.data[_type] if os.path.isfile(self.file_path(_type, name=f[1]))]
     
     def rotation_degrees(self):
         return self.__avg_from_files(FitsSpectrum.ROTATION, self.get_raw_profiles())
