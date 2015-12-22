@@ -133,7 +133,7 @@ class Project(QObject):
         self.data[_type] = sorted(files, key=lambda o: o[0], reverse=True)
         self.save()
         on_added(file_path)
-        name = fits.getheader(file_path)['OBJECT']
+        name = fits.getheader(file_path).get('OBJECT', os.path.basename(file_path))
         Notification('File {} saved in {}/{}'.format(name, self.get_name(), _type), title='File Saved', type='success', timeout=5)
         self.filesChanged.emit()
         return file_path
