@@ -22,6 +22,7 @@ class ObjectProperties:
         header.set('SPTYPE', comment='Object spectral type', value = self.sptype)
         header.set('OBSERVER', value = self.observer)
         header.set('EQUIPMENT', value = self.equipment)
+        header.set('NOTES', value = self.comment)
         header.set('POSITION', comment='Acquisition location', value = self.position)
         
     def __def_value(self, name, value=None):
@@ -38,6 +39,7 @@ class ObjectProperties:
         header = self.fits_file[0].header
         self.name=header.get('OBJECT')
         self.names=header.get('NAMES')
+        self.comment=header.get('NOTES')
         self.date=QDateTime.fromString(header.get('DATE', self.__def_value('date',QDateTime.currentDateTime().toString(Qt.ISODate))), Qt.ISODate)
         #header.get('CTYPE2') TODO: get ra/dec from type
         ra=header.get('CRVAL2', 0)
@@ -67,6 +69,7 @@ class ViewObjectProperties(QWidget):
         self.setLayout(layout)
         layout.addWidget(QLabel("Name: {}".format(object_properties.name)))
         layout.addWidget(QLabel("Names: {}".format(object_properties.names)))
+        layout.addWidget(QLabel("Comment: {}".format(object_properties.comment)))
         layout.addWidget(QLabel("Shoot date: {}".format(object_properties.date.toString())))
         layout.addWidget(QLabel("Coordinates: {}".format(object_properties.printable_coordinates())))
         layout.addWidget(QLabel("Type: {}, spectral class: {}".format(object_properties.type, object_properties.sptype)))

@@ -59,10 +59,12 @@ class ProjectWidget(QWidget):
             (self.finished_spectra_model, self.project.get_finished_profiles())
             ]:
             model.clear()
-            model.setHorizontalHeaderLabels(['Object', 'Last Modified'])
+            model.setHorizontalHeaderLabels(['Object', 'Last Modified', 'Comment'])
             for item in items:
                 file = item[1]
-                name = fits.getheader(file)['OBJECT']
+                header = fits.getheader(file)
+                name = header.get('OBJECT', os.path.basename(file))
+                comment = header.get('NOTES', '')
                 file_item = QStandardItem(name)
                 file_item.setData(file)
-                model.appendRow([file_item, QStandardItem(item[0].toString())])
+                model.appendRow([file_item, QStandardItem(item[0].toString()), QStandardItem(comment)])
