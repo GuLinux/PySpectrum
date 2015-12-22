@@ -1,6 +1,6 @@
 from pyui.project_widget import Ui_ProjectWidget
 from project import Project
-from PyQt5.QtWidgets import QWidget, QToolBar, QMenu
+from PyQt5.QtWidgets import QWidget, QToolBar, QMenu, QHeaderView
 from PyQt5.QtCore import Qt, QObject, pyqtSignal, QUrl
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QDesktopServices
 from pyspectrum_commons import *
@@ -33,6 +33,7 @@ class ProjectWidget(QWidget):
             
         for model, widget in [(self.raw_spectra_model, self.ui.raw_spectra), (self.calibrated_spectra_model, self.ui.calibrated_spectra), (self.finished_spectra_model, self.ui.finished_spectra)]:
             widget.setModel(model)
+            widget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
             
         button_action(self.ui.calibrate, self.calibrate, self.ui.raw_spectra, self.raw_spectra_model)
         button_action(self.ui.math, self.math, self.ui.calibrated_spectra, self.calibrated_spectra_model)

@@ -1,7 +1,7 @@
 from pyui.homepage import Ui_HomePage
 from PyQt5.QtWidgets import QApplication
 from pyspectrum_commons import *
-from PyQt5.QtWidgets import QMainWindow, QDialog, QVBoxLayout, QCheckBox, QLabel, QDialogButtonBox, QProgressDialog, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QDialog, QVBoxLayout, QCheckBox, QLabel, QDialogButtonBox, QProgressDialog, QMessageBox, QHeaderView
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from qtcommons import QtCommons
 from PyQt5.QtWidgets import QWidget, QToolBar
@@ -51,6 +51,9 @@ class HomePage(QWidget):
         self.ui.recent_raw_list.setModel(self.recent_raw_model)
         self.ui.recent_calibrated_list.setModel(self.recent_calibrated_model)
         self.ui.recent_projects.setModel(self.recent_projects_model)
+        for widget in [self.ui.recent_raw_list, self.ui.recent_calibrated_list, self.ui.recent_projects]:
+            widget.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+            
         LastFilesList.instance().files_changed.connect(self.__populate_lists)
         selected_path = lambda model, view: model.item(view.selectionModel().selectedRows()[0].row()).data()
         button_enable = lambda view, button: view.selectionModel().selectionChanged.connect(lambda sel, desel: button.setEnabled(len(sel.indexes() )) )
