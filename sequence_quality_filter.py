@@ -10,6 +10,7 @@ from scipy.interpolate import UnivariateSpline
 from scipy.optimize import *
 import copy
 import json
+import argparse
 
 class SERHeader(object):
     FORMAT = '=14siiiiiii40s40s40sqq'
@@ -96,41 +97,48 @@ def calc_min_angle(data, background = 0):
         angle -= 360.
     return angle
         
-sequence = SERSequence(sys.argv[1])
-perc = float(sys.argv[2])
-indexes_filename = '{}.qualities'.format(sys.argv[1])
+parser = argparse.ArgumentParser(description='Calculates quality for spectrum images, and filters sequences according to them')
+parser.add_argument('sequences', metavar='seq', type=str, nargs='+', help='sequence files to be evaluated')
+group=parser.add_mutually_exclusive_group(required=True)
+group.add_argument('-p', '--perc', metavar='percentage', type=float, help='percent of frames to be kept for each sequence')
+group.add_argument('-o', '--only-evaluate', dest='filter', action='store_const', const=False, default=True, help='No filter, just evaluate quality')
+args = vars(parser.parse_args())
 
-images = []
-try:
-    with open(indexes_filename, 'r') as indexes_file:
-        images = json.load(indexes_file)
-        print('Using indexes file {}, to recalculate indexes just delete it'.format(indexes_filename))
-except FileNotFoundError:
-    first_image = sequence.image(0)
-    background = np.median(first_image)
-    angle = calc_min_angle(first_image, background)
+for file in args['sequences']:
+    sequence = SERSequence(file)
+    indexes_filename = '{}.qualities'.format(file)
 
-    first_image = rotate(first_image, angle, background=background)
-    img_fwhm = fwhm(first_image, 0.30)
-    roots = img_fwhm[1][0],img_fwhm[1][-1]
-    distance = (roots[1]-roots[0])
-    indexes = roots[0]-distance*4, roots[1]+distance*4
-    total_images = sequence.images()
+    images = []
+    try:
+        with open(indexes_filename, 'r') as indexes_file:
+            images = json.load(indexes_file)
+            print('Using indexes file {}, to recalculate indexes just delete it'.format(indexes_filename))
+    except FileNotFoundError:
+        first_image = sequence.image(0)
+        background = np.median(first_image)
+        angle = calc_min_angle(first_image, background)
 
-    for i in range(0, total_images):
-        image = rotate(sequence.image(i), angle, background = background)
-        _fwhm = fwhm(image[indexes[0]:indexes[1],:], 0.3)
-        images.append({'index': i, 'quality': _fwhm[0]})
-        print("{}/{}: {}".format(i+1, total_images, _fwhm[0]))
+        first_image = rotate(first_image, angle, background=background)
+        img_fwhm = fwhm(first_image, 0.30)
+        roots = img_fwhm[1][0],img_fwhm[1][-1]
+        distance = (roots[1]-roots[0])
+        indexes = roots[0]-distance*4, roots[1]+distance*4
+        total_images = sequence.images()
 
-images_selection =int(len(images) / (100./perc))
-fname_parts = list(os.path.splitext(sys.argv[1]))
-fname_parts[0] = '{}_best{}'.format(fname_parts[0], images_selection)
-newfile = ''.join(fname_parts)
-images = sorted(images, key=lambda i: i['quality'])
+        for i in range(0, total_images):
+            image = rotate(sequence.image(i), angle, background = background)
+            _fwhm = fwhm(image[indexes[0]:indexes[1],:], 0.3)
+            images.append({'index': i, 'quality': _fwhm[0]})
+            print("{}/{}: {}".format(i+1, total_images, _fwhm[0]))
+            
+    images = sorted(images, key=lambda i: i['quality'])
+    with open(indexes_filename, 'w') as indexes_file:
+        json.dump(images, indexes_file)
 
-with open(indexes_filename, 'w') as indexes_file:
-    json.dump(images, indexes_file)
-
-sequence.write(newfile, images[0:images_selection])
-print('Wrote ' + newfile)
+    if args['filter']:
+        images_selection =int(len(images) / (100./args['perc']))
+        fname_parts = list(os.path.splitext(file))
+        fname_parts[0] = '{}_best{}'.format(fname_parts[0], images_selection)
+        newfile = ''.join(fname_parts)
+        sequence.write(newfile, images[0:images_selection])
+        print('Wrote ' + newfile)
