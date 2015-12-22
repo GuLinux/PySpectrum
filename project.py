@@ -4,6 +4,7 @@ from PyQt5.QtCore import QDate, QObject, Qt, pyqtSignal, QDateTime
 from astropy.io import fits
 from fits_spectrum import *
 from qtcommons import *
+from pyspectrum_commons import *
 import numpy as np
 
 class ProjectJSONEncoder(json.JSONEncoder):

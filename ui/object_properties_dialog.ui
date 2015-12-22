@@ -7,53 +7,24 @@
     <x>0</x>
     <y>0</y>
     <width>444</width>
-    <height>386</height>
+    <height>402</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Object Properties</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="8" column="1" colspan="2">
-    <widget class="QLineEdit" name="equipment"/>
-   </item>
-   <item row="4" column="1" colspan="2">
-    <widget class="QLineEdit" name="dec"/>
-   </item>
-   <item row="1" column="1" colspan="2">
-    <widget class="QLineEdit" name="type"/>
-   </item>
-   <item row="11" column="0" colspan="3">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1" colspan="2">
-    <widget class="QLineEdit" name="ra"/>
-   </item>
-   <item row="7" column="1" colspan="2">
-    <widget class="QLineEdit" name="observer"/>
-   </item>
-   <item row="6" column="1" colspan="2">
-    <widget class="QDateTimeEdit" name="date">
-     <property name="calendarPopup">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0">
+   <item row="7" column="0">
     <widget class="QLabel" name="label_6">
      <property name="text">
       <string>Date</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="3" column="1" colspan="2">
+    <widget class="QLineEdit" name="sptype"/>
+   </item>
+   <item row="3" column="0">
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Spectral type</string>
@@ -67,10 +38,39 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1" colspan="2">
-    <widget class="QLineEdit" name="sptype"/>
+   <item row="9" column="1" colspan="2">
+    <widget class="QLineEdit" name="equipment"/>
    </item>
-   <item row="9" column="0">
+   <item row="5" column="1" colspan="2">
+    <widget class="QLineEdit" name="dec"/>
+   </item>
+   <item row="2" column="1" colspan="2">
+    <widget class="QLineEdit" name="type"/>
+   </item>
+   <item row="12" column="0" colspan="3">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="QLineEdit" name="ra"/>
+   </item>
+   <item row="7" column="1" colspan="2">
+    <widget class="QDateTimeEdit" name="date">
+     <property name="calendarPopup">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1" colspan="2">
+    <widget class="QLineEdit" name="observer"/>
+   </item>
+   <item row="10" column="0">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -83,31 +83,24 @@
      </property>
     </spacer>
    </item>
-   <item row="8" column="0">
-    <widget class="QLabel" name="label_8">
-     <property name="text">
-      <string>Equipment</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_5">
-     <property name="text">
-      <string>Declination</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
+   <item row="2" column="0">
     <widget class="QLabel" name="label_3">
      <property name="text">
       <string>Object type</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_2">
+   <item row="9" column="0">
+    <widget class="QLabel" name="label_8">
      <property name="text">
-      <string>Right Ascension</string>
+      <string>Equipment</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_5">
+     <property name="text">
+      <string>Declination</string>
      </property>
     </widget>
    </item>
@@ -118,21 +111,28 @@
      </property>
     </widget>
    </item>
-   <item row="7" column="0">
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Right Ascension</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
     <widget class="QLabel" name="label_7">
      <property name="text">
       <string>Observer</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="0">
+   <item row="11" column="0">
     <widget class="QLabel" name="label_9">
      <property name="text">
       <string>Position</string>
      </property>
     </widget>
    </item>
-   <item row="10" column="1" colspan="2">
+   <item row="11" column="1" colspan="2">
     <widget class="QLineEdit" name="position"/>
    </item>
    <item row="0" column="1">
@@ -142,11 +142,22 @@
      </property>
     </widget>
    </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_10">
+     <property name="text">
+      <string>Other Names</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="QLineEdit" name="names"/>
+   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>name</tabstop>
   <tabstop>simbad</tabstop>
+  <tabstop>names</tabstop>
   <tabstop>type</tabstop>
   <tabstop>sptype</tabstop>
   <tabstop>ra</tabstop>

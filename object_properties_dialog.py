@@ -25,6 +25,7 @@ class ObjectPropertiesDialog(QDialog):
         enable_simbad_button()
         self.ui.name.setFocus()
         self.ui.name.setEditText(object_properties.name)
+        self.ui.names.setText(object_properties.names)
         self.ui.ra.setText(object_properties.ra_str())
         self.ui.dec.setText(object_properties.dec_str())
         self.ui.date.setDateTime(object_properties.date)
@@ -49,6 +50,7 @@ class ObjectPropertiesDialog(QDialog):
         names = [(name[0].decode(), re.sub('\s{2,}', ' ', re.sub('^\*+', '', name[0].decode())).replace('NAME ', '').strip()) for name in Simbad.query_objectids(main_id)]
         names = [(n[0],n[1].title()) if n[0][0:4]=='NAME' else n for n in names]
         self.ui.name.clear()
+        self.ui.names.setText(', '.join([n[1] for n in names]))
         self.ui.name.addItems([name[1] for name in names])
         self.ui.name.setCurrentText([name[1] for name in names if main_id == name[0]][0])
         self.ui.ra.setText(row['RA'])
@@ -61,6 +63,7 @@ class ObjectPropertiesDialog(QDialog):
         self.settings.setValue('equipment', self.ui.equipment.text())
         self.settings.setValue('position', self.ui.position.text())
         self.object_properties.name = self.ui.name.currentText()
+        self.object_properties.names = self.ui.names.text()
         self.object_properties.date = self.ui.date.dateTime()
         self.object_properties.coordinates = SkyCoord(ra=self.ui.ra.text(), dec=self.ui.dec.text(), unit=(u.hourangle, u.deg))
         self.object_properties.type = self.ui.type.text()

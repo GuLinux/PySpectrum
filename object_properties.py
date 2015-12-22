@@ -12,6 +12,7 @@ class ObjectProperties:
     def write(self):
         header = self.fits_file[0].header
         header.set('OBJECT', comment='Object display name', value=self.name)
+        header.set('NAMES', comment='Object display name', value=self.names)
         header.set('DATE', comment='Data acquisition date', value = self.date.toString(Qt.ISODate))
         header.set('CTYPE2', value = 'RA--TAN')
         header.set('CRVAL2', comment='Object right ascension in degrees', value= self.coordinates.ra.degree)
@@ -36,6 +37,7 @@ class ObjectProperties:
     def read(self):
         header = self.fits_file[0].header
         self.name=header.get('OBJECT')
+        self.names=header.get('NAMES')
         self.date=QDateTime.fromString(header.get('DATE', self.__def_value('date',QDateTime.currentDateTime().toString(Qt.ISODate))), Qt.ISODate)
         #header.get('CTYPE2') TODO: get ra/dec from type
         ra=header.get('CRVAL2', 0)
@@ -64,6 +66,7 @@ class ViewObjectProperties(QWidget):
         layout = QVBoxLayout(self)
         self.setLayout(layout)
         layout.addWidget(QLabel("Name: {}".format(object_properties.name)))
+        layout.addWidget(QLabel("Names: {}".format(object_properties.names)))
         layout.addWidget(QLabel("Shoot date: {}".format(object_properties.date.toString())))
         layout.addWidget(QLabel("Coordinates: {}".format(object_properties.printable_coordinates())))
         layout.addWidget(QLabel("Type: {}, spectral class: {}".format(object_properties.type, object_properties.sptype)))
