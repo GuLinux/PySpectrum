@@ -44,7 +44,6 @@ class RotateImageDialog(QDialog):
             get_data = lambda d: self.__fwhm(_rotate(data, d), ypos=0.25)[0]
             result = minimize_scalar(get_data, bracket=[min,max], method='brent', options={'xtol': xtol})
             print(result)
-            print(result.x)
             print("elapsed: {}".format(time.time() - start))
             return result.x
         
@@ -76,11 +75,14 @@ class RotateImageDialog(QDialog):
         show_progress(progress, 4, angle)
         
         angle = round(angle, 5)
-        angle = angle if angle > 0 else angle + 360.
-        progress.accept()
+        while angle < 0:
+            angle += 360.
+        while angle > 360:
+            angle -= 360.
+        progress.deleteLater()
         print("Step 5: {}".format(angle))
         self.rotate(angle)
-        self.raise_()
+        #self.raise_()
             
             
     def __fwhm(self, data, ypos=0.5):
@@ -90,7 +92,7 @@ class RotateImageDialog(QDialog):
         spline = UnivariateSpline(spatial_range, (spatial -np.max(spatial)*ypos), s=0.1, k=3)
         roots = spline.roots()
         if len(roots) < 2:
-            return np.inf
+            return np.inf, [-np.inf, np.inf]
         return roots[-1]-roots[0], roots
 
         
