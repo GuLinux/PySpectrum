@@ -103,7 +103,11 @@ def calc_min_angle(data, background = 0, max_precision = False):
 def sorted_by_quality(images):
     return sorted(images, key=lambda i: i['quality'])
 
-def calc_qualities(sequence, limit = np.inf, reference = 0, max_angle_precision = False):
+def print_progress_percent(current, total, fwhm, message=''):
+    sys.stderr.write("\r{}{:.2f}% ({} of {}): {:.2f}".format(message, (current+1.)*100./total, current+1, total, fwhm) )
+    sys.stderr.flush()
+
+def calc_qualities(sequence, limit = np.inf, reference = 0, max_angle_precision = False, print_progress = None):
     images = []
     reference_image = sequence.image(reference)
     background = np.median(reference_image)
@@ -120,7 +124,9 @@ def calc_qualities(sequence, limit = np.inf, reference = 0, max_angle_precision 
         image = rotate(sequence.image(i), angle, background = background)
         _fwhm = fwhm(image[indexes[0]:indexes[1],:])
         images.append({'index': i, 'quality': _fwhm[0]})
-        print("{}/{}: {}".format(i+1, total_images, _fwhm[0]))
+        if print_progress:
+            print_progress(i, total_images, _fwhm[0])
+        #print("{}/{}: {}".format(i+1, total_images, _fwhm[0]))
     return images
 
 parser = argparse.ArgumentParser(description='Calculates quality for spectrum images, and filters sequences according to them')
@@ -140,9 +146,11 @@ for file in args['sequences']:
             images = json.load(indexes_file)
             print('Using indexes file {}, to recalculate indexes just delete it'.format(indexes_filename))
     except FileNotFoundError:
-        images = sorted_by_quality(calc_qualities(sequence, limit = 30))
+        images = sorted_by_quality(calc_qualities(sequence, limit = 30, print_progress = lambda c, t, f: print_progress_percent(c, t, f, message='{}: first phase: '.format(file) )))
         print("First step done, improving precision")
-        images = calc_qualities(sequence, reference = images[0]['index'], max_angle_precision = True)
+        images = calc_qualities(sequence, reference = images[0]['index'], max_angle_precision = True, print_progress = lambda c, t, f: print_progress_percent(c, t, f, message='{}: final phase: '.format(file) ))
+        sys.stderr.write('\n')
+        sys.stderr.flush()
         
     images = sorted_by_quality(images)
     with open(indexes_filename, 'w') as indexes_file:
