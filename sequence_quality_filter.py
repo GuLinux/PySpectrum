@@ -85,18 +85,44 @@ def min_angle(data, background = 0, fmin=0, fmax=360):
     get_data = lambda d: fwhm(rotate(data, d, background=background))[0]
     return minimize_scalar(get_data, bracket=[fmin,fmax], method='brent', options={'xtol': 1e-10})
 
-def calc_min_angle(data, background = 0):    
+def calc_min_angle(data, background = 0, max_precision = False):    
     ratio = 1./max(data.shape[0]/100, data.shape[1]/100)
     angle = min_angle(scipy.ndimage.interpolation.zoom(data, ratio), background, fmin=0, fmax=180)
     angle = min_angle(scipy.ndimage.interpolation.zoom(data, min(ratio, 2.)), background, fmin=angle.x - 3, fmax=angle.x + 3)
     angle = min_angle(scipy.ndimage.interpolation.zoom(data, min(ratio, 4.)), background, fmin=angle.x - 1, fmax=angle.x + 1)
+    if max_precision:
+        print("Using better precision for last step")
+        angle = min_angle(scipy.ndimage.interpolation.zoom(data, min(ratio, 8.)), background, fmin=angle.x - 1, fmax=angle.x + 1)
     angle = angle.x
     while angle < 0:
         angle += 360.
     while angle > 360:
         angle -= 360.
     return angle
-        
+
+def sorted_by_quality(images):
+    return sorted(images, key=lambda i: i['quality'])
+
+def calc_qualities(sequence, limit = np.inf, reference = 0, max_angle_precision = False):
+    images = []
+    reference_image = sequence.image(reference)
+    background = np.median(reference_image)
+    angle = calc_min_angle(reference_image, background, max_precision = max_angle_precision)
+    print("Rotation angle: {} (max precision: {})".format(angle, max_angle_precision))
+    reference_image = rotate(reference_image, angle, background=background)
+    img_fwhm = fwhm(reference_image)
+    roots = img_fwhm[1][0],img_fwhm[1][-1]
+    distance = (roots[1]-roots[0])
+    indexes = roots[0]-distance*4, roots[1]+distance*4
+    total_images = sequence.images()
+    
+    for i in range(0, min(total_images, limit)):
+        image = rotate(sequence.image(i), angle, background = background)
+        _fwhm = fwhm(image[indexes[0]:indexes[1],:])
+        images.append({'index': i, 'quality': _fwhm[0]})
+        print("{}/{}: {}".format(i+1, total_images, _fwhm[0]))
+    return images
+
 parser = argparse.ArgumentParser(description='Calculates quality for spectrum images, and filters sequences according to them')
 parser.add_argument('sequences', metavar='seq', type=str, nargs='+', help='sequence files to be evaluated')
 group=parser.add_mutually_exclusive_group(required=True)
@@ -114,24 +140,11 @@ for file in args['sequences']:
             images = json.load(indexes_file)
             print('Using indexes file {}, to recalculate indexes just delete it'.format(indexes_filename))
     except FileNotFoundError:
-        first_image = sequence.image(0)
-        background = np.median(first_image)
-        angle = calc_min_angle(first_image, background)
-
-        first_image = rotate(first_image, angle, background=background)
-        img_fwhm = fwhm(first_image)
-        roots = img_fwhm[1][0],img_fwhm[1][-1]
-        distance = (roots[1]-roots[0])
-        indexes = roots[0]-distance*4, roots[1]+distance*4
-        total_images = sequence.images()
-
-        for i in range(0, total_images):
-            image = rotate(sequence.image(i), angle, background = background)
-            _fwhm = fwhm(image[indexes[0]:indexes[1],:])
-            images.append({'index': i, 'quality': _fwhm[0]})
-            print("{}/{}: {}".format(i+1, total_images, _fwhm[0]))
-            
-    images = sorted(images, key=lambda i: i['quality'])
+        images = sorted_by_quality(calc_qualities(sequence, limit = 30))
+        print("First step done, improving precision")
+        images = calc_qualities(sequence, reference = images[0]['index'], max_angle_precision = True)
+        
+    images = sorted_by_quality(images)
     with open(indexes_filename, 'w') as indexes_file:
         json.dump(images, indexes_file)
 
