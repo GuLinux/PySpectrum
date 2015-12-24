@@ -71,7 +71,7 @@ def fwhm(data, ypos=0.5):
     spline = UnivariateSpline(spatial_range, (spatial -np.max(spatial)*ypos), s=0.1, k=3)
     roots = spline.roots()
     if len(roots) < 2:
-        return np.inf
+        return np.inf, (-np.inf, +np.inf)
     return roots[-1]-roots[0], roots
 
 def rotate(data, d, order=3, background = 0):
