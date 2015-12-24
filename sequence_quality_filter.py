@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-import struct
 import os
 import sys
 import array
