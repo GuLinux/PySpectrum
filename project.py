@@ -86,10 +86,10 @@ class Project(QObject):
     def get_instrument_responses(self):
         return self.__get_files(Project.INSTRUMENT_RESPONSES)
     
-    def __get_files(self, _type):
+    def __get_files(self, _type, full_path = True):
         if not _type in self.data:
             self.data[_type] = []
-        return [(f[0], self.file_path(_type, name=f[1])) for f in self.data[_type] if os.path.isfile(self.file_path(_type, name=f[1]))]
+        return [(f[0], self.file_path(_type, name=f[1]) if full_path else f[1]) for f in self.data[_type] if os.path.isfile(self.file_path(_type, name=f[1]))]
     
     def rotation_degrees(self):
         return self.__avg_from_files(FitsSpectrum.ROTATION, self.get_raw_profiles())
@@ -127,7 +127,7 @@ class Project(QObject):
     
     def add_file(self, _type, on_added, object_properties = None, name = None, bare_name = None):
         file_path = self.file_path(_type, name=name, bare_name = bare_name, object_properties = object_properties)
-        files = [f for f in self.__get_files(_type) if f[1] != file_path]
+        files = [f for f in self.__get_files(_type, full_path = False) if f[1] != file_path]
         files.append((QDateTime.currentDateTime(), os.path.basename(file_path)))
         
         self.data[_type] = sorted(files, key=lambda o: o[0], reverse=True)
