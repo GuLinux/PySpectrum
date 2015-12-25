@@ -18,6 +18,7 @@ class MoveableLabel(Text):
         self.on_dblclick = on_dblclick
                 
     def position(self):
+        #print(self.get_position())
         return self.get_position()
         #return self.get_unitless_position()
     

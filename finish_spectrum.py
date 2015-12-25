@@ -82,7 +82,7 @@ class FinishSpectrum(QWidget):
             self.toolbar.addAction(QIcon(':/save_20'), 'Save', self.save_finished_in_project)
         else:
             self.toolbar.addAction(QIcon(':/image_20'), "Export Image...", lambda: save_file_sticky('Export plot to image', 'PNG (*.png);;PDF (*.pdf);;PostScript (*.ps);;SVG (*.svg)', lambda f: self.save_image(f[0]), self.settings, EXPORT_IMAGES, [CALIBRATED_PROFILE]))
-            self.toolbar.addAction(QIcon(':/save_20'), 'Save', lambda: save_file_sticky('Save plot...', 'FITS file (.fit)', self.save, self.settings, CALIBRATED_PROFILE))
+            self.toolbar.addAction(QIcon(':/save_20'), 'Save', lambda: save_file_sticky('Save plot...', 'FITS file (.fit)', lambda f: self.__save(f[0]), self.settings, CALIBRATED_PROFILE))
             
         self.lines_dialog = LinesDialog(database, settings, self.spectrum_plot, self.profile_plot.axes)
         self.lines_dialog.lines.connect(self.add_lines)
@@ -161,9 +161,6 @@ class FinishSpectrum(QWidget):
 
     def save_finished_in_project(self):
         self.project.add_file(Project.FINISHED_PROFILES, self.__save, self.object_properties)
-        
-    def save(self, filename):
-        filename = filename[0]
         
     def __save(self, filename):
         self.fits_spectrum.save(filename, spectral_lines = self.lines, labels = self.labels)
