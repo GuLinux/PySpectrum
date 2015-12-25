@@ -78,7 +78,8 @@ class QMathPlotWidgetBase(FigureCanvas):
         self.add_element(RectangleSelector(axes, lambda eclick, erelease: self.__on_selected(name, callback, eclick, erelease), **kwargs), name)
         
     def __on_selected(self, name, callback, *args):
-        self.elements[name].set_active(False)
+        self.element[name].active = False
+        # self.elements[name].set_active(False)
         self.rm_element(name)
         callback(*args)
 
