@@ -40,6 +40,8 @@ class FinishSpectrum(QWidget):
         self.fits_spectrum.spectrum.normalize_to_max()
         self.spectrum = self.fits_spectrum.spectrum
         self.spectrum_plot = QtCommons.nestWidget(self.ui.plot, QMathPlotWidget())
+        self.spectrum_plot.mouse_moved.connect(Instances.MainWindow.print_coordinates)
+
         self.split_view()
         self.toolbar = QToolBar('Finish Spectrum Toolbar')
         if project:

@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import SpanSelector, RectangleSelector
 
 from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtCore import Qt, pyqtSignal
+
 class QMathPlotWidgetBase(FigureCanvas):
     def __init__(self, parent=None):
         fig = Figure()
@@ -84,11 +86,18 @@ class QMathPlotWidgetBase(FigureCanvas):
         callback(*args)
 
 class QMathPlotWidget(QMathPlotWidgetBase):
+    mouse_moved = pyqtSignal(float, float)
+
     def __init__(self, **kwargs):
         QMathPlotWidgetBase.__init__(self, **kwargs)
+        self.figure.canvas.mpl_connect('motion_notify_event', self.__on_mouse_moved)
 
     def __init_axes__(self, figure):
         return figure.add_subplot(111)
+
+    def __on_mouse_moved(self, m):
+        if m.xdata and m.ydata:
+            self.mouse_moved.emit(m.xdata, m.ydata)
 
 class QImPlotWidget(QMathPlotWidgetBase):
     def __init__(self, imdata, parent=None, **kwargs):

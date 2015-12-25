@@ -21,7 +21,6 @@ from project_widget import ProjectWidget
 from project import Project
 
 class PySpectrumMainWindow(QMainWindow):
-    instance = None
     def __init__(self):
         Instances.MainWindow = self
         font = QApplication.instance().font()
@@ -136,4 +135,6 @@ class PySpectrumMainWindow(QMainWindow):
         project_widget.finish.connect(lambda file: self.finish_spectrum(file, project=project))
         self.__add_widget(project_widget, project.get_name())
         
+    def print_coordinates(self,x, y):
+        self.ui.statusbar.showMessage('Point: x={:.2f}, y={:.2f}'.format(x, y))
         
