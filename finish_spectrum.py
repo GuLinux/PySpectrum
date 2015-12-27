@@ -46,7 +46,9 @@ class FinishSpectrum(QWidget):
         self.toolbar = QToolBar('Finish Spectrum Toolbar')
         if project:
             instrument_response_action = QtCommons.addToolbarPopup(self.toolbar, "Instrument Response")
+            instrument_response_action.menu().addAction('From FITS file...', lambda: open_file_sticky('Open Instrument Response Profile', FITS_EXTS, lambda f: self.instrument_response(f[0]), settings, MATH_OPERATION, [RAW_PROFILE]))
             for instrument_response in project.get_instrument_responses():
+                print("Adding instrument response {}".format(instrument_response))
                 instrument_response_action.menu().addAction(os.path.basename(instrument_response[1]), lambda: self.instrument_response(instrument_response[1]))
         else:
             self.toolbar.addAction('Instrument Response', lambda: open_file_sticky('Open Instrument Response Profile', FITS_EXTS, lambda f: self.instrument_response(f[0]), settings, MATH_OPERATION, [RAW_PROFILE]))
@@ -142,6 +144,7 @@ class FinishSpectrum(QWidget):
         self.gs.tight_layout(self.spectrum_plot.figure)
         
     def instrument_response(self, filename):
+        print("Applying instrument response {}".format(filename))
         instrument_response_file = fits.open(filename)
         instrument_response = FitsSpectrum(instrument_response_file)
         response = instrument_response.spectrum

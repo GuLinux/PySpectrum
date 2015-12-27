@@ -38,7 +38,7 @@ class PlotsMath(QWidget):
             open_file_action.triggered.connect(lambda: QtCommons.open_file('Open FITS Spectrum',FITS_EXTS, lambda f: self.open_fits(f[0]), project.path))
         else:
             open_file_action.triggered.connect(lambda: open_file_sticky('Open FITS Spectrum',FITS_EXTS, lambda f: self.open_fits(f[0]), self.settings, CALIBRATED_PROFILE, [RAW_PROFILE]))
-            self.toolbar.addAction(QIcon(':/save_20'), 'Save', lambda: save_file_sticky('Save Operation Result...', 'FITS file (.fit)', lambda f: self.savef([0]), self.settings, MATH_OPERATION, [CALIBRATED_PROFILE]))
+            self.toolbar.addAction(QIcon(':/save_20'), 'Save', lambda: save_file_sticky('Save Operation Result...', 'FITS file (.fit)', lambda f: self.save(f[0]), self.settings, MATH_OPERATION, [CALIBRATED_PROFILE]))
             
         self.toolbar.addAction('Set operand', self.set_operand)
         self.toolbar.addSeparator()
