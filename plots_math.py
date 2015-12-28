@@ -135,7 +135,7 @@ class PlotsMath(QWidget):
         
     def execute_operation(self):
         max_wavelengths = lambda operands: np.arange(max([o[0].wavelengths[0] for o in operands]), min([o[0].wavelengths[-1] for o in operands]))
-        datasets = lambda operands, wavelengths: [np.fromfunction(lambda x: o[1](x+wavelengths[0]), wavelengths.shape) for o in operands]
+        datasets = lambda operands, wavelengths: [PlotsMath.__data(o[1], wavelengths) for o in operands]
         operands = [(self.operands_model.item(a).data(PlotsMath.FITS_SPECTRUM), self.operands_model.item(a).data(PlotsMath.F_X)) for a in np.arange(self.operands_model.rowCount())]
         
         
@@ -170,7 +170,8 @@ class PlotsMath(QWidget):
             self.project.add_file(Project.INSTRUMENT_RESPONSES, lambda f: self.save(f), bare_name=name[0])
 
     def save(self, filename):
-        hdu = fits.PrimaryHDU(self.spectrum.fluxes)
+        #hdu = fits.PrimaryHDU( PlotsMath.__data(self.f_x, self.spectrum.fluxes))
+        hdu = fits.PrimaryHDU( self.spectrum.fluxes)
         fits_file = fits.HDUList([hdu])
         hdu.header['CRPIX1'] = 1
         hdu.header['CRVAL1'] = self.spectrum.wavelengths[0]
@@ -179,3 +180,6 @@ class PlotsMath(QWidget):
 
     def reset_zoom(self):
         self.plot.reset_zoom(self.spectrum.wavelengths, self.spectrum.fluxes.min(), self.spectrum.fluxes.max())
+
+    def __data(f_x, range):
+        return np.fromfunction(lambda x: f_x(x+range[0]), range.shape)
