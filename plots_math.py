@@ -170,8 +170,8 @@ class PlotsMath(QWidget):
             self.project.add_file(Project.INSTRUMENT_RESPONSES, lambda f: self.save(f), bare_name=name[0])
 
     def save(self, filename):
-        #hdu = fits.PrimaryHDU( PlotsMath.__data(self.f_x, self.spectrum.fluxes))
-        hdu = fits.PrimaryHDU( self.spectrum.fluxes)
+        hdu = fits.PrimaryHDU( PlotsMath.__data(self.f_x, self.spectrum.wavelengths))
+        #hdu = fits.PrimaryHDU( self.spectrum.fluxes)
         fits_file = fits.HDUList([hdu])
         hdu.header['CRPIX1'] = 1
         hdu.header['CRVAL1'] = self.spectrum.wavelengths[0]
@@ -181,5 +181,5 @@ class PlotsMath(QWidget):
     def reset_zoom(self):
         self.plot.reset_zoom(self.spectrum.wavelengths, self.spectrum.fluxes.min(), self.spectrum.fluxes.max())
 
-    def __data(f_x, range):
-        return np.fromfunction(lambda x: f_x(x+range[0]), range.shape)
+    def __data(f_x, xrange):
+        return np.fromfunction(lambda x: f_x(x+xrange[0]), xrange.shape)
