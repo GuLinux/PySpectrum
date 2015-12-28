@@ -12,6 +12,7 @@ from collections import deque
 from pyspectrum_commons import *
 from reference_spectra_dialog import ReferenceSpectraDialog
 from project import Project
+from undo import Undo
 
 class PlotsMath(QWidget):
     
@@ -51,8 +52,8 @@ class PlotsMath(QWidget):
         self.ui.operands_listview.setModel(self.operands_model)
         remove_btn = QtCommons.addToolbarPopup(self.toolbar, text='Remove...')
         remove_btn.menu().addAction(self.ui.actionSelectPointsToRemove)
-        remove_btn.menu().addAction("Before point", lambda: spectrum_trim_dialog(self.spectrum, 'before', self.plot.axes, lambda: self.draw(), self))
-        remove_btn.menu().addAction("After point", lambda: spectrum_trim_dialog(self.spectrum, 'after', self.plot.axes, lambda: self.draw(), self))
+        remove_btn.menu().addAction("Before point", lambda: spectrum_trim_dialog(self.spectrum, 'before', self.plot.axes, lambda: self.draw(), self, before_removal=self.undo.save_undo))
+        remove_btn.menu().addAction("After point", lambda: spectrum_trim_dialog(self.spectrum, 'after', self.plot.axes, lambda: self.draw(), self, before_removal=self.undo.save_undo))
         self.ui.clear_operands.clicked.connect(self.operands_model.clear)
         self.ui.remove_operand.clicked.connect(lambda: self.operands_model.removeRows(self.ui.operands_listview.selectionModel().selectedRows()[0].row(), 1))
             
@@ -60,32 +61,21 @@ class PlotsMath(QWidget):
         self.operands_model.rowsRemoved.connect(lambda: self.ui.clear_operands.setEnabled(self.operands_model.rowCount() > 0) )
         self.ui.operands_listview.selectionModel().selectionChanged.connect(lambda s, u: self.ui.remove_operand.setEnabled(len(s)))
         self.ui.actionSelectPointsToRemove.triggered.connect(self.pick_rm_points)
-        self.toolbar.addAction(self.ui.actionUndo)
-        self.ui.actionUndo.triggered.connect(self.undo)
-        self.ui.actionUndo.setEnabled(False)
+        self.undo = Undo(None, self.draw)
+        self.undo.add_actions(self.toolbar)
         self.ui.spline_factor.valueChanged.connect(self.factor_valueChanged)
         self.ui.spline_degrees.valueChanged.connect(lambda v: self.draw())
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.draw())
         self.ui.spline_factor_auto.toggled.connect(lambda v: self.ui.spline_factor.setEnabled(not v))
         self.ui.execute.clicked.connect(self.execute_operation)
         self.plot.figure.tight_layout()
-        self.undo_buffer = deque(maxlen=20)
         
-    def undo(self):
-        undo = self.undo_buffer.pop()
-        self.spectrum.wavelengths = undo[0]
-        self.spectrum.fluxes = undo[1]
-        self.draw()
-        self.ui.actionUndo.setEnabled(len(self.undo_buffer)>0)
-        
-    def store_undo(self):
-        self.undo_buffer.append((np.copy(self.spectrum.wavelengths), np.copy(self.spectrum.fluxes)))
-        self.ui.actionUndo.setEnabled(True)
 
     def open_fits(self, filename):
         fits_file = fits.open(filename)
         self.fits_spectrum = FitsSpectrum(fits_file)
         self.spectrum = self.fits_spectrum.spectrum
+        self.undo.set_spectrum(self.spectrum)
         self.spectrum.normalize_to_max()
         if self.spectrum.dispersion() <0.4:
             print("dispersion too high ({}), reducing spectrum resolution".format(self.spectrum.dispersion()))
@@ -115,7 +105,7 @@ class PlotsMath(QWidget):
         self.plot.figure.canvas.draw()
         
     def rm_points(self, wmin, wmax):
-        self.store_undo()
+        self.undo.save_undo()
         x_min = self.spectrum.wavelength_index(max(self.spectrum.wavelengths[0], wmin))
         x_max = self.spectrum.wavelength_index(min(self.spectrum.wavelengths[-1], wmax))
         m=(self.spectrum.fluxes[x_max]-self.spectrum.fluxes[x_min])/(x_max-x_min)
@@ -129,7 +119,7 @@ class PlotsMath(QWidget):
         point = QInputDialog.getInt(None, 'Trim curve', 'Enter wavelength for trimming', self.spectrum.wavelengths[0] if direction == 'before' else self.spectrum.wavelengths[-1], self.spectrum.wavelengths[0], self.spectrum.wavelengths[-1])
         if not point[1]:
             return
-        self.store_undo()
+        self.undo.save_undo()
         if direction == 'before':
             self.spectrum.cut(start=self.spectrum.wavelength_index(point[0]))
         else:
@@ -169,6 +159,7 @@ class PlotsMath(QWidget):
             self.spectrum = Spectrum(data, wavelengths)
             
             self.spectrum.normalize_to_max()
+            self.undo.set_spectrum(self.spectrum)
             self.draw()
         except IndexError:
             QMessageBox.warning(None, "Error", "Datasets are not compatible. Maybe you need to calibrate better, or use a different reference file")

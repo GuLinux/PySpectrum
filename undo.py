@@ -50,3 +50,7 @@ class Undo(QObject):
         
     def __current_data(self):
         return self.spectrum.wavelengths, self.spectrum.fluxes
+    
+    def add_actions(self, container):
+        container.addAction(self.undo_action)
+        container.addAction(self.redo_action)

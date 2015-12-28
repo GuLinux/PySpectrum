@@ -59,8 +59,7 @@ class FinishSpectrum(QWidget):
         remove_action = QtCommons.addToolbarPopup(self.toolbar, "Remove")
         remove_action.menu().addAction("Before point", lambda: spectrum_trim_dialog(self.spectrum, 'before', self.profile_plot.axes, lambda: self.draw(), self, before_removal=self.undo.save_undo))
         remove_action.menu().addAction("After point", lambda: spectrum_trim_dialog(self.spectrum, 'after', self.profile_plot.axes, lambda: self.draw(), self, before_removal=self.undo.save_undo))
-        self.toolbar.addAction(self.undo.undo_action)
-        self.toolbar.addAction(self.undo.redo_action)
+        self.undo.add_actions(self.toolbar)
         self.toolbar.addSeparator()
         
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
