@@ -160,6 +160,9 @@ class PlotsMath(QWidget):
             
             self.spectrum.normalize_to_max()
             self.undo.set_spectrum(self.spectrum)
+            self.ui.spline_degrees.setValue(5)
+            self.ui.spline_factor.setValue(0)
+            self.ui.spline_factor_auto.setChecked(False)
             self.draw()
         except IndexError:
             QMessageBox.warning(None, "Error", "Datasets are not compatible. Maybe you need to calibrate better, or use a different reference file")
