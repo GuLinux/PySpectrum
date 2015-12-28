@@ -48,8 +48,8 @@ class LastFilesList(QObject):
     def instance():
         return LastFilesList.__instance
 
-def spectrum_trim_dialog(spectrum, direction, axes, redraw, parent):
-    dialog = SpectrumTrimDialog(spectrum, direction, axes, redraw, parent)
+def spectrum_trim_dialog(spectrum, direction, axes, redraw, parent, before_removal=None):
+    dialog = SpectrumTrimDialog(spectrum, direction, axes, redraw, parent, before_removal=before_removal)
     dialog.setAttribute( Qt.WA_DeleteOnClose , False)
     dialog.show()
 

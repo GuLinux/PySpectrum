@@ -21,6 +21,7 @@ from moveable_label import MoveableLabel
 from lambda2color import *
 from concurrent.futures import ThreadPoolExecutor
 from project import Project
+from undo import Undo
 
 class FinishSpectrum(QWidget):
     def __init__(self, fits_file, settings, database, project=None):
@@ -31,6 +32,7 @@ class FinishSpectrum(QWidget):
         self.profile_line = None
         self.project = project
         self.fits_spectrum = FitsSpectrum(fits_file)
+        self.undo = Undo(self.fits_spectrum.spectrum, self.draw)
         try:
             fits_file.index_of('ORIGINAL_DATA')
         except KeyError:
@@ -55,8 +57,10 @@ class FinishSpectrum(QWidget):
         self.toolbar.addAction("Zoom", lambda: self.spectrum_plot.select_zoom(self.profile_plot.axes))
         self.toolbar.addAction("Reset Zoom", lambda: self.spectrum_plot.reset_zoom(self.spectrum.wavelengths, self.spectrum.fluxes.min(), self.spectrum.fluxes.max(), self.profile_plot.axes))
         remove_action = QtCommons.addToolbarPopup(self.toolbar, "Remove")
-        remove_action.menu().addAction("Before point", lambda: spectrum_trim_dialog(self.spectrum, 'before', self.profile_plot.axes, lambda: self.draw(), self))
-        remove_action.menu().addAction("After point", lambda: spectrum_trim_dialog(self.spectrum, 'after', self.profile_plot.axes, lambda: self.draw(), self))
+        remove_action.menu().addAction("Before point", lambda: spectrum_trim_dialog(self.spectrum, 'before', self.profile_plot.axes, lambda: self.draw(), self, before_removal=self.undo.save_undo))
+        remove_action.menu().addAction("After point", lambda: spectrum_trim_dialog(self.spectrum, 'after', self.profile_plot.axes, lambda: self.draw(), self, before_removal=self.undo.save_undo))
+        self.toolbar.addAction(self.undo.undo_action)
+        self.toolbar.addAction(self.undo.redo_action)
         self.toolbar.addSeparator()
         
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)

@@ -12,10 +12,12 @@
         <file>plot_20.png</file>
         <file>project_20.png</file>
         <file>project_new_20.png</file>
+        <file>redo_20.png</file>
         <file>remove_16.png</file>
         <file>rotate_20.png</file>
         <file>save_20.png</file>
         <file>select_all_20.png</file>
         <file>stack_20.png</file>
+        <file>undo_20.png</file>
     </qresource>
 </RCC>
