@@ -64,7 +64,8 @@ class FinishSpectrum(QWidget):
         
         self.reference_spectra_dialog = ReferenceSpectraDialog(database)
         self.reference_spectra_dialog.setup_menu(self.toolbar, self.profile_plot.axes, settings)
-        
+
+
         lines_menu = QtCommons.addToolbarPopup(self.toolbar, "Spectral Lines..")
         lines_menu.menu().addAction('Lines Database', lambda: self.lines_dialog.show())
         lines_menu.menu().addAction('Custom line', self.add_custom_line)

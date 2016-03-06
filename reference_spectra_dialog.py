@@ -9,6 +9,7 @@ from pyspectrum_commons import *
 from fits_spectrum import FitsSpectrum
 from astropy.io import fits
 from matplotlib.lines import Line2D
+import blackbody
 
 class ReferenceSpectraDialog(QDialog):
     
@@ -67,14 +68,22 @@ class ReferenceSpectraDialog(QDialog):
         self.close_action = reference_action.menu().addAction("Close", lambda: self.__close_reference(axes))
         self.close_action.setEnabled(False)
         self.fits_picked.connect(lambda f: self.__open_reference(f, axes))
+        self.blackbody_menu = blackbody.BlackBodyAction(lambda bb: self.blackbody(bb, axes), reference_action.menu())
+        return reference_action.menu()
+    
+    def blackbody(self, blackbody, axes):
+        self.__open(blackbody.spectrum(), axes)
 
     def __open_reference(self, file, axes):
-        self.__close_reference(axes)
         fits_spectrum = FitsSpectrum(fits.open(file))
-        if fits_spectrum.spectrum.dispersion() < 0.4:
-            fits_spectrum.spectrum.resample(fits_spectrum.spectrum.dispersion() /0.4)
-        fits_spectrum.spectrum.normalize_to_max()
-        self.current_line = Line2D(fits_spectrum.spectrum.wavelengths, fits_spectrum.spectrum.fluxes, color='gray')
+        self.__open(fits_spectrum.spectrum, axes)
+        
+    def __open(self, spectrum, axes):
+        self.__close_reference(axes)
+        if spectrum.dispersion() < 0.4 and spectrum.dispersion() > 0:
+            spectrum.resample(spectrum.dispersion() /0.4)
+        spectrum.normalize_to_max()
+        self.current_line = Line2D(spectrum.wavelengths, spectrum.fluxes, color='gray')
         axes.add_line(self.current_line)
         axes.figure.canvas.draw()
         self.close_action.setEnabled(True)

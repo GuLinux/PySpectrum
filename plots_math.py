@@ -74,10 +74,7 @@ class PlotsMath(QWidget):
         self.plot.figure.tight_layout()
         
     def blackbody(self, blackbody):
-        wavelengths, fluxes= blackbody.fluxes()
-        wavelengths = np.array([n.value for n in wavelengths])
-        fluxes = np.array([n.value for n in fluxes])
-        self.spectrum = Spectrum(fluxes, wavelengths)
+        self.spectrum = blackbody.spectrum()
         self.spectrum_name = "Blackbody radiation for {0}".format(blackbody.kelvin)
         self.undo.set_spectrum(self.spectrum)
         self.spectrum.normalize_to_max()

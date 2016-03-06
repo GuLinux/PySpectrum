@@ -7,6 +7,7 @@ import numpy as np
 from astropy import units as u
 from astropy.analytic_functions import blackbody_lambda, blackbody_nu
 from astropy import constants as const
+from fits_spectrum import *
 
 class BlackBody:
     def __init__(self, kelvin):
@@ -23,6 +24,11 @@ class BlackBody:
             flux = blackbody_lambda(waveset, self.kelvin)
         return waveset, flux
         
+    def spectrum(self, start=0, wavemax=-1):
+        wavelengths, fluxes= self.fluxes(start, wavemax)
+        wavelengths = np.array([n.value for n in wavelengths])
+        fluxes = np.array([n.value for n in fluxes])
+        return Spectrum(fluxes, wavelengths)
 
 class BlackBodyAction(QObject):
     def __init__(self, on_triggered, container):
