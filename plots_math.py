@@ -13,6 +13,7 @@ from pyspectrum_commons import *
 from reference_spectra_dialog import ReferenceSpectraDialog
 from project import Project
 from undo import Undo
+import blackbody
 
 class PlotsMath(QWidget):
     
@@ -32,6 +33,8 @@ class PlotsMath(QWidget):
         open_btn = QtCommons.addToolbarPopup(self.toolbar, text="Open...", icon_file=':/new_open_20')
         open_file_action = open_btn.menu().addAction('FITS file')
         open_btn.menu().addAction('Reference library', self.reference_dialog.show)
+        self.blackbody_menu = blackbody.BlackBodyAction(self.blackbody, open_btn.menu())
+        
         if project:
             save_result = QtCommons.addToolbarPopup(self.toolbar, text='Save', icon_file=':/save_20')
             save_result.menu().addAction('As File', lambda: QtCommons.save_file('Save Operation Result...', FITS_EXTS, lambda f: self.save(f[0]), project.path))
@@ -70,11 +73,22 @@ class PlotsMath(QWidget):
         self.ui.execute.clicked.connect(self.execute_operation)
         self.plot.figure.tight_layout()
         
+    def blackbody(self, blackbody):
+        wavelengths, fluxes= blackbody.fluxes()
+        wavelengths = np.array([n.value for n in wavelengths])
+        fluxes = np.array([n.value for n in fluxes])
+        self.spectrum = Spectrum(fluxes, wavelengths)
+        self.spectrum_name = "Blackbody radiation for {0}".format(blackbody.kelvin)
+        self.undo.set_spectrum(self.spectrum)
+        self.spectrum.normalize_to_max()
+        self.draw()
+        
 
     def open_fits(self, filename):
         fits_file = fits.open(filename)
-        self.fits_spectrum = FitsSpectrum(fits_file)
-        self.spectrum = self.fits_spectrum.spectrum
+        fits_spectrum = FitsSpectrum(fits_file)
+        self.spectrum_name = fits_spectrum.name()
+        self.spectrum = fits_spectrum.spectrum
         self.undo.set_spectrum(self.spectrum)
         self.spectrum.normalize_to_max()
         if self.spectrum.dispersion() <0.4:
@@ -128,7 +142,7 @@ class PlotsMath(QWidget):
         self.draw()
     
     def set_operand(self):
-        item = QStandardItem(self.fits_spectrum.name())
+        item = QStandardItem(self.spectrum_name)
         item.setData(self.f_x, PlotsMath.F_X)
         item.setData(self.spectrum, PlotsMath.FITS_SPECTRUM)
         self.operands_model.appendRow(item)
