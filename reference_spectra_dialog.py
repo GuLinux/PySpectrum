@@ -15,8 +15,9 @@ class ReferenceSpectraDialog(QDialog):
     
     fits_picked = pyqtSignal(str)
     
-    def __init__(self, database):
+    def __init__(self, database, main_spectrum = None):
         super(ReferenceSpectraDialog, self).__init__()
+        self.main_spectrum = main_spectrum
         self.ui = Ui_ReferenceSpectraDialog()
         self.ui.setupUi(self)
         self.reference_catalogues = ReferenceCatalogues(database)
@@ -39,6 +40,9 @@ class ReferenceSpectraDialog(QDialog):
         self.ui.entries.selectionModel().selectionChanged.connect(lambda selected, deselected: self.ui.buttonBox.button(QDialogButtonBox.Open).setEnabled(len(selected.indexes()) > 0)  )
         self.accepted.connect(self.load_fits)
         self.populate()
+            
+    def set_main_spectrum(self, spectrum):
+        self.main_spectrum = spectrum
             
     def populate(self):
         self.full_model.clear()
@@ -82,6 +86,10 @@ class ReferenceSpectraDialog(QDialog):
         self.__close_reference(axes)
         if spectrum.dispersion() < 0.4 and spectrum.dispersion() > 0:
             spectrum.resample(spectrum.dispersion() /0.4)
+        if(self.main_spectrum):
+            print("Cutting spectrum: {0}, {1}".format(self.main_spectrum.wavelengths[0], self.main_spectrum.wavelengths[-1]))
+            spectrum.cut_lambda(self.main_spectrum.wavelengths[0], self.main_spectrum.wavelengths[-1])
+            
         spectrum.normalize_to_max()
         self.current_line = Line2D(spectrum.wavelengths, spectrum.fluxes, color='gray')
         axes.add_line(self.current_line)

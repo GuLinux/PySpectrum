@@ -29,6 +29,12 @@ class Spectrum:
         self.wavelengths = self.wavelengths[start:end]
         self.fluxes = self.fluxes[start:end]
         
+    def cut_lambda(self, start, end):
+        indexes = [x for x in self.wavelengths if start <= x <= end]
+        if(len(indexes) == 0):
+            return
+        self.cut(self.wavelength_index(indexes[0]), self.wavelength_index(indexes[-1]))
+        
     def wavelength_index(self, wavelength):
         indexes = [i for i, j in enumerate(self.wavelengths) if j <= wavelength]
         return indexes[-1] if indexes else 0
