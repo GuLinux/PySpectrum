@@ -40,7 +40,7 @@ class ObjectProperties:
         self.name=header.get('OBJECT')
         self.names=header.get('NAMES')
         self.comment=header.get('NOTES')
-        self.date=QDateTime.fromString(header.get('DATE', self.__def_value('date',QDateTime.currentDateTime().toString(Qt.ISODate))), Qt.ISODate)
+        self.date=QDateTime.fromString(header.get('DATE', self.__def_value('date',QDateTime.currentDateTime()).toString(Qt.ISODate)), Qt.ISODate)
         #header.get('CTYPE2') TODO: get ra/dec from type
         ra=header.get('CRVAL2', 0)
         #header.get('CTYPE3')
