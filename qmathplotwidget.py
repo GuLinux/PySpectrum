@@ -13,7 +13,7 @@ class QMathPlotWidgetBase(FigureCanvas):
     def __init__(self, parent=None):
         fig = Figure()
         self.axes = self.__init_axes__(fig)
-        self.axes.hold(False)
+        self.axes.cla()
 
         FigureCanvas.__init__(self, fig)
         self.setParent(parent)
