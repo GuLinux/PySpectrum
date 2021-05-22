@@ -48,8 +48,8 @@ class ObjectPropertiesDialog(QDialog):
             QMessageBox.critical(self, 'Query Error', 'Error running Simbad query: {}'.format(e))
             return
         row = result[0] # todo: handle more than one results
-        main_id = row['MAIN_ID'].decode()
-        names = [(name[0].decode(), re.sub('\s{2,}', ' ', re.sub('^\*+', '', name[0].decode())).replace('NAME ', '').strip()) for name in Simbad.query_objectids(main_id)]
+        main_id = row['MAIN_ID']
+        names = [(name[0], re.sub('\s{2,}', ' ', re.sub('^\*+', '', name[0])).replace('NAME ', '').strip()) for name in Simbad.query_objectids(main_id)]
         names = [(n[0],n[1].title()) if n[0][0:4]=='NAME' else n for n in names]
         self.ui.name.clear()
         plain_names = [n[1] for n in names]
@@ -61,8 +61,8 @@ class ObjectPropertiesDialog(QDialog):
             self.ui.name.setCurrentText(searched_name[0])
         self.ui.ra.setText(row['RA'])
         self.ui.dec.setText(row['DEC'])
-        self.ui.sptype.setText(row['SP_TYPE'].decode())
-        self.ui.type.setText(row['OTYPE_V'].decode())
+        self.ui.sptype.setText(row['SP_TYPE'])
+        self.ui.type.setText(row['OTYPE_V'])
         
     def save_properties(self):
         self.settings.setValue('observer', self.ui.observer.text())
@@ -84,4 +84,3 @@ class ObjectPropertiesDialog(QDialog):
       if evt.key() == Qt.Key_Enter or evt.key() == Qt.Key_Return:
         return
         QDialog.keyPressEvent(self.evt)
-        
