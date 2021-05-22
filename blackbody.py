@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QObject
 from collections import deque
 import numpy as np
 from astropy import units as u
-from astropy.analytic_functions import blackbody_lambda, blackbody_nu
+from astropy.modeling.blackbody import blackbody_lambda, blackbody_nu
 from astropy import constants as const
 from fits_spectrum import *
 
