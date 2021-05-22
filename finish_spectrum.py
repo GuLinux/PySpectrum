@@ -133,7 +133,7 @@ class FinishSpectrum(QWidget):
             self.profile_line.remove()
         self.profile_line = self.profile_plot.plot(self.spectrum.wavelengths, self.spectrum.fluxes, color='blue')[0]
 
-        self.synthetize.axes.set_axis_bgcolor('black')
+        self.synthetize.axes.set_facecolor('black')
         
         with ThreadPoolExecutor(max_workers=1) as executor:
             future = executor.submit(FinishSpectrum.synthetize_img, self.spectrum.wavelengths, self.spectrum.fluxes)
