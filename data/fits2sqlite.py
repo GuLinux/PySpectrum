@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 from astropy.io import fits
 import sqlite3
 import sys
